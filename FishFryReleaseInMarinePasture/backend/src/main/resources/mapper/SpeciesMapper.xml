@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fishery.fryrelease.mapper.SpeciesMapper">
+
+    <select id="selectPage" resultType="com.fishery.fryrelease.entity.Species">
+        SELECT * FROM species
+        <where>
+            <if test="speciesName != null and speciesName != ''">
+                AND species_name LIKE CONCAT('%', #{speciesName}, '%')
+            </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>

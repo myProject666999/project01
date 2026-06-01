@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fishery.fryrelease.mapper.WaterQualityMapper">
+
+    <select id="selectQualityPage" resultType="com.fishery.fryrelease.entity.WaterQuality">
+        SELECT wq.*, sa.area_name
+        FROM water_quality wq
+        LEFT JOIN sea_area sa ON wq.area_id = sa.id
+        <where>
+            <if test="areaId != null">
+                AND wq.area_id = #{areaId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND wq.monitor_time &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND wq.monitor_time &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY wq.monitor_time DESC
+    </select>
+
+    <select id="selectTrend" resultType="java.util.Map">
+        SELECT DATE(monitor_time) AS monitor_date,
+               AVG(salinity) AS avg_salinity,
+               AVG(temperature) AS avg_temperature,
+               AVG(dissolved_oxygen) AS avg_dissolved_oxygen,
+               AVG(ph_value) AS avg_ph_value
+        FROM water_quality
+        <where>
+            <if test="areaId != null">
+                AND area_id = #{areaId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND monitor_time &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND monitor_time &lt;= #{endDate}
+            </if>
+        </where>
+        GROUP BY DATE(monitor_time)
+        ORDER BY monitor_date
+    </select>
+
+    <select id="selectWarnings" resultType="com.fishery.fryrelease.entity.WaterQuality">
+        SELECT wq.*, sa.area_name
+        FROM water_quality wq
+        LEFT JOIN sea_area sa ON wq.area_id = sa.id
+        WHERE wq.salinity NOT BETWEEN 25 AND 35
+           OR wq.temperature NOT BETWEEN 10 AND 30
+           OR wq.dissolved_oxygen &lt; 5
+        ORDER BY wq.monitor_time DESC
+    </select>
+
+</mapper>

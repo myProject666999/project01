@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fishery.fryrelease.mapper.SeaAreaMapper">
+
+    <select id="selectPage" resultType="com.fishery.fryrelease.entity.SeaArea">
+        SELECT * FROM sea_area
+        <where>
+            <if test="areaName != null and areaName != ''">
+                AND area_name LIKE CONCAT('%', #{areaName}, '%')
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: parent-teacher-online-discussion
+
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/ptod?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+jwt:
+  secret: your-256-bit-secret-key-here-must-be-at-least-32-characters-long
+  expiration: 86400000
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8081
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+  max-age: 3600
+
+logging:
+  level:
+    com.ptod: DEBUG
+    org.springframework.security: DEBUG

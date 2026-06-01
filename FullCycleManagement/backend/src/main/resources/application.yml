@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: case-management
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/lawfirm_case?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+logging:
+  level:
+    com.lawfirm.case_management: DEBUG
+    org.springframework.web: DEBUG
+
+file:
+  upload-path: ./uploads
+  template-path: ./templates

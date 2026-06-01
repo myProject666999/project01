@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fishery.fryrelease.mapper.RecaptureRecordMapper">
+
+    <select id="selectRecapturePage" resultType="com.fishery.fryrelease.entity.RecaptureRecord">
+        SELECT rc.*, sa.area_name, sp.species_name
+        FROM recapture_record rc
+        LEFT JOIN sea_area sa ON rc.area_id = sa.id
+        LEFT JOIN species sp ON rc.species_id = sp.id
+        <where>
+            <if test="areaId != null">
+                AND rc.area_id = #{areaId}
+            </if>
+            <if test="speciesId != null">
+                AND rc.species_id = #{speciesId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND rc.catch_date &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND rc.catch_date &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY rc.created_at DESC
+    </select>
+
+    <select id="selectReleaseQuantityBySpecies" resultType="java.util.Map">
+        SELECT rr.species_id, sp.species_name, SUM(rr.actual_quantity) AS release_quantity
+        FROM release_record rr
+        LEFT JOIN species sp ON rr.species_id = sp.id
+        <where>
+            <if test="year != null">
+                AND YEAR(rr.release_time) = #{year}
+            </if>
+            <if test="areaId != null">
+                AND rr.area_id = #{areaId}
+            </if>
+            <if test="speciesId != null">
+                AND rr.species_id = #{speciesId}
+            </if>
+        </where>
+        GROUP BY rr.species_id, sp.species_name
+    </select>
+
+    <select id="selectRecaptureTotalsBySpecies" resultType="java.util.Map">
+        SELECT rc.species_id, sp.species_name, SUM(rc.catch_weight) AS total_weight, SUM(rc.catch_count) AS total_count
+        FROM recapture_record rc
+        LEFT JOIN species sp ON rc.species_id = sp.id
+        <where>
+            <if test="year != null">
+                AND YEAR(rc.catch_date) = #{year}
+            </if>
+            <if test="areaId != null">
+                AND rc.area_id = #{areaId}
+            </if>
+            <if test="speciesId != null">
+                AND rc.species_id = #{speciesId}
+            </if>
+        </where>
+        GROUP BY rc.species_id, sp.species_name
+    </select>
+
+    <select id="selectMonthlyTrend" resultType="java.util.Map">
+        SELECT MONTH(catch_date) AS month, SUM(catch_weight) AS total_weight, SUM(catch_count) AS total_count
+        FROM recapture_record
+        <where>
+            <if test="year != null">
+                AND YEAR(catch_date) = #{year}
+            </if>
+        </where>
+        GROUP BY MONTH(catch_date)
+        ORDER BY month
+    </select>
+
+</mapper>

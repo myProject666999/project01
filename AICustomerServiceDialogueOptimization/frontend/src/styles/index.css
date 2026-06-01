@@ -1,0 +1,169 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #app {
+  height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.page-container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 4px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-form {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-container {
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  padding: 20px;
+  background: #f5f7fa;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.chat-message {
+  margin-bottom: 16px;
+  display: flex;
+}
+
+.chat-message.customer {
+  justify-content: flex-start;
+}
+
+.chat-message.cs {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  word-break: break-word;
+}
+
+.chat-message.customer .message-bubble {
+  background: #fff;
+  border: 1px solid #e4e7ed;
+}
+
+.chat-message.cs .message-bubble {
+  background: #409EFF;
+  color: #fff;
+}
+
+.message-time {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.violation-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.violation-tag.level-1 {
+  background: #fdf6ec;
+  color: #e6a23c;
+}
+
+.violation-tag.level-2 {
+  background: #fef0f0;
+  color: #f56c6c;
+}
+
+.violation-tag.level-3 {
+  background: #fef0f0;
+  color: #f56c6c;
+  font-weight: bold;
+}
+
+.score-card {
+  padding: 20px;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.score-card.green {
+  background: linear-gradient(135deg, #67c23a, #85ce61);
+}
+
+.score-card.blue {
+  background: linear-gradient(135deg, #409eff, #66b1ff);
+}
+
+.score-card.orange {
+  background: linear-gradient(135deg, #e6a23c, #f0c78a);
+}
+
+.score-card.red {
+  background: linear-gradient(135deg, #f56c6c, #f78989);
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.ranking-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 16px;
+}
+
+.ranking-number.top-1 {
+  background: linear-gradient(135deg, #ffd700, #ffec8b);
+  color: #b8860b;
+}
+
+.ranking-number.top-2 {
+  background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+  color: #696969;
+}
+
+.ranking-number.top-3 {
+  background: linear-gradient(135deg, #cd7f32, #daa520);
+  color: #8b4513;
+}
+
+.ranking-number.normal {
+  background: #f0f2f5;
+  color: #606266;
+}
