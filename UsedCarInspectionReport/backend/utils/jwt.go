@@ -8,17 +8,19 @@ import (
 )
 
 type UserClaims struct {
-	UserID uint   `json:"user_id"`
-	Role   string `json:"role"`
+	UserID   uint64 `json:"user_id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
 	jwt.RegisteredClaims
 }
 
 var jwtSecret = []byte("used-car-inspection-report-secret-key-2024")
 
-func GenerateToken(userID uint, role string) (string, error) {
+func GenerateToken(userID uint64, username, role string) (string, error) {
 	claims := UserClaims{
-		UserID: userID,
-		Role:   role,
+		UserID:   userID,
+		Username: username,
+		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

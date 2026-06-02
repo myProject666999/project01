@@ -69,17 +69,20 @@ func UploadImage(file *multipart.FileHeader, vin string) (string, error) {
 		return "", fmt.Errorf("保存文件失败: %v", err)
 	}
 
-	err = AddWatermark(tempPath, filePath, vin, ext)
-	os.Remove(tempPath)
+	err = os.Rename(tempPath, filePath)
 	if err != nil {
-		return "", fmt.Errorf("添加水印失败: %v", err)
+		os.Remove(tempPath)
+		return "", fmt.Errorf("重命名文件失败: %v", err)
 	}
+	AddWatermark(filePath, vin)
 
 	return filePath, nil
 }
 
-func AddWatermark(srcPath, dstPath, vin, ext string) error {
-	srcFile, err := os.Open(srcPath)
+func AddWatermark(filePath, vin string) error {
+	ext := strings.ToLower(filepath.Ext(filePath))
+	
+	srcFile, err := os.Open(filePath)
 	if err != nil {
 		return err
 	}
@@ -104,22 +107,12 @@ func AddWatermark(srcPath, dstPath, vin, ext string) error {
 
 	fontBytes, err := loadFont()
 	if err != nil {
-		dstFile, err := os.Create(dstPath)
-		if err != nil {
-			return err
-		}
-		defer dstFile.Close()
-		return encodeImage(dstFile, rgba, ext)
+		return nil
 	}
 
 	f, err := freetype.ParseFont(fontBytes)
 	if err != nil {
-		dstFile, err := os.Create(dstPath)
-		if err != nil {
-			return err
-		}
-		defer dstFile.Close()
-		return encodeImage(dstFile, rgba, ext)
+		return nil
 	}
 
 	fontSize := float64(bounds.Dx()) / 30
@@ -147,7 +140,7 @@ func AddWatermark(srcPath, dstPath, vin, ext string) error {
 
 	d.DrawString(watermarkText)
 
-	dstFile, err := os.Create(dstPath)
+	dstFile, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}

@@ -23,7 +23,7 @@ function TeacherSlots() {
   const fetchSlots = async () => {
     try {
       const response = await timeSlotAPI.getMySlots();
-      if (response.code === 200) {
+      if (response.success) {
         setSlots(response.data);
       }
     } catch (error) {
@@ -38,14 +38,14 @@ function TeacherSlots() {
     try {
       if (editingSlot) {
         const response = await timeSlotAPI.updateSlot(editingSlot.id, formData);
-        if (response.code === 200) {
+        if (response.success) {
           setSlots((prev) =>
             prev.map((s) => (s.id === editingSlot.id ? response.data : s))
           );
         }
       } else {
         const response = await timeSlotAPI.createSlot(formData);
-        if (response.code === 200) {
+        if (response.success) {
           setSlots((prev) => [...prev, response.data]);
         }
       }
@@ -59,7 +59,7 @@ function TeacherSlots() {
     if (!confirm('确定要删除这个时段吗？')) return;
     try {
       const response = await timeSlotAPI.deleteSlot(id);
-      if (response.code === 200) {
+      if (response.success) {
         setSlots((prev) => prev.filter((s) => s.id !== id));
       }
     } catch (error: any) {

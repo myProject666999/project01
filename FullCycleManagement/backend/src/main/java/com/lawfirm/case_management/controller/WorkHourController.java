@@ -4,9 +4,12 @@ import com.lawfirm.case_management.entity.WorkHour;
 import com.lawfirm.case_management.service.WorkHourService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -71,5 +74,23 @@ public class WorkHourController {
             @RequestParam Integer year,
             @RequestParam Integer month) {
         return ResponseEntity.ok(workHourService.generateAllLawyersMonthlyBill(year, month));
+    }
+
+    @GetMapping("/monthly-bill/export/{lawyerId}")
+    public ResponseEntity<byte[]> exportMonthlyBill(
+            @PathVariable Long lawyerId,
+            @RequestParam Integer year,
+            @RequestParam Integer month) {
+        try {
+            byte[] content = workHourService.exportMonthlyBillToExcel(lawyerId, year, month);
+            String fileName = URLEncoder.encode(year + "年" + month + "月工时账单.xlsx", "UTF-8");
+
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + fileName)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(content);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

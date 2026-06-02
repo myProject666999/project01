@@ -6,8 +6,8 @@ import {
   CalendarOutlined,
   UserOutlined,
   ThunderboltOutlined,
-  ShipOutlined,
-  RocketOutlined,
+  CrownOutlined,
+  CarOutlined,
   FileTextOutlined,
   PartitionOutlined,
   CheckCircleOutlined,
@@ -47,12 +47,12 @@ const MainLayout = () => {
     },
     {
       key: '/vessel',
-      icon: <ShipOutlined />,
+      icon: <CrownOutlined />,
       label: '船舶管理'
     },
     {
       key: '/tug',
-      icon: <RocketOutlined />,
+      icon: <CarOutlined />,
       label: '拖轮管理'
     },
     {
@@ -157,7 +157,7 @@ const MainLayout = () => {
             </Dropdown>
           </div>
         </Header>
-        <Content style={{ margin: '24px', padding: 24, background: '#fff', borderRadius: 8, minHeight: 'calc(100vh - 112px)' }}>
+        <Content style={{ margin: '16px', minHeight: 'calc(100vh - 112px)', background: '#f0f2f5' }}>
           <Outlet />
         </Content>
       </Layout>

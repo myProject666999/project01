@@ -12,15 +12,16 @@
     "lint:fix": "eslint . --ext .ts,.vue --fix"
   },
   "dependencies": {
-    "clsx": "^2.1.1",
-    "element-plus": "^2.9.1",
+    "@element-plus/icons-vue": "^2.3.2",
     "axios": "^1.7.9",
+    "clsx": "^2.1.1",
     "echarts": "^5.5.1",
-    "vue-echarts": "^7.0.3",
+    "element-plus": "^2.9.1",
     "lucide-vue-next": "^0.511.0",
     "pinia": "^2.2.6",
     "tailwind-merge": "^3.3.0",
     "vue": "^3.4.15",
+    "vue-echarts": "^7.0.3",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {

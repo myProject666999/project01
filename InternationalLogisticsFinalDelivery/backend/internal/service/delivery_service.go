@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"logistics-final-delivery/internal/model"
 	"logistics-final-delivery/internal/repository"
 	"logistics-final-delivery/pkg/utils"

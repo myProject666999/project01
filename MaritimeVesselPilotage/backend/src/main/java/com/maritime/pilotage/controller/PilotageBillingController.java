@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/pilotage-billings")
+@RequestMapping("/pilotage-billings")
 public class PilotageBillingController {
 
     @Autowired

@@ -42,7 +42,7 @@ function MeetingSummaryPage() {
         ratingAPI.getRatingByAppointment(aptId).catch(() => ({ data: null })),
       ]);
 
-      if (aptRes.code === 200) {
+      if (aptRes.success) {
         setAppointment(aptRes.data);
       }
       if (summaryRes.data) {
@@ -71,18 +71,15 @@ function MeetingSummaryPage() {
       setSaving(true);
       const aptId = parseInt(appointmentId);
 
-      if (summary) {
-        const response = await meetingSummaryAPI.updateSummary(summary.id, summaryContent);
-        if (response.code === 200) {
+      if (isTeacher) {
+        const response = await meetingSummaryAPI.saveTeacherNotes(aptId, summaryContent);
+        if (response.success) {
           setSummary(response.data);
-          alert('纪要更新成功');
+          alert('纪要保存成功');
         }
       } else {
-        const response = await meetingSummaryAPI.createSummary({
-          appointmentId: aptId,
-          content: summaryContent,
-        });
-        if (response.code === 200) {
+        const response = await meetingSummaryAPI.saveParentNotes(aptId, summaryContent);
+        if (response.success) {
           setSummary(response.data);
           alert('纪要保存成功');
         }
@@ -104,12 +101,8 @@ function MeetingSummaryPage() {
       setSaving(true);
       const aptId = parseInt(appointmentId);
 
-      const response = await ratingAPI.createRating({
-        appointmentId: aptId,
-        score: ratingScore,
-        comment: ratingComment,
-      });
-      if (response.code === 200) {
+      const response = await ratingAPI.createRating(aptId, ratingScore, ratingComment);
+      if (response.success) {
         setRating(response.data);
         alert('评分保存成功');
       }

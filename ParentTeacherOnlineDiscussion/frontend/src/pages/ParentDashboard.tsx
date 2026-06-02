@@ -18,7 +18,7 @@ function ParentDashboard() {
   const fetchAppointments = async () => {
     try {
       const response = await appointmentAPI.getMyAppointments();
-      if (response.code === 200) {
+      if (response.success) {
         setAppointments(response.data);
       }
     } catch (error) {

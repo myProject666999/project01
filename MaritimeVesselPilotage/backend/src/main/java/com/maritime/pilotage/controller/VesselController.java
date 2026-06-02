@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/vessels")
+@RequestMapping("/vessels")
 public class VesselController {
 
     @Autowired

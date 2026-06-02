@@ -19,7 +19,7 @@ function TeacherAppointments() {
     try {
       const status = filter === 'all' ? undefined : filter;
       const response = await appointmentAPI.getMyAppointments(status);
-      if (response.code === 200) {
+      if (response.success) {
         setAppointments(response.data);
       }
     } catch (error) {
@@ -31,8 +31,8 @@ function TeacherAppointments() {
 
   const handleConfirm = async (id: number) => {
     try {
-      const response = await appointmentAPI.updateAppointmentStatus(id, 'confirmed');
-      if (response.code === 200) {
+      const response = await appointmentAPI.confirmAppointment(id);
+      if (response.success) {
         setAppointments((prev) =>
           prev.map((a) => (a.id === id ? response.data : a))
         );
@@ -45,8 +45,8 @@ function TeacherAppointments() {
   const handleCancel = async (id: number) => {
     if (!confirm('确定要取消这个预约吗？')) return;
     try {
-      const response = await appointmentAPI.updateAppointmentStatus(id, 'cancelled');
-      if (response.code === 200) {
+      const response = await appointmentAPI.cancelAppointment(id);
+      if (response.success) {
         setAppointments((prev) =>
           prev.map((a) => (a.id === id ? response.data : a))
         );
@@ -59,7 +59,7 @@ function TeacherAppointments() {
   const handleEnterRoom = async (appointment: Appointment) => {
     try {
       const response = await roomAPI.getRoomToken(appointment.id);
-      if (response.code === 200) {
+      if (response.success) {
         const { roomId, token } = response.data;
         navigate(`/room/${roomId}?token=${token}`);
       }

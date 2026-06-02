@@ -10,9 +10,7 @@ import type {
   AppointmentCreate,
   RoomToken,
   MeetingSummary,
-  MeetingSummaryCreate,
   Rating,
-  RatingCreate,
   ApiResponse
 } from '../types';
 
@@ -67,18 +65,18 @@ export const authAPI = {
 
 export const teacherAPI = {
   getTeachers: (subject?: string): Promise<ApiResponse<User[]>> =>
-    api.get('/teachers', { params: { subject } }),
+    api.get('/teachers/public', { params: { subject } }),
 
   getTeacherDetail: (id: number): Promise<ApiResponse<User>> =>
-    api.get(`/teachers/${id}`),
+    api.get(`/teachers/public/${id}`),
 };
 
 export const timeSlotAPI = {
   getMySlots: (): Promise<ApiResponse<TimeSlot[]>> =>
-    api.get('/time-slots/my'),
+    api.get('/teachers/me/slots'),
 
   getTeacherSlots: (teacherId: number, date?: string): Promise<ApiResponse<TimeSlot[]>> =>
-    api.get(`/time-slots/teacher/${teacherId}`, { params: { date } }),
+    api.get(`/teachers/public/${teacherId}/slots`, { params: { date } }),
 
   createSlot: (data: TimeSlotCreate): Promise<ApiResponse<TimeSlot>> =>
     api.post('/time-slots', data),
@@ -92,7 +90,9 @@ export const timeSlotAPI = {
 
 export const appointmentAPI = {
   getMyAppointments: (status?: string): Promise<ApiResponse<Appointment[]>> =>
-    api.get('/appointments/my', { params: { status } }),
+    status && status !== 'all'
+      ? api.get(`/appointments/me/status/${status}`)
+      : api.get('/appointments/me'),
 
   getAppointmentDetail: (id: number): Promise<ApiResponse<Appointment>> =>
     api.get(`/appointments/${id}`),
@@ -100,41 +100,50 @@ export const appointmentAPI = {
   createAppointment: (data: AppointmentCreate): Promise<ApiResponse<Appointment>> =>
     api.post('/appointments', data),
 
-  updateAppointmentStatus: (id: number, status: string): Promise<ApiResponse<Appointment>> =>
-    api.patch(`/appointments/${id}/status`, { status }),
+  confirmAppointment: (id: number): Promise<ApiResponse<Appointment>> =>
+    api.put(`/appointments/${id}/confirm`),
 
-  cancelAppointment: (id: number): Promise<ApiResponse<void>> =>
-    api.delete(`/appointments/${id}`),
+  cancelAppointment: (id: number): Promise<ApiResponse<Appointment>> =>
+    api.put(`/appointments/${id}/cancel`),
+
+  completeAppointment: (id: number): Promise<ApiResponse<Appointment>> =>
+    api.put(`/appointments/${id}/complete`),
 };
 
 export const roomAPI = {
   getRoomToken: (appointmentId: number): Promise<ApiResponse<RoomToken>> =>
-    api.post(`/rooms/token/${appointmentId}`),
+    api.post(`/room/token/${appointmentId}`),
 
   validateRoomToken: (token: string): Promise<ApiResponse<{ valid: boolean; appointment: Appointment }>> =>
-    api.post('/rooms/validate', { token }),
+    api.get(`/room/verify/${token}`),
 
   endRoom: (roomId: string): Promise<ApiResponse<void>> =>
-    api.post(`/rooms/end/${roomId}`),
+    api.post(`/room/end/${roomId}`),
 };
 
 export const meetingSummaryAPI = {
   getSummaryByAppointment: (appointmentId: number): Promise<ApiResponse<MeetingSummary>> =>
-    api.get(`/meeting-summaries/appointment/${appointmentId}`),
+    api.get(`/summary/${appointmentId}`),
 
-  createSummary: (data: MeetingSummaryCreate): Promise<ApiResponse<MeetingSummary>> =>
-    api.post('/meeting-summaries', data),
+  saveTeacherNotes: (appointmentId: number, notes: string): Promise<ApiResponse<MeetingSummary>> =>
+    api.put(`/summary/teacher/${appointmentId}`, notes, {
+      headers: { 'Content-Type': 'text/plain' }
+    }),
 
-  updateSummary: (id: number, content: string): Promise<ApiResponse<MeetingSummary>> =>
-    api.put(`/meeting-summaries/${id}`, { content }),
+  saveParentNotes: (appointmentId: number, notes: string): Promise<ApiResponse<MeetingSummary>> =>
+    api.put(`/summary/parent/${appointmentId}`, notes, {
+      headers: { 'Content-Type': 'text/plain' }
+    }),
 };
 
 export const ratingAPI = {
   getRatingByAppointment: (appointmentId: number): Promise<ApiResponse<Rating>> =>
-    api.get(`/ratings/appointment/${appointmentId}`),
+    api.get(`/summary/rating/${appointmentId}`),
 
-  createRating: (data: RatingCreate): Promise<ApiResponse<Rating>> =>
-    api.post('/ratings', data),
+  createRating: (appointmentId: number, score: number, comment?: string): Promise<ApiResponse<Rating>> =>
+    api.post(`/summary/rating/${appointmentId}`, null, {
+      params: { score, comment }
+    }),
 };
 
 export default api;

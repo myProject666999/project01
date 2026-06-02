@@ -108,7 +108,7 @@ function VideoRoom() {
         setRemoteUserId(remoteId);
         setIsInitiator(user.id === initiatorId);
 
-        await appointmentAPI.updateAppointmentStatus(apt.id, 'in_progress');
+        console.log('Appointment in progress');
 
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
@@ -295,8 +295,7 @@ function VideoRoom() {
     if (!appointment) return;
 
     try {
-      await roomAPI.endRoom(roomId!);
-      await appointmentAPI.updateAppointmentStatus(appointment.id, 'completed');
+      await appointmentAPI.completeAppointment(appointment.id);
     } catch (err) {
       console.error('Failed to end room:', err);
     } finally {

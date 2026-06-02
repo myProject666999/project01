@@ -28,7 +28,7 @@ function ParentTeachers() {
     try {
       setLoading(true);
       const response = await teacherAPI.getTeachers(subjectFilter || undefined);
-      if (response.code === 200) {
+      if (response.success) {
         setTeachers(response.data);
       }
     } catch (error) {
@@ -41,7 +41,7 @@ function ParentTeachers() {
   const fetchTeacherSlots = async (teacherId: number) => {
     try {
       const response = await timeSlotAPI.getTeacherSlots(teacherId);
-      if (response.code === 200) {
+      if (response.success) {
         setSlots(response.data.filter((s) => s.status === 'available'));
       }
     } catch (error) {
@@ -66,7 +66,7 @@ function ParentTeachers() {
         subject: bookingForm.subject,
         description: bookingForm.description,
       });
-      if (response.code === 200) {
+      if (response.success) {
         alert('预约成功！等待老师确认');
         closeModal();
       }

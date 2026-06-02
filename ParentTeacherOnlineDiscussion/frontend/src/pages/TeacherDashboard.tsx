@@ -19,10 +19,10 @@ function TeacherDashboard() {
           appointmentAPI.getMyAppointments(),
           timeSlotAPI.getMySlots(),
         ]);
-        if (appointmentsRes.code === 200) {
+        if (appointmentsRes.success) {
           setAppointments(appointmentsRes.data);
         }
-        if (slotsRes.code === 200) {
+        if (slotsRes.success) {
           setSlots(slotsRes.data);
         }
       } catch (error) {

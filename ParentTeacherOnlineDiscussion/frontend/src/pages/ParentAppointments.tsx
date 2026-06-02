@@ -19,7 +19,7 @@ function ParentAppointments() {
     try {
       const status = filter === 'all' ? undefined : filter;
       const response = await appointmentAPI.getMyAppointments(status);
-      if (response.code === 200) {
+      if (response.success) {
         setAppointments(response.data);
       }
     } catch (error) {
@@ -33,7 +33,7 @@ function ParentAppointments() {
     if (!confirm('确定要取消这个预约吗？')) return;
     try {
       const response = await appointmentAPI.cancelAppointment(id);
-      if (response.code === 200) {
+      if (response.success) {
         setAppointments((prev) =>
           prev.map((a) => (a.id === id ? { ...a, status: 'cancelled' as const } : a))
         );
@@ -46,7 +46,7 @@ function ParentAppointments() {
   const handleEnterRoom = async (appointment: Appointment) => {
     try {
       const response = await roomAPI.getRoomToken(appointment.id);
-      if (response.code === 200) {
+      if (response.success) {
         const { roomId, token } = response.data;
         navigate(`/room/${roomId}?token=${token}`);
       }

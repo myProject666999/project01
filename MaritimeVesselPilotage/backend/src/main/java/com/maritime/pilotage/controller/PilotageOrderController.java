@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/pilotage-orders")
+@RequestMapping("/pilotage-orders")
 public class PilotageOrderController {
 
     @Autowired

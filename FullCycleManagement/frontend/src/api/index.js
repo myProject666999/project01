@@ -58,7 +58,13 @@ export const workHourApi = {
   getMonthlyBill: (lawyerId, year, month) => 
     request.get(`/work-hours/monthly-bill/${lawyerId}?year=${year}&month=${month}`),
   getAllMonthlyBills: (year, month) => 
-    request.get(`/work-hours/monthly-bill/all?year=${year}&month=${month}`)
+    request.get(`/work-hours/monthly-bill/all?year=${year}&month=${month}`),
+  exportMonthlyBill: (lawyerId, year, month) => 
+    axios({
+      url: `/api/work-hours/monthly-bill/export/${lawyerId}?year=${year}&month=${month}`,
+      method: 'GET',
+      responseType: 'blob'
+    })
 }
 
 export const documentApi = {

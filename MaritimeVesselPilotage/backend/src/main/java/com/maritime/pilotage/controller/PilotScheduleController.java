@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/pilot-schedules")
+@RequestMapping("/pilot-schedules")
 public class PilotScheduleController {
 
     @Autowired

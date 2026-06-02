@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/pilotage-completions")
+@RequestMapping("/pilotage-completions")
 public class PilotageCompletionController {
 
     @Autowired

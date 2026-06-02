@@ -239,8 +239,27 @@ const deleteWorkHour = async (id) => {
   }
 }
 
-const exportBill = () => {
-  ElMessage.info('导出功能开发中')
+const exportBill = async () => {
+  if (!filter.lawyerId || !filter.yearMonth) {
+    ElMessage.warning('请先选择律师和月份')
+    return
+  }
+  const [year, month] = filter.yearMonth.split('-').map(Number)
+  try {
+    const response = await workHourApi.exportMonthlyBill(filter.lawyerId, year, month)
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${year}年${month}月工时账单.xlsx`
+    link.click()
+    window.URL.revokeObjectURL(url)
+    ElMessage.success('导出成功')
+  } catch (error) {
+    ElMessage.error('导出失败')
+  }
 }
 
 onMounted(() => {

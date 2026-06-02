@@ -3,7 +3,9 @@ package com.maritime.pilotage.controller;
 import com.maritime.pilotage.common.Result;
 import com.maritime.pilotage.entity.SysUser;
 import com.maritime.pilotage.repository.SysUserRepository;
+import com.maritime.pilotage.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -13,11 +15,17 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
     private SysUserRepository sysUserRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@RequestBody Map<String, String> loginData) {
@@ -41,7 +49,7 @@ public class AuthController {
             return Result.error("用户已被禁用");
         }
 
-        if (!password.equals(user.getPassword())) {
+        if (!password.equals(user.getPassword()) && !passwordEncoder.matches(password, user.getPassword())) {
             return Result.error("密码错误");
         }
 
@@ -49,7 +57,7 @@ public class AuthController {
         sysUserRepository.save(user);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("token", "dummy-token-" + user.getId() + "-" + System.currentTimeMillis());
+        result.put("token", jwtUtil.generateToken(user.getUsername()));
         result.put("userId", user.getId());
         result.put("username", user.getUsername());
         result.put("realName", user.getRealName());
@@ -83,6 +91,7 @@ public class AuthController {
         if (user.getRole() == null) {
             user.setRole(3);
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         SysUser saved = sysUserRepository.save(user);
         saved.setPassword(null);
@@ -106,11 +115,11 @@ public class AuthController {
         }
 
         SysUser user = userOpt.get();
-        if (!oldPassword.equals(user.getPassword())) {
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             return Result.error("原密码错误");
         }
 
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         sysUserRepository.save(user);
 
         return Result.success("密码修改成功", null);
@@ -149,6 +158,7 @@ public class AuthController {
         if (user.getStatus() == null) {
             user.setStatus(1);
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         SysUser saved = sysUserRepository.save(user);
         saved.setPassword(null);
@@ -165,6 +175,8 @@ public class AuthController {
         if (user.getPassword() == null) {
             Optional<SysUser> existing = sysUserRepository.findById(id);
             existing.ifPresent(u -> user.setPassword(u.getPassword()));
+        } else {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
         SysUser updated = sysUserRepository.save(user);

@@ -3,8 +3,10 @@ package com.borderport.service;
 import com.borderport.dto.AppointmentCreateDTO;
 import com.borderport.dto.AppointmentDTO;
 import com.borderport.entity.Appointment;
+import com.borderport.entity.Quota;
 import com.borderport.repository.AppointmentRepository;
 import com.borderport.repository.PortRepository;
+import com.borderport.repository.QuotaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final QuotaService quotaService;
     private final PortRepository portRepository;
+    private final QuotaRepository quotaRepository;
 
     private final Random random = new Random();
 
@@ -29,6 +32,10 @@ public class AppointmentService {
             throw new RuntimeException("配额已满");
         }
 
+        Quota quota = quotaRepository.findByPortIdAndVehicleTypeAndQuotaDateAndTimeSlot(
+                dto.getPortId(), dto.getVehicleType(), dto.getAppointmentDate(), dto.getTimeSlot())
+                .orElseThrow(() -> new RuntimeException("配额不存在"));
+
         String appointmentNo = generateAppointmentNo();
         String qrCode = appointmentNo + "|" + dto.getPlateNumber() + "|"
                 + dto.getAppointmentDate() + "|" + dto.getTimeSlot();
@@ -36,6 +43,7 @@ public class AppointmentService {
         Appointment appointment = new Appointment();
         appointment.setAppointmentNo(appointmentNo);
         appointment.setPortId(dto.getPortId());
+        appointment.setQuotaId(quota.getId());
         appointment.setVehicleType(dto.getVehicleType());
         appointment.setPlateNumber(dto.getPlateNumber());
         appointment.setDriverName(dto.getDriverName());

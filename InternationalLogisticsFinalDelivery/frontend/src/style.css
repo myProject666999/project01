@@ -1,0 +1,124 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  background-color: #f5f7fa;
+}
+
+#app {
+  height: 100vh;
+}
+
+.page-container {
+  padding: 20px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.table-container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.form-container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.status-tag {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.status-1 { background: #e1f3d8; color: #67c23a; }
+.status-2 { background: #faecd8; color: #e6a23c; }
+.status-3 { background: #d9ecff; color: #409eff; }
+.status-4 { background: #f0f9eb; color: #67c23a; }
+.status-5 { background: #fef0f0; color: #f56c6c; }
+
+.label-preview {
+  border: 1px solid #dcdfe6;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fff;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.label-header {
+  text-align: center;
+  border-bottom: 2px dashed #dcdfe6;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.label-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #303133;
+}
+
+.label-barcode {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.label-barcode img {
+  max-width: 100%;
+  height: 80px;
+}
+
+.label-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.label-row {
+  display: flex;
+  gap: 10px;
+}
+
+.label-key {
+  font-weight: 600;
+  color: #606266;
+  min-width: 100px;
+}
+
+.label-value {
+  color: #303133;
+  flex: 1;
+  word-break: break-all;
+}
+
+.label-qrcode {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.label-qrcode img {
+  width: 100px;
+  height: 100px;
+}

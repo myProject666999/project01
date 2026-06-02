@@ -7,6 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"used_car_inspection/config"
+	"used_car_inspection/controllers"
+	"used_car_inspection/middleware"
 )
 
 func main() {
@@ -45,4 +47,33 @@ func setupRoutes(app *fiber.App) {
 			"message": "服务运行正常",
 		})
 	})
+
+	api.Post("/auth/login", controllers.Login)
+	api.Get("/share/:token", controllers.GetReportByShareToken)
+
+	auth := api.Group("", middleware.JWTAuth)
+
+	auth.Get("/auth/me", controllers.GetCurrentUser)
+	auth.Put("/auth/password", controllers.ChangePassword)
+
+	auth.Get("/vehicles", controllers.GetVehicles)
+	auth.Get("/vehicles/:id", controllers.GetVehicle)
+	auth.Post("/vehicles", controllers.CreateVehicle)
+	auth.Put("/vehicles/:id", controllers.UpdateVehicle)
+	auth.Delete("/vehicles/:id", controllers.DeleteVehicle)
+
+	auth.Get("/inspection/categories", controllers.GetCategories)
+	auth.Get("/inspection/items", controllers.GetItems)
+	auth.Get("/inspection/items-with-categories", controllers.GetItemsWithCategories)
+
+	auth.Get("/reports", controllers.GetReports)
+	auth.Get("/reports/:id", controllers.GetReport)
+	auth.Post("/reports", controllers.CreateReport)
+	auth.Post("/reports/:id/results", controllers.SaveInspectionResult)
+	auth.Post("/reports/:id/submit", controllers.SubmitReport)
+	auth.Post("/reports/:id/share", controllers.GenerateShareLink)
+	auth.Delete("/reports/:id", controllers.DeleteReport)
+
+	auth.Post("/upload/photo", controllers.UploadPhoto)
+	auth.Delete("/upload/photo/:id", controllers.DeletePhoto)
 }
