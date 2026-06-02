@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Layout, Menu, Dropdown, Avatar, Badge } from 'antd'
+import { Layout, Menu, Dropdown, Avatar, Badge, List, Typography, Space, Button, message } from 'antd'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
   HomeOutlined,
@@ -14,10 +14,12 @@ import {
   DollarOutlined,
   BellOutlined,
   LogoutOutlined,
-  SettingOutlined
+  SettingOutlined,
+  MoreOutlined
 } from '@ant-design/icons'
 
 const { Header, Sider, Content } = Layout
+const { Text } = Typography
 
 const MainLayout = () => {
   const navigate = useNavigate()
@@ -103,6 +105,33 @@ const MainLayout = () => {
     }
   ]
 
+  const mockNotifications = [
+    {
+      id: 1,
+      title: '任务顺延通知',
+      content: '任务PO20260601001已顺延至下一班',
+      time: '10分钟前',
+      read: false,
+      type: 'warning'
+    },
+    {
+      id: 2,
+      title: '新预约单待审核',
+      content: '船舶中远之星提交了新的预约申请',
+      time: '30分钟前',
+      read: false,
+      type: 'info'
+    },
+    {
+      id: 3,
+      title: '引航员排班提醒',
+      content: '引航员张三明日有早班任务',
+      time: '1小时前',
+      read: true,
+      type: 'success'
+    }
+  ]
+
   const handleMenuClick = ({ key }) => {
     navigate(key)
   }
@@ -112,8 +141,64 @@ const MainLayout = () => {
       localStorage.removeItem('token')
       localStorage.removeItem('userInfo')
       navigate('/login')
+    } else if (key === 'profile') {
+      message.info('个人中心功能开发中')
+    } else if (key === 'settings') {
+      message.info('设置功能开发中')
     }
   }
+
+  const handleNotificationClick = (item) => {
+    if (!item.read) {
+      message.success(`已标记"${item.title}"为已读`)
+    }
+  }
+
+  const handleViewAllNotifications = () => {
+    navigate('/notification')
+  }
+
+  const notificationDropdown = (
+    <div style={{ width: 360, padding: '8px 0' }}>
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Text strong>消息通知</Text>
+        <Text type="secondary" style={{ fontSize: 12, cursor: 'pointer' }} onClick={handleViewAllNotifications}>
+          查看全部 <MoreOutlined />
+        </Text>
+      </div>
+      <List
+        dataSource={mockNotifications}
+        style={{ maxHeight: 350, overflowY: 'auto' }}
+        renderItem={(item) => (
+          <List.Item
+            style={{ padding: '12px 16px', cursor: 'pointer', background: item.read ? '#fff' : '#f6ffed', borderBottom: '1px solid #f0f0f0' }}
+            onClick={() => handleNotificationClick(item)}
+          >
+            <List.Item.Meta
+              avatar={
+                <Badge dot={!item.read}>
+                  <Avatar
+                    size="small"
+                    style={{
+                      backgroundColor: item.type === 'warning' ? '#faad14' : item.type === 'success' ? '#52c41a' : '#1890ff'
+                    }}
+                    icon={<BellOutlined />}
+                  />
+                </Badge>
+              }
+              title={<Text strong style={{ fontWeight: item.read ? 'normal' : 600 }}>{item.title}</Text>}
+              description={
+                <div>
+                  <div style={{ color: '#666', fontSize: 13, marginBottom: 4 }}>{item.content}</div>
+                  <Text type="secondary" style={{ fontSize: 11 }}>{item.time}</Text>
+                </div>
+              }
+            />
+          </List.Item>
+        )}
+      />
+    </div>
+  )
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
 
@@ -143,9 +228,15 @@ const MainLayout = () => {
             {menuItems.find(item => item.key === location.pathname)?.label || '首页'}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <Badge count={3} size="small">
-              <BellOutlined style={{ fontSize: 20, cursor: 'pointer', color: '#666' }} />
-            </Badge>
+            <Dropdown
+              dropdownRender={() => notificationDropdown}
+              placement="bottomRight"
+              trigger={['click']}
+            >
+              <Badge count={mockNotifications.filter(n => !n.read).length} size="small">
+                <BellOutlined style={{ fontSize: 20, cursor: 'pointer', color: '#666' }} />
+              </Badge>
+            </Dropdown>
             <Dropdown
               menu={{ items: userMenuItems, onClick: handleUserMenuClick }}
               placement="bottomRight"

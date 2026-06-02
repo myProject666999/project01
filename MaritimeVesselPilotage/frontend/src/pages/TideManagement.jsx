@@ -39,10 +39,13 @@ const TideManagement = () => {
   const svgRef = useRef(null);
 
   useEffect(() => {
-    generateTideData();
+    if (selectedDate) {
+      generateTideData();
+    }
   }, [selectedDate, vesselDraft]);
 
   const generateTideData = () => {
+    if (!selectedDate) return;
     const dateStr = selectedDate.format('YYYY-MM-DD');
     const data = [];
     const highTides = [];
@@ -636,7 +639,7 @@ const TideManagement = () => {
                 <div>
                   <div style={{ fontSize: '12px', color: '#666' }}>可用窗口数</div>
                   <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
-                    {selectedDate.format('YYYY年MM月DD日')}
+                    {selectedDate ? selectedDate.format('YYYY年MM月DD日') : '请选择日期'}
                   </div>
                 </div>
               </Space>

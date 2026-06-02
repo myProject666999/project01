@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { Ship, Odometer, MapLocation, Document, EditPen, Fish, TrendCharts, Droplet, DArrowLeft, DArrowRight } from '@element-plus/icons-vue'
+import { Ship, Odometer, MapLocation, Document, EditPen, DataAnalysis, TrendCharts, Monitor, DArrowLeft, DArrowRight } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const collapsed = ref(false)
@@ -59,9 +59,9 @@ const menuItems = [
   { path: '/sea-area', label: '海域区域管理', icon: MapLocation },
   { path: '/release-plan', label: '投放计划管理', icon: Document },
   { path: '/release-record', label: '投放执行登记', icon: EditPen },
-  { path: '/recapture', label: '回捕统计', icon: Fish },
+  { path: '/recapture', label: '回捕统计', icon: DataAnalysis },
   { path: '/recapture-analysis', label: '回捕率分析', icon: TrendCharts },
-  { path: '/water-quality', label: '水质监测', icon: Droplet },
+  { path: '/water-quality', label: '水质监测', icon: Monitor },
 ]
 
 const currentTitle = computed(() => {

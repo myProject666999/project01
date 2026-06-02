@@ -19,7 +19,8 @@ import {
   Rate,
   Progress,
   Statistic,
-  List
+  List,
+  Divider
 } from 'antd';
 import {
   EyeOutlined,

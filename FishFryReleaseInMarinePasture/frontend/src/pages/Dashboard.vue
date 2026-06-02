@@ -64,7 +64,7 @@ const overviewCards = computed(() => [
     label: '本月回捕量',
     value: overview.value.monthRecapture,
     unit: 'kg',
-    icon: 'Fish',
+    icon: 'DataAnalysis',
     gradient: 'linear-gradient(135deg, #2C7865 0%, #3DA589 100%)',
   },
   {
