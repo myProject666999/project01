@@ -23,14 +23,14 @@ export const useUserStore = defineStore('user', () => {
 
   async function login(email: string, password: string) {
     const res = await loginApi({ email, password })
-    setToken(res.token)
+    setToken(res.access_token || res.token)
     setUserInfo(res.user)
     return res
   }
 
   async function register(username: string, email: string, password: string, role: 'student' | 'teacher') {
     const res = await registerApi({ username, email, password, role })
-    setToken(res.token)
+    setToken(res.access_token || res.token)
     setUserInfo(res.user)
     return res
   }

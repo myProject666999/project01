@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CellarSlot, SlotStatus } from '@/entities/cellar-slot.entity';
 import { Inventory, InventoryStatus } from '@/entities/inventory.entity';
 import { StockInDto } from './dto';
+import { CellarSlotWithWine, CellarLayout } from './types';
 
 @Injectable()
 export class CellarService {
@@ -14,18 +15,51 @@ export class CellarService {
     private readonly inventoryRepo: Repository<Inventory>,
   ) {}
 
-  async getSlots(): Promise<CellarSlot[]> {
-    return this.slotRepo.find({
+  private calculateSlotStatus(drinkTo: number | null): 'empty' | 'occupied' | 'approaching' | 'overdue' {
+    if (drinkTo === null) return 'empty';
+    const currentYear = new Date().getFullYear();
+    if (drinkTo < currentYear) return 'overdue';
+    if (drinkTo <= currentYear + 1) return 'approaching';
+    return 'occupied';
+  }
+
+  private transformSlot(slot: CellarSlot): CellarSlotWithWine {
+    const wine = slot.inventory?.wine;
+    const drinkTo = wine?.drinkTo ?? null;
+    const status = slot.status === SlotStatus.EMPTY ? 'empty' : this.calculateSlotStatus(drinkTo);
+
+    return {
+      id: slot.id,
+      rackNo: slot.rackNo,
+      layerNo: slot.layerNo,
+      positionNo: slot.positionNo,
+      status: status as CellarSlotWithWine['status'],
+      wineId: wine?.id ?? null,
+      wine: wine
+        ? {
+            chateau: wine.chateau,
+            vintage: wine.vintage,
+            region: wine.region,
+            drinkTo: wine.drinkTo,
+          }
+        : undefined,
+    };
+  }
+
+  async getSlots(): Promise<CellarSlotWithWine[]> {
+    const slots = await this.slotRepo.find({
       relations: ['inventory', 'inventory.wine'],
       order: { rackNo: 'ASC', layerNo: 'ASC', positionNo: 'ASC' },
     });
+    return slots.map((slot) => this.transformSlot(slot));
   }
 
-  async getAvailableSlots(): Promise<CellarSlot[]> {
-    return this.slotRepo.find({
+  async getAvailableSlots(): Promise<CellarSlotWithWine[]> {
+    const slots = await this.slotRepo.find({
       where: { status: SlotStatus.EMPTY },
       order: { rackNo: 'ASC', layerNo: 'ASC', positionNo: 'ASC' },
     });
+    return slots.map((slot) => this.transformSlot(slot));
   }
 
   async stockIn(dto: StockInDto): Promise<Inventory> {
@@ -71,19 +105,16 @@ export class CellarService {
     return inventory;
   }
 
-  async getLayout(): Promise<Record<number, CellarSlot[]>> {
-    const slots = await this.slotRepo.find({
-      relations: ['inventory', 'inventory.wine'],
-      order: { layerNo: 'ASC', positionNo: 'ASC' },
-    });
+  async getLayout(): Promise<CellarLayout> {
+    const slots = await this.slotRepo.find();
+    const rackNos = [...new Set(slots.map((s) => s.rackNo))];
+    const layerNos = [...new Set(slots.map((s) => s.layerNo))];
+    const positionNos = [...new Set(slots.map((s) => s.positionNo))];
 
-    const grouped: Record<number, CellarSlot[]> = {};
-    for (const slot of slots) {
-      if (!grouped[slot.rackNo]) {
-        grouped[slot.rackNo] = [];
-      }
-      grouped[slot.rackNo].push(slot);
-    }
-    return grouped;
+    return {
+      totalRacks: rackNos.length,
+      layersPerRack: layerNos.length,
+      positionsPerLayer: positionNos.length,
+    };
   }
 }

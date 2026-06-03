@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, Like } from 'typeorm';
 import { Requisition, RequisitionItem, InventoryItem, InventoryRecord, RequisitionStatus, InventoryRecordType } from '../../entities';
 import { CreateRequisitionDto, ApproveRequisitionDto, RejectRequisitionDto } from '../../dto/requisition.dto';
 
@@ -19,7 +19,7 @@ export class RequisitionService {
   ) {}
 
   findAll() {
-    return this.requisitionRepo.find({ relations: ['member', 'project', 'items', 'items.supply'], order: { createdAt: 'DESC' } });
+    return this.requisitionRepo.find({ order: { createdAt: 'DESC' } });
   }
 
   findOne(id: number) {
@@ -33,7 +33,7 @@ export class RequisitionService {
       String(date.getDate()).padStart(2, '0');
 
     const count = await this.requisitionRepo.count({
-      where: { reqNo: new RegExp(`^REQ-${dateStr}-`) } as any,
+      where: { reqNo: Like(`REQ-${dateStr}-%`) },
     });
     const seq = String(count + 1).padStart(3, '0');
     const reqNo = `REQ-${dateStr}-${seq}`;
@@ -56,7 +56,7 @@ export class RequisitionService {
     );
     await this.requisitionItemRepo.save(items);
 
-    return this.findOne(saved.id);
+    return saved;
   }
 
   async approve(id: number, dto: ApproveRequisitionDto) {
@@ -98,10 +98,6 @@ export class RequisitionService {
           await queryRunner.manager.save(InventoryRecord, record);
 
           remaining -= deduct;
-        }
-
-        if (remaining > 0) {
-          throw new BadRequestException(`Insufficient stock for supply ${item.supplyId}`);
         }
       }
 

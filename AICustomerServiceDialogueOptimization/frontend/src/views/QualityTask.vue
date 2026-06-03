@@ -121,6 +121,36 @@
       <el-button type="primary" @click="createTask">确定</el-button>
     </template>
   </el-dialog>
+
+  <el-dialog v-model="detailDialogVisible" title="任务详情" width="700px">
+    <el-descriptions :column="2" border>
+      <el-descriptions-item label="任务编号">{{ detailData.taskNo }}</el-descriptions-item>
+      <el-descriptions-item label="任务名称" :span="2">{{ detailData.taskName }}</el-descriptions-item>
+      <el-descriptions-item label="任务类型">
+        <el-tag v-if="detailData.taskType === 1">全量质检</el-tag>
+        <el-tag v-else-if="detailData.taskType === 2" type="warning">抽样质检</el-tag>
+        <el-tag v-else type="info">定向质检</el-tag>
+      </el-descriptions-item>
+      <el-descriptions-item label="质检方式">
+        <el-tag v-if="detailData.qualityType === 1">规则质检</el-tag>
+        <el-tag v-else-if="detailData.qualityType === 2" type="success">AI质检</el-tag>
+        <el-tag v-else type="warning">混合质检</el-tag>
+      </el-descriptions-item>
+      <el-descriptions-item label="总会话数">{{ detailData.totalCount }}</el-descriptions-item>
+      <el-descriptions-item label="已处理数">{{ detailData.processedCount }}</el-descriptions-item>
+      <el-descriptions-item label="违规数">{{ detailData.violationCount }}</el-descriptions-item>
+      <el-descriptions-item label="状态">
+        <el-tag v-if="detailData.status === 0">待执行</el-tag>
+        <el-tag v-else-if="detailData.status === 1" type="warning">执行中</el-tag>
+        <el-tag v-else-if="detailData.status === 2" type="success">已完成</el-tag>
+        <el-tag v-else type="danger">失败</el-tag>
+      </el-descriptions-item>
+      <el-descriptions-item label="创建时间" :span="2">{{ detailData.createTime }}</el-descriptions-item>
+    </el-descriptions>
+    <template #footer>
+      <el-button @click="detailDialogVisible = false">关闭</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -132,6 +162,8 @@ const loading = ref(false)
 const tableData = ref([])
 const total = ref(0)
 const createDialogVisible = ref(false)
+const detailDialogVisible = ref(false)
+const detailData = ref({})
 
 const searchForm = reactive({
   keyword: '',
@@ -263,7 +295,8 @@ const executeTask = async (id) => {
 }
 
 const viewDetail = (row) => {
-  ElMessage.info(`查看任务: ${row.taskName}`)
+  detailData.value = row
+  detailDialogVisible.value = true
 }
 
 onMounted(() => {

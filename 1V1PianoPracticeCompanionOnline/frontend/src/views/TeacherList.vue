@@ -42,43 +42,37 @@
         <el-col :span="8" v-for="teacher in teachers" :key="teacher.id">
           <el-card class="teacher-card card-shadow" hoverable @click="goToBooking(teacher.id)">
             <div class="teacher-header">
-              <el-avatar :size="80" :src="teacher.avatar">
-                {{ teacher.username?.charAt(0) }}
+              <el-avatar :size="80" :src="teacher.user?.avatarUrl">
+                {{ teacher.user?.name?.charAt(0) }}
               </el-avatar>
               <div class="teacher-basic">
-                <h3 class="teacher-name">{{ teacher.username }}</h3>
+                <h3 class="teacher-name">{{ teacher.user?.name }}</h3>
                 <div class="teacher-tags">
-                  <el-tag v-if="teacher.teachChinese" type="success" size="small">中文教学</el-tag>
+                  <el-tag v-if="teacher.chineseTeaching" type="success" size="small">中文教学</el-tag>
                   <el-tag type="info" size="small">
-                    <el-rate v-model="teacher.rating" disabled :max="5" show-score text-color="#ff9900" />
+                    <el-rate :model-value="teacher.rating" disabled :max="5" show-score text-color="#ff9900" />
                   </el-tag>
                 </div>
               </div>
             </div>
             <div class="teacher-info">
-              <p class="teacher-intro">{{ teacher.introduction || '暂无介绍' }}</p>
-              <div class="teacher-specialties">
-                <span class="label">擅长：</span>
-                <el-tag v-for="(skill, index) in teacher.specialties" :key="index" size="small" class="skill-tag">
-                  {{ skill }}
-                </el-tag>
-              </div>
+              <p class="teacher-intro">{{ teacher.bio || '暂无介绍' }}</p>
               <div class="difficulty-levels">
-                <span class="label">难度等级：</span>
+                <span class="label">擅长：</span>
                 <el-tag
-                  v-for="level in teacher.difficultyLevels"
-                  :key="level"
+                  v-for="(skill, index) in teacher.skills"
+                  :key="index"
                   size="small"
                   type="info"
                   class="difficulty-tag"
                 >
-                  {{ getDifficultyText(level) }}
+                  {{ getDifficultyText(skill.difficultyLevel) }}
                 </el-tag>
               </div>
             </div>
             <div class="teacher-footer">
               <span class="price">¥{{ teacher.hourlyRate }}/小时</span>
-              <span class="review-count">{{ teacher.reviewCount }}条评价</span>
+              <span class="review-count">{{ teacher.totalLessons }}节课</span>
             </div>
           </el-card>
         </el-col>
@@ -151,7 +145,20 @@ function resetFilter() {
 
 function getDifficultyText(level: string) {
   const map: Record<string, string> = {
-    beginner: '初级',
+    bai_e: '拜厄',
+    che_599: '车尔尼599',
+    che_849: '车尔尼849',
+    che_299: '车尔尼299',
+    che_740: '车尔尼740',
+    bach_beginner: '巴赫初级',
+    bach_invention: '巴赫创意曲',
+    mozart_sonata: '莫扎特奏鸣曲',
+    beethoven_sonata: '贝多芬奏鸣曲',
+    chopin_etude: '肖邦练习曲',
+    liszt_etude: '李斯特练习曲',
+    other: '其他',
+    beginner: '入门',
+    elementary: '初级',
     intermediate: '中级',
     advanced: '高级'
   }

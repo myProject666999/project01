@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Stocktaking, StocktakingItem, InventoryItem, StocktakingScopeType, StocktakingStatus } from '../../entities';
-import { CreateStocktakingDto, UpdateStocktakingItemDto } from '../../dto/stocktaking.dto';
+import { CreateStocktakingDto, UpdateStocktakingItemDto, ApproveStocktakingDto } from '../../dto/stocktaking.dto';
 
 @Injectable()
 export class StocktakingService {
@@ -17,13 +17,13 @@ export class StocktakingService {
   ) {}
 
   findAll() {
-    return this.stocktakingRepo.find({ relations: ['createdByMember'], order: { createdAt: 'DESC' } });
+    return this.stocktakingRepo.find({ order: { createdAt: 'DESC' } });
   }
 
   findOne(id: number) {
     return this.stocktakingRepo.findOne({
       where: { id },
-      relations: ['items', 'items.inventoryItem', 'items.inventoryItem.supply', 'items.inventoryItem.warehouse', 'createdByMember', 'approvedByMember'],
+      relations: ['items'],
     });
   }
 
@@ -39,17 +39,22 @@ export class StocktakingService {
 
     const scopeType = (dto.scopeType as StocktakingScopeType) || StocktakingScopeType.ALL;
 
-    const queryBuilder = this.inventoryItemRepo.createQueryBuilder('inv')
-      .leftJoinAndSelect('inv.supply', 'supply')
-      .leftJoinAndSelect('inv.warehouse', 'warehouse');
-
+    let inventoryItems: InventoryItem[] = [];
     if (scopeType === StocktakingScopeType.WAREHOUSE && dto.scopeId) {
-      queryBuilder.andWhere('inv.warehouseId = :warehouseId', { warehouseId: dto.scopeId });
+      inventoryItems = await this.inventoryItemRepo.find({
+        where: { warehouseId: dto.scopeId },
+      });
     } else if (scopeType === StocktakingScopeType.CATEGORY && dto.scopeId) {
-      queryBuilder.andWhere('supply.categoryId = :categoryId', { categoryId: dto.scopeId });
+      inventoryItems = await this.inventoryItemRepo.createQueryBuilder('inv')
+        .innerJoin('inv.supply', 'supply')
+        .where('supply.categoryId = :categoryId', { categoryId: dto.scopeId })
+        .select(['inv.id', 'inv.quantity'])
+        .getMany();
+    } else {
+      inventoryItems = await this.inventoryItemRepo.find({
+        select: ['id', 'quantity'],
+      });
     }
-
-    const inventoryItems = await queryBuilder.getMany();
 
     const stocktaking = this.stocktakingRepo.create({
       taskNo,
@@ -68,7 +73,7 @@ export class StocktakingService {
     );
     await this.stocktakingItemRepo.save(items);
 
-    return this.findOne(saved.id);
+    return this.stocktakingRepo.findOne({ where: { id: saved.id }, relations: ['items'] });
   }
 
   async updateItem(id: number, itemId: number, dto: UpdateStocktakingItemDto) {
@@ -94,7 +99,7 @@ export class StocktakingService {
     return this.findOne(id);
   }
 
-  async approve(id: number) {
+  async approve(id: number, dto: ApproveStocktakingDto) {
     const stocktaking = await this.stocktakingRepo.findOne({
       where: { id },
       relations: ['items'],
@@ -119,6 +124,7 @@ export class StocktakingService {
       }
 
       stocktaking.status = StocktakingStatus.APPROVED;
+      stocktaking.approvedBy = dto.approvedBy;
       stocktaking.approvedAt = new Date();
       await queryRunner.manager.save(Stocktaking, stocktaking);
 

@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TastingNote } from '@/entities/tasting-note.entity';
+import { Wine } from '@/entities/wine.entity';
+import { Inventory } from '@/entities/inventory.entity';
 import { CreateTastingNoteDto, UpdateTastingNoteDto } from './dto';
 
 @Injectable()
@@ -9,12 +11,26 @@ export class TastingService {
   constructor(
     @InjectRepository(TastingNote)
     private readonly noteRepo: Repository<TastingNote>,
+    @InjectRepository(Wine)
+    private readonly wineRepo: Repository<Wine>,
+    @InjectRepository(Inventory)
+    private readonly inventoryRepo: Repository<Inventory>,
   ) {}
 
   async create(dto: CreateTastingNoteDto): Promise<TastingNote> {
+    const wine = await this.wineRepo.findOne({ where: { id: dto.wineId } });
+    if (!wine) {
+      throw new NotFoundException(`Wine #${dto.wineId} not found`);
+    }
+
+    const inventory = await this.inventoryRepo.findOne({ where: { id: dto.inventoryId } });
+    if (!inventory) {
+      throw new NotFoundException(`Inventory #${dto.inventoryId} not found`);
+    }
+
     const note = this.noteRepo.create({
-      wineId: dto.wineId,
-      inventoryId: dto.inventoryId,
+      wine,
+      inventory,
       tastingDate: dto.tastingDate,
       companions: dto.companions,
       appearanceScore: dto.appearanceScore,
@@ -26,9 +42,17 @@ export class TastingService {
     return this.noteRepo.save(note);
   }
 
+  async findAll(): Promise<TastingNote[]> {
+    return this.noteRepo.find({
+      relations: ['wine', 'inventory'],
+      order: { tastingDate: 'DESC' },
+    });
+  }
+
   async findByWine(wineId: number): Promise<TastingNote[]> {
     return this.noteRepo.find({
       where: { wineId },
+      relations: ['wine', 'inventory'],
       order: { tastingDate: 'DESC' },
     });
   }

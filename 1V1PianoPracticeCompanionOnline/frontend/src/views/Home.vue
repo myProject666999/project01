@@ -131,19 +131,19 @@
             </div>
           </el-card>
 
-          <el-card class="section-card card-shadow mt-20">
+          <el-card class="section-card card-shadow">
             <template #header>
               <span>推荐老师</span>
             </template>
             <div class="teacher-list">
               <div v-for="teacher in recommendedTeachers" :key="teacher.id" class="teacher-item" @click="goToTeacher(teacher.id)">
-                <el-avatar :size="48" :src="teacher.avatar">
-                  {{ teacher.username?.charAt(0) }}
+                <el-avatar :size="48" :src="teacher.user?.avatarUrl">
+                  {{ teacher.user?.name?.charAt(0) }}
                 </el-avatar>
                 <div class="teacher-info">
-                  <div class="teacher-name">{{ teacher.username }}</div>
+                  <div class="teacher-name">{{ teacher.user?.name }}</div>
                   <div class="teacher-rating">
-                    <el-rate v-model="teacher.rating" disabled :max="5" show-score />
+                    <el-rate :model-value="teacher.rating" disabled :max="5" show-score />
                   </div>
                 </div>
               </div>
@@ -243,15 +243,15 @@ function goToTeacher(teacherId: number) {
 }
 
 function viewRecordings() {
-  ElMessage.info('录像功能开发中')
+  router.push('/recordings')
 }
 
 function viewSheetMusic() {
-  ElMessage.info('曲谱库功能开发中')
+  router.push('/sheet-music')
 }
 
 function viewPackages() {
-  ElMessage.info('课程包功能开发中')
+  router.push('/course-packages')
 }
 
 function handleLogout() {

@@ -42,6 +42,24 @@ const routes: RouteRecordRaw[] = [
     name: 'Recording',
     component: () => import('@/views/RecordingPlayback.vue'),
     meta: { title: '录像回看', requiresAuth: true }
+  },
+  {
+    path: '/recordings',
+    name: 'RecordingsList',
+    component: () => import('@/views/RecordingsList.vue'),
+    meta: { title: '课程录像', requiresAuth: true }
+  },
+  {
+    path: '/sheet-music',
+    name: 'SheetMusicList',
+    component: () => import('@/views/SheetMusicList.vue'),
+    meta: { title: '曲谱库', requiresAuth: true }
+  },
+  {
+    path: '/course-packages',
+    name: 'CoursePackages',
+    component: () => import('@/views/CoursePackages.vue'),
+    meta: { title: '课程包', requiresAuth: true }
   }
 ]
 

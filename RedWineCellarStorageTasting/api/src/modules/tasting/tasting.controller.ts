@@ -19,6 +19,11 @@ export class TastingController {
     return this.tastingService.create(dto);
   }
 
+  @Get()
+  findAll() {
+    return this.tastingService.findAll();
+  }
+
   @Get('wine/:wineId')
   findByWine(@Param('wineId', ParseIntPipe) wineId: number) {
     return this.tastingService.findByWine(wineId);

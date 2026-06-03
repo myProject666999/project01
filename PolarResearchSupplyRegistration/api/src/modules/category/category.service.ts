@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, TreeRepository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Category } from '../../entities/category.entity';
 import { CreateCategoryDto, UpdateCategoryDto } from '../../dto/category.dto';
 
@@ -8,7 +8,7 @@ import { CreateCategoryDto, UpdateCategoryDto } from '../../dto/category.dto';
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
-    private categoryRepo: TreeRepository<Category>,
+    private categoryRepo: Repository<Category>,
   ) {}
 
   findAll() {
@@ -16,17 +16,21 @@ export class CategoryService {
   }
 
   async findTree() {
-    const trees = await this.categoryRepo.findTrees();
-    const sortChildren = (nodes: Category[]): Category[] => {
-      nodes.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-      for (const node of nodes) {
-        if (node.children && node.children.length > 0) {
-          node.children = sortChildren(node.children);
-        }
+    const all = await this.categoryRepo.find({ order: { sortOrder: 'ASC' } });
+    const map = new Map<number, any>();
+    for (const cat of all) {
+      map.set(cat.id, { ...cat, children: [] });
+    }
+    const roots: any[] = [];
+    for (const cat of all) {
+      const node = map.get(cat.id);
+      if (cat.parentId && map.has(cat.parentId)) {
+        map.get(cat.parentId).children.push(node);
+      } else {
+        roots.push(node);
       }
-      return nodes;
-    };
-    return sortChildren(trees);
+    }
+    return roots;
   }
 
   findOne(id: number) {

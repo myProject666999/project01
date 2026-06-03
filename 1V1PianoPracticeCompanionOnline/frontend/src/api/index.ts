@@ -1,3 +1,6 @@
 export * from './user'
 export * from './booking'
 export * from './lesson'
+export * from './course'
+export * from './sheetMusic'
+export * from './recording'

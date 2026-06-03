@@ -18,8 +18,13 @@ export class TeachersService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findAll(): Promise<Teacher[]> {
-    return this.teacherRepository.find({ relations: ['user', 'skills', 'bookings'] });
+  async findAll(page = 1, pageSize = 10): Promise<{ list: Teacher[]; total: number; page: number; pageSize: number }> {
+    const [list, total] = await this.teacherRepository.findAndCount({
+      relations: ['user', 'skills', 'bookings'],
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+    return { list, total, page, pageSize };
   }
 
   async findOne(id: number): Promise<Teacher> {

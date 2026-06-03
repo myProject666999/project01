@@ -364,7 +364,11 @@ const viewProof = async (row) => {
     currentProof.value = res.data
     showProofDialog.value = true
   } catch (e) {
-    console.error(e)
+    if (e.response && e.response.status === 404) {
+      ElMessage.info('该任务暂无签收凭证，请先完成签收')
+    } else {
+      console.error(e)
+    }
   }
 }
 

@@ -98,14 +98,55 @@ export interface LessonReport {
   createdAt: string
 }
 
-export interface Recording {
+export interface CoursePackage {
+  id: number
+  name: string
+  description: string
+  level: 'beginner' | 'elementary' | 'intermediate' | 'advanced' | 'all'
+  totalLessons: number
+  price: number
+  lessonDuration: number
+  validDays: number
+  isActive: boolean
+  createdAt: string
+}
+
+export interface UserCoursePackage {
+  id: number
+  userId: number
+  packageId: number
+  remainingLessons: number
+  totalLessons: number
+  purchaseDate: string
+  expireDate: string
+  status: 'active' | 'used_up' | 'expired'
+  amountPaid: number
+  package?: CoursePackage
+}
+
+export interface SheetMusic {
+  id: number
+  title: string
+  composer: string
+  difficultyLevel: string
+  fileType: 'pdf' | 'image'
+  fileUrl: string
+  pageCount: number
+  thumbnailUrl?: string
+  createdBy?: number
+  createdAt: string
+}
+
+export interface LessonRecording {
   id: number
   lessonId: number
-  title: string
+  recordingType: 'teacher' | 'student' | 'combined'
   videoUrl: string
-  duration: number
+  durationSeconds: number
+  fileSize: number
+  annotationSyncData?: any
   createdAt: string
-  annotations: Annotation[]
+  lesson?: Lesson
 }
 
 export interface LoginRequest {

@@ -282,11 +282,9 @@ const submitPackage = async () => {
   }
   try {
     const data = {
-      batch_id: currentBatch.value.id,
-      warehouse_id: currentBatch.value.warehouse_id,
       ...packageForm.value
     }
-    await batchAPI.addPackage(data)
+    await batchAPI.addPackage(currentBatch.value.id, data)
     ElMessage.success('添加成功')
     showAddPackageDialog.value = false
     loadData()

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { Requisition } from './requisition.entity';
 import { Supply } from './supply.entity';
 
@@ -21,12 +21,6 @@ export class RequisitionItem {
 
   @Column({ type: 'text', nullable: true })
   remark: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 
   @ManyToOne(() => Requisition, requisition => requisition.items, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'requisition_id' })

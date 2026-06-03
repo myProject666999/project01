@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { InventoryItem } from './inventory-item.entity';
 import { InventoryRecordType } from './enums';
 
@@ -31,9 +31,6 @@ export class InventoryRecord {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 
   @ManyToOne(() => InventoryItem, item => item.records)
   @JoinColumn({ name: 'inventory_item_id' })

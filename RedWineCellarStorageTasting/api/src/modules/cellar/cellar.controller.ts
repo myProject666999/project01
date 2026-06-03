@@ -8,33 +8,35 @@ import {
 } from '@nestjs/common';
 import { CellarService } from './cellar.service';
 import { StockInDto } from './dto';
+import { CellarSlotWithWine, CellarLayout } from './types';
+import { Inventory } from '@/entities/inventory.entity';
 
 @Controller('cellar')
 export class CellarController {
   constructor(private readonly cellarService: CellarService) {}
 
   @Get('slots')
-  getSlots() {
+  getSlots(): Promise<CellarSlotWithWine[]> {
     return this.cellarService.getSlots();
   }
 
   @Get('slots/available')
-  getAvailableSlots() {
+  getAvailableSlots(): Promise<CellarSlotWithWine[]> {
     return this.cellarService.getAvailableSlots();
   }
 
   @Post('stock-in')
-  stockIn(@Body() dto: StockInDto) {
+  stockIn(@Body() dto: StockInDto): Promise<Inventory> {
     return this.cellarService.stockIn(dto);
   }
 
   @Post('stock-out/:id')
-  stockOut(@Param('id', ParseIntPipe) id: number) {
+  stockOut(@Param('id', ParseIntPipe) id: number): Promise<Inventory> {
     return this.cellarService.stockOut(id);
   }
 
   @Get('layout')
-  getLayout() {
+  getLayout(): Promise<CellarLayout> {
     return this.cellarService.getLayout();
   }
 }

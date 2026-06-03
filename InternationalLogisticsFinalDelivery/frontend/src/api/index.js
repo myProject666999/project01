@@ -25,7 +25,8 @@ export const batchAPI = {
   list: (params) => request.get('/batches', { params }),
   get: (id) => request.get(`/batches/${id}`),
   create: (data) => request.post('/batches', data),
-  addPackage: (data) => request.post('/batches/packages', data)
+  addPackage: (batchId, data) => request.post(`/batches/${batchId}/packages`, data),
+  getPackages: (batchId, params) => request.get(`/batches/${batchId}/packages`, { params })
 }
 
 export const packageAPI = {

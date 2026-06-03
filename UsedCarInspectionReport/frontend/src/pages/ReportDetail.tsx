@@ -29,8 +29,6 @@ import { reportApi } from '../services/api';
 import { InspectionReport, InspectionResult } from '../types';
 import dayjs from 'dayjs';
 
-const { Panel } = Collapse;
-
 const ReportDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [report, setReport] = useState<InspectionReport | null>(null);
@@ -252,21 +250,21 @@ const ReportDetail: React.FC = () => {
 
         {/* 详细检测结果 */}
         <Card title="详细检测结果" size="small">
-          <Collapse defaultActiveKey={[]}>
-            {report?.categoryScores?.map(cs => {
+          <Collapse
+            defaultActiveKey={[]}
+            items={report?.categoryScores?.map(cs => {
               const categoryResults = report?.results?.filter(
                 r => r.categoryId === cs.categoryId
               ) || [];
-              return (
-                <Panel
-                  header={
-                    <span>
-                      {cs.categoryName}
-                      <Tag style={{ marginLeft: 8 }}>{categoryResults.length}项</Tag>
-                    </span>
-                  }
-                  key={cs.categoryId}
-                >
+              return {
+                key: cs.categoryId,
+                label: (
+                  <span>
+                    {cs.categoryName}
+                    <Tag style={{ marginLeft: 8 }}>{categoryResults.length}项</Tag>
+                  </span>
+                ),
+                children: (
                   <List
                     dataSource={categoryResults}
                     size="small"
@@ -297,10 +295,10 @@ const ReportDetail: React.FC = () => {
                       </List.Item>
                     )}
                   />
-                </Panel>
-              );
+                ),
+              };
             })}
-          </Collapse>
+          />
         </Card>
 
         {/* 报告底部 */}

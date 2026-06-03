@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { StocktakingService } from './stocktaking.service';
-import { CreateStocktakingDto, UpdateStocktakingItemDto } from '../../dto/stocktaking.dto';
+import { CreateStocktakingDto, UpdateStocktakingItemDto, ApproveStocktakingDto } from '../../dto/stocktaking.dto';
 
 @Controller('stocktaking')
 export class StocktakingController {
@@ -36,7 +36,7 @@ export class StocktakingController {
   }
 
   @Post(':id/approve')
-  approve(@Param('id', ParseIntPipe) id: number) {
-    return this.service.approve(id);
+  approve(@Param('id', ParseIntPipe) id: number, @Body() dto: ApproveStocktakingDto) {
+    return this.service.approve(id, dto);
   }
 }

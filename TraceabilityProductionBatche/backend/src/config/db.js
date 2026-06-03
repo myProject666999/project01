@@ -9,7 +9,13 @@ const pool = mysql.createPool({
   charset: 'utf8mb4',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
 });
+
+pool.execute('SELECT 1 as test')
+  .then(() => console.log('✅ 数据库连接池初始化成功'))
+  .catch(err => console.error('❌ 数据库连接失败:', err.message));
 
 module.exports = pool;

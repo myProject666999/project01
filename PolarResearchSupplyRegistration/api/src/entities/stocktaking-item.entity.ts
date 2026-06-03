@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { Stocktaking } from './stocktaking.entity';
 import { InventoryItem } from './inventory-item.entity';
 
@@ -27,12 +27,6 @@ export class StocktakingItem {
 
   @Column({ type: 'text', nullable: true })
   remark: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 
   @ManyToOne(() => Stocktaking, stocktaking => stocktaking.items, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'stocktaking_id' })

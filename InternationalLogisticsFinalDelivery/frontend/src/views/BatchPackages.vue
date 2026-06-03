@@ -66,7 +66,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { packageAPI } from '../api'
+import { batchAPI, packageAPI } from '../api'
 
 const route = useRoute()
 const router = useRouter()
@@ -96,16 +96,22 @@ const getStatusText = (status) => {
 const loadData = async () => {
   loading.value = true
   try {
-    const res = await packageAPI.list(batchId, { page: page.value, page_size: pageSize.value })
+    const res = await batchAPI.getPackages(batchId, { page: page.value, page_size: pageSize.value })
     list.value = res.data?.list || []
     total.value = res.data?.total || 0
-    if (list.value.length > 0) {
-      batchNo.value = list.value[0].batch?.batch_no || ''
-    }
   } catch (e) {
     console.error(e)
   } finally {
     loading.value = false
+  }
+}
+
+const loadBatchInfo = async () => {
+  try {
+    const res = await batchAPI.get(batchId)
+    batchNo.value = res.data?.batch_no || ''
+  } catch (e) {
+    console.error(e)
   }
 }
 
@@ -115,6 +121,7 @@ const viewLabel = (row) => {
 
 onMounted(() => {
   loadData()
+  loadBatchInfo()
 })
 </script>
 

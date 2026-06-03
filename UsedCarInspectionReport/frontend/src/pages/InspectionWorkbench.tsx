@@ -26,9 +26,7 @@ import type { UploadProps } from 'antd';
 import { inspectionApi, vehicleApi, reportApi, uploadApi } from '../services/api';
 import { InspectionCategory, InspectionItem, Vehicle, InspectionResult, InspectionPhoto } from '../types';
 
-const { Step } = Steps;
 const { TextArea } = Input;
-const { Option } = Select;
 
 const InspectionWorkbench: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -236,13 +234,12 @@ const InspectionWorkbench: React.FC = () => {
                 (option?.label as string).toLowerCase().includes(input.toLowerCase())
               }
               onChange={handleVehicleSelect}
-            >
-              {vehicles.map(v => (
-                <Option key={v.id} value={v.id} label={`${v.brand} ${v.model} - ${v.vin}`}>
-                  {v.brand} {v.model} - {v.licensePlate || v.vin}
-                </Option>
-              ))}
-            </Select>
+              options={vehicles.map(v => ({
+                key: v.id,
+                value: v.id,
+                label: `${v.brand} ${v.model} - ${v.licensePlate || v.vin}`,
+              }))}
+            />
           </Form.Item>
           <Form.Item
             label="检测日期"
@@ -269,11 +266,13 @@ const InspectionWorkbench: React.FC = () => {
 
       {!showVehicleModal && currentCategory && (
         <>
-          <Steps current={currentStep} style={{ marginBottom: 24 }}>
-            {categories.map((cat, index) => (
-              <Step key={cat.category.id} title={cat.category.name} />
-            ))}
-          </Steps>
+          <Steps
+            current={currentStep}
+            items={categories.map(cat => ({
+              title: cat.category.name,
+            }))}
+            style={{ marginBottom: 24 }}
+          />
 
           <Card
             title={

@@ -22,8 +22,6 @@ import { reportApi } from '../services/api';
 import { InspectionReport } from '../types';
 import dayjs from 'dayjs';
 
-const { Option } = Select;
-
 const ReportList: React.FC = () => {
   const [reports, setReports] = useState<InspectionReport[]>([]);
   const [loading, setLoading] = useState(false);
@@ -250,11 +248,12 @@ const ReportList: React.FC = () => {
               onChange={(v) => { setStatus(v); setPage(1); }}
               allowClear
               style={{ width: 150 }}
-            >
-              <Option value="draft">草稿</Option>
-              <Option value="submitted">已提交</Option>
-              <Option value="expired">已过期</Option>
-            </Select>
+              options={[
+                { value: 'draft', label: '草稿' },
+                { value: 'submitted', label: '已提交' },
+                { value: 'expired', label: '已过期' },
+              ]}
+            />
             <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
               搜索
             </Button>
