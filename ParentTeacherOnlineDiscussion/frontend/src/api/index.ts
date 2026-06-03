@@ -79,10 +79,10 @@ export const timeSlotAPI = {
     api.get(`/teachers/public/${teacherId}/slots`, { params: { date } }),
 
   createSlot: (data: TimeSlotCreate): Promise<ApiResponse<TimeSlot>> =>
-    api.post('/time-slots', data),
+    api.post('/time-slots', { slotDate: data.date, startTime: data.startTime, endTime: data.endTime }),
 
   updateSlot: (id: number, data: Partial<TimeSlotCreate>): Promise<ApiResponse<TimeSlot>> =>
-    api.put(`/time-slots/${id}`, data),
+    api.put(`/time-slots/${id}`, { date: data.date, startTime: data.startTime, endTime: data.endTime }),
 
   deleteSlot: (id: number): Promise<ApiResponse<void>> =>
     api.delete(`/time-slots/${id}`),

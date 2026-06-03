@@ -34,7 +34,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/report/:lessonId',
     name: 'Report',
-    component: () => import('@/views/LessonReport.vue'),
+    component: () => import('@/views/Evaluation.vue'),
     meta: { title: '课后报告', requiresAuth: true }
   },
   {

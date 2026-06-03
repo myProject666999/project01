@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, RelationId } from 'typeorm';
 import { Wine } from './wine.entity';
 
 @Entity('grape_variety')
@@ -16,6 +16,6 @@ export class GrapeVariety {
   @JoinColumn({ name: 'wine_id' })
   wine: Wine;
 
-  @Column({ name: 'wine_id', type: 'int' })
+  @RelationId((gv: GrapeVariety) => gv.wine)
   wineId: number;
 }

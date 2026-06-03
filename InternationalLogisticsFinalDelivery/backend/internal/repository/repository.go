@@ -101,6 +101,23 @@ func (r *Repository) UpdatePackageStatus(id uint64, status int8) error {
 	return r.db.Model(&model.Package{}).Where("id = ?", id).Update("status", status).Error
 }
 
+func (r *Repository) ListPackages(page, pageSize int, keyword string) ([]model.Package, int64, error) {
+	var packages []model.Package
+	var total int64
+
+	query := r.db.Model(&model.Package{})
+	if keyword != "" {
+		query = query.Joins("LEFT JOIN customers ON packages.customer_id = customers.id").
+			Where("packages.package_no LIKE ? OR customers.name LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
+	}
+
+	query.Count(&total)
+	offset := (page - 1) * pageSize
+	err := query.Preload("Batch").Preload("Customer").Preload("Label").
+		Offset(offset).Limit(pageSize).Order("packages.created_at DESC").Find(&packages).Error
+	return packages, total, err
+}
+
 type CustomerRepository interface {
 	Create(customer *model.Customer) error
 	GetByID(id uint64) (*model.Customer, error)
@@ -160,6 +177,21 @@ func (r *Repository) GetLabelByNo(labelNo string) (*model.Label, error) {
 
 func (r *Repository) UpdateLabel(label *model.Label) error {
 	return r.db.Save(label).Error
+}
+
+func (r *Repository) ListLabels(page, pageSize int, language string) ([]model.Label, int64, error) {
+	var labels []model.Label
+	var total int64
+
+	query := r.db.Model(&model.Label{})
+	if language != "" {
+		query = query.Where("language = ?", language)
+	}
+
+	query.Count(&total)
+	offset := (page - 1) * pageSize
+	err := query.Preload("Package.Customer").Offset(offset).Limit(pageSize).Order("created_at DESC").Find(&labels).Error
+	return labels, total, err
 }
 
 type CourierRepository interface {
@@ -339,6 +371,29 @@ func (r *Repository) BatchUpdateRoute(taskIDs []uint64, routeID uint64, courierI
 			"courier_id": courierID,
 			"status":     2,
 		}).Error
+}
+
+func (r *Repository) ListDeliveryTasks(page, pageSize int, status int8) ([]model.DeliveryTask, int64, error) {
+	var tasks []model.DeliveryTask
+	var total int64
+
+	query := r.db.Model(&model.DeliveryTask{})
+	if status > 0 {
+		query = query.Where("status = ?", status)
+	}
+
+	query.Count(&total)
+	offset := (page - 1) * pageSize
+	err := query.Preload("Package.Customer").Preload("Courier").Preload("Route").
+		Offset(offset).Limit(pageSize).Order("created_at DESC").Find(&tasks).Error
+	return tasks, total, err
+}
+
+func (r *Repository) GetDeliveryTaskByPackageID(packageID uint64) (*model.DeliveryTask, error) {
+	var task model.DeliveryTask
+	err := r.db.Preload("Package.Customer").Preload("Courier").Preload("Route").
+		Where("package_id = ?", packageID).Order("created_at DESC").First(&task).Error
+	return &task, err
 }
 
 type DeliveryProofRepository interface {

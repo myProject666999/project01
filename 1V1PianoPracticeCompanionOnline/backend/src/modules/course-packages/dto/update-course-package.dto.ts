@@ -1,4 +1,5 @@
-import { IsString, IsOptional, IsNumber, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsBoolean, IsEnum } from 'class-validator';
+import { CourseLevel } from '../../../entities/course-package.entity';
 
 export class UpdateCoursePackageDto {
   @IsString()
@@ -11,7 +12,7 @@ export class UpdateCoursePackageDto {
 
   @IsNumber()
   @IsOptional()
-  lessonCount?: number;
+  totalLessons?: number;
 
   @IsNumber()
   @IsOptional()
@@ -19,7 +20,15 @@ export class UpdateCoursePackageDto {
 
   @IsNumber()
   @IsOptional()
-  originalPrice?: number;
+  lessonDuration?: number;
+
+  @IsEnum(CourseLevel)
+  @IsOptional()
+  level?: CourseLevel;
+
+  @IsNumber()
+  @IsOptional()
+  validDays?: number;
 
   @IsBoolean()
   @IsOptional()

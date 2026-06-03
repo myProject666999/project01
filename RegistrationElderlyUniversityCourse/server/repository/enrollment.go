@@ -36,6 +36,15 @@ func (r *EnrollmentRepository) FindByUserAndCourse(userID, courseID uint) (*mode
 	return &enrollment, nil
 }
 
+func (r *EnrollmentRepository) FindAnyByUserAndCourse(userID, courseID uint) (*model.Enrollment, error) {
+	var enrollment model.Enrollment
+	err := r.db.Where("user_id = ? AND course_id = ?", userID, courseID).First(&enrollment).Error
+	if err != nil {
+		return nil, err
+	}
+	return &enrollment, nil
+}
+
 func (r *EnrollmentRepository) ListByUserID(userID uint) ([]model.Enrollment, error) {
 	var enrollments []model.Enrollment
 	err := r.db.Where("user_id = ? AND status = ?", userID, 1).

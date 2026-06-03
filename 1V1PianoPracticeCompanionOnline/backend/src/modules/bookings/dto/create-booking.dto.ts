@@ -3,10 +3,10 @@ import { BookingStatus } from '../../../entities/booking.entity';
 
 export class CreateBookingDto {
   @IsDateString()
-  startTime: string;
+  scheduledStart: string;
 
   @IsDateString()
-  endTime: string;
+  scheduledEnd: string;
 
   @IsString()
   @IsOptional()
@@ -23,6 +23,9 @@ export class CreateBookingDto {
   teacherId: number;
 
   @IsNumber()
+  userCoursePackageId: number;
+
+  @IsNumber()
   @IsOptional()
-  coursePackageId?: number;
+  sheetMusicId?: number;
 }

@@ -1,14 +1,14 @@
-import { IsDateString, IsString, IsOptional, IsEnum } from 'class-validator';
+import { IsDateString, IsString, IsOptional, IsEnum, IsNumber } from 'class-validator';
 import { BookingStatus } from '../../../entities/booking.entity';
 
 export class UpdateBookingDto {
   @IsDateString()
   @IsOptional()
-  startTime?: string;
+  scheduledStart?: string;
 
   @IsDateString()
   @IsOptional()
-  endTime?: string;
+  scheduledEnd?: string;
 
   @IsString()
   @IsOptional()
@@ -17,4 +17,20 @@ export class UpdateBookingDto {
   @IsEnum(BookingStatus)
   @IsOptional()
   status?: BookingStatus;
+
+  @IsString()
+  @IsOptional()
+  cancellationReason?: string;
+
+  @IsNumber()
+  @IsOptional()
+  cancelledBy?: number;
+
+  @IsDateString()
+  @IsOptional()
+  cancelledAt?: string;
+
+  @IsNumber()
+  @IsOptional()
+  sheetMusicId?: number;
 }

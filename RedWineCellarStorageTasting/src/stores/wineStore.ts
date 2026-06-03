@@ -15,7 +15,7 @@ export interface Wine {
   drinkFrom: number;
   drinkTo: number;
   purchasePrice: number;
-  marketPrice: number;
+  marketPrice: number | null;
   grapeVarieties: GrapeVariety[];
   bottleCount: number;
   createdAt: string;

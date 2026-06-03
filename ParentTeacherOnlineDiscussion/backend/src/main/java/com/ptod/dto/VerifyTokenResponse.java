@@ -14,4 +14,13 @@ public class VerifyTokenResponse {
     private Long userId;
     private String userRole;
     private String message;
+    private AppointmentDTO appointment;
+
+    public VerifyTokenResponse(boolean valid, Long appointmentId, Long userId, String userRole, String message) {
+        this.valid = valid;
+        this.appointmentId = appointmentId;
+        this.userId = userId;
+        this.userRole = userRole;
+        this.message = message;
+    }
 }

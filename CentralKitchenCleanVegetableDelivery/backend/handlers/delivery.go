@@ -76,7 +76,6 @@ func GenerateDeliveries(c *gin.Context) {
 	tx := database.DB.Begin()
 
 	ordersPerVehicle := (len(customerOrders) + len(vehicles) - 1) / len(vehicles)
-	customerIndex := 0
 	customerIDs := make([]uint, 0, len(customerOrders))
 	for id := range customerOrders {
 		customerIDs = append(customerIDs, id)

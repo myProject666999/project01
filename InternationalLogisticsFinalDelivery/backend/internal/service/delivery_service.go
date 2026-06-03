@@ -32,13 +32,14 @@ type CreateRouteResponse struct {
 func (s *DeliveryService) CreateRoute(req *CreateRouteRequest) (*CreateRouteResponse, error) {
 	routeNo := utils.GenerateRouteNo()
 	route := &model.Route{
-		RouteNo:     routeNo,
-		WarehouseID: req.WarehouseID,
-		CourierID:   &req.CourierID,
-		Name:        req.Name,
-		Area:        req.Area,
-		TotalTasks:  len(req.TaskIDs),
-		Status:      2,
+		RouteNo:       routeNo,
+		WarehouseID:   req.WarehouseID,
+		CourierID:     &req.CourierID,
+		Name:          req.Name,
+		Area:          req.Area,
+		TotalTasks:    len(req.TaskIDs),
+		Status:        2,
+		OptimizedPath: "[]",
 	}
 
 	if err := s.repo.CreateRoute(route); err != nil {
@@ -368,4 +369,24 @@ func (s *DeliveryService) GetPackage(id uint64) (*model.Package, error) {
 
 func (s *DeliveryService) ListPackagesByBatch(batchID uint64, page, pageSize int) ([]model.Package, int64, error) {
 	return s.repo.ListPackagesByBatch(batchID, page, pageSize)
+}
+
+func (s *DeliveryService) ListPackages(page, pageSize int, keyword string) ([]model.Package, int64, error) {
+	return s.repo.ListPackages(page, pageSize, keyword)
+}
+
+func (s *DeliveryService) ListLabels(page, pageSize int, language string) ([]model.Label, int64, error) {
+	return s.repo.ListLabels(page, pageSize, language)
+}
+
+func (s *DeliveryService) ListTasks(page, pageSize int, status int8) ([]model.DeliveryTask, int64, error) {
+	return s.repo.ListDeliveryTasks(page, pageSize, status)
+}
+
+func (s *DeliveryService) GetTaskByPackageID(packageID uint64) (*model.DeliveryTask, error) {
+	return s.repo.GetDeliveryTaskByPackageID(packageID)
+}
+
+func (s *DeliveryService) GetProofByTaskID(taskID uint64) (*model.DeliveryProof, error) {
+	return s.repo.GetDeliveryProofByTaskID(taskID)
 }

@@ -6,10 +6,11 @@ import { Booking } from '../../entities/booking.entity';
 import { Student } from '../../entities/student.entity';
 import { Teacher } from '../../entities/teacher.entity';
 import { UserCoursePackage } from '../../entities/user-course-package.entity';
+import { SheetMusic } from '../../entities/sheet-music.entity';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Booking, Student, Teacher, UserCoursePackage]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Booking, Student, Teacher, UserCoursePackage, SheetMusic]), AuthModule],
   controllers: [BookingsController],
   providers: [BookingsService],
   exports: [BookingsService],

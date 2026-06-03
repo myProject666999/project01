@@ -3,10 +3,12 @@ import { Lesson } from './lesson.entity';
 import { User } from './user.entity';
 
 export enum AnnotationType {
-  COMMENT = 'comment',
+  LINE = 'line',
+  CIRCLE = 'circle',
+  TEXT = 'text',
+  FINGER_NUMBER = 'finger_number',
   HIGHLIGHT = 'highlight',
-  CORRECTION = 'correction',
-  PRAISE = 'praise',
+  ARROW = 'arrow',
 }
 
 @Entity('lesson_annotations')
@@ -14,30 +16,50 @@ export class LessonAnnotation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text' })
+  @Column({ name: 'lesson_id' })
+  lessonId: number;
+
+  @Column({ name: 'created_by' })
+  createdBy: number;
+
+  @Column({ name: 'annotation_type', type: 'enum', enum: AnnotationType })
+  annotationType: AnnotationType;
+
+  @Column({ name: 'page_number', default: 1 })
+  pageNumber: number;
+
+  @Column({ name: 'position_x', type: 'decimal', precision: 10, scale: 4 })
+  positionX: number;
+
+  @Column({ name: 'position_y', type: 'decimal', precision: 10, scale: 4 })
+  positionY: number;
+
+  @Column({ name: 'end_position_x', type: 'decimal', precision: 10, scale: 4, nullable: true })
+  endPositionX: number;
+
+  @Column({ name: 'end_position_y', type: 'decimal', precision: 10, scale: 4, nullable: true })
+  endPositionY: number;
+
+  @Column({ default: '#FF0000' })
+  color: string;
+
+  @Column({ name: 'line_width', default: 2 })
+  lineWidth: number;
+
+  @Column({ type: 'text', nullable: true })
   content: string;
 
-  @Column({
-    type: 'enum',
-    enum: AnnotationType,
-    default: AnnotationType.COMMENT,
-  })
-  type: AnnotationType;
+  @Column({ name: 'timestamp_seconds' })
+  timestampSeconds: number;
 
-  @Column({ nullable: true })
-  measure: number;
-
-  @Column({ nullable: true })
-  timestamp: number;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
   @ManyToOne(() => Lesson, (lesson) => lesson.annotations)
-  @JoinColumn()
+  @JoinColumn({ name: 'lesson_id' })
   lesson: Lesson;
 
   @ManyToOne(() => User)
-  @JoinColumn()
-  createdBy: User;
-
-  @CreateDateColumn()
-  createdAt: Date;
+  @JoinColumn({ name: 'created_by' })
+  creator: User;
 }

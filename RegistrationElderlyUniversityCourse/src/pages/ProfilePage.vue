@@ -17,7 +17,7 @@ const dropId = ref<number | null>(null)
 const dropping = ref(false)
 
 const menuItems = [
-  { name: '我的报名', icon: BookOpen, path: '/profile', action: 'enrollments' },
+  { name: '我的报名', icon: BookOpen, action: 'enrollments' },
   { name: '候补状态', icon: ClipboardList, path: '/waitlist' },
   { name: '考勤查询', icon: CalendarDays, path: '/attendance' },
 ]
@@ -59,6 +59,16 @@ async function doDrop() {
   }
 }
 
+const enrollmentsSection = ref<HTMLElement | null>(null)
+
+function handleMenuClick(item: { name: string; path?: string; action?: string }) {
+  if (item.path) {
+    router.push(item.path)
+  } else if (item.action === 'enrollments' && enrollmentsSection.value) {
+    enrollmentsSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
 function handleLogout() {
   logout()
 }
@@ -92,7 +102,7 @@ function handleLogout() {
         <button
           v-for="item in menuItems"
           :key="item.name"
-          @click="item.path !== '/profile' ? router.push(item.path) : null"
+          @click="handleMenuClick(item)"
           class="w-full flex items-center justify-between px-5 py-4 active:bg-cream-dark transition-colors"
         >
           <div class="flex items-center gap-3">
@@ -112,7 +122,7 @@ function handleLogout() {
         </button>
       </div>
 
-      <h3 class="text-xl2 font-bold text-secondary mb-3">我的报名</h3>
+      <h3 ref="enrollmentsSection" class="text-xl2 font-bold text-secondary mb-3">我的报名</h3>
       <Empty v-if="enrollments.length === 0" message="暂无报名课程" />
       <div v-else class="flex flex-col gap-3">
         <div

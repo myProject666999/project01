@@ -1,34 +1,47 @@
-import { IsString, IsOptional, IsNumber, IsArray, ValidateNested } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsBoolean, IsArray, ValidateNested, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+import { DifficultyLevel, ProficiencyLevel } from '../../../entities/teacher-skill.entity';
 
 class SkillDto {
   @IsNumber()
   @IsOptional()
   id?: number;
 
-  @IsString()
-  name: string;
+  @IsEnum(DifficultyLevel)
+  difficultyLevel: DifficultyLevel;
 
-  @IsNumber()
-  proficiency: number;
+  @IsEnum(ProficiencyLevel)
+  @IsOptional()
+  proficiencyLevel?: ProficiencyLevel;
 }
 
 export class UpdateTeacherDto {
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  realName?: string;
-
-  @IsString()
-  @IsOptional()
-  phone?: string;
+  teachingYears?: number;
 
   @IsString()
   @IsOptional()
   bio?: string;
 
+  @IsString()
+  @IsOptional()
+  certifications?: string;
+
   @IsNumber()
   @IsOptional()
-  pricePerHour?: number;
+  hourlyRate?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  chineseTeaching?: boolean;
+
+  @IsString()
+  @IsOptional()
+  videoIntroUrl?: string;
+
+  @IsOptional()
+  availableTimes?: object;
 
   @IsArray()
   @ValidateNested({ each: true })

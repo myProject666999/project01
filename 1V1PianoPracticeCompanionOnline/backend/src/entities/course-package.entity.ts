@@ -1,6 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { Teacher } from './teacher.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { UserCoursePackage } from './user-course-package.entity';
+
+export enum CourseLevel {
+  ALL = 'all',
+  BEGINNER = 'beginner',
+  ELEMENTARY = 'elementary',
+  INTERMEDIATE = 'intermediate',
+  ADVANCED = 'advanced',
+}
 
 @Entity('course_packages')
 export class CoursePackage {
@@ -13,22 +20,30 @@ export class CoursePackage {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'int' })
-  lessonCount: number;
+  @Column({ name: 'total_lessons' })
+  totalLessons: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  originalPrice: number;
+  @Column({ name: 'lesson_duration' })
+  lessonDuration: number;
 
-  @Column({ default: true })
+  @Column({ type: 'enum', enum: CourseLevel, default: CourseLevel.ALL })
+  level: CourseLevel;
+
+  @Column({ name: 'valid_days', default: 365 })
+  validDays: number;
+
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
-  @ManyToOne(() => Teacher, (teacher) => teacher.coursePackages)
-  @JoinColumn()
-  teacher: Teacher;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-  @OneToMany(() => UserCoursePackage, (userCoursePackage) => userCoursePackage.coursePackage)
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+
+  @OneToMany(() => UserCoursePackage, (ucp) => ucp.coursePackage)
   userPackages: UserCoursePackage[];
 }

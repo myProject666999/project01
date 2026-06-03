@@ -76,14 +76,24 @@ func (s *EnrollmentService) Enroll(userID, courseID uint) (*model.Enrollment, er
 		return nil, errors.New("课程已满，已加入候补列表")
 	}
 
-	enrollment := &model.Enrollment{
-		UserID:   userID,
-		CourseID: courseID,
-		Status:   1,
-	}
-	if err := s.enrollmentRepo.Create(enrollment); err != nil {
-		s.rdb.Incr(ctx, fmt.Sprintf("course:stock:%d", courseID))
-		return nil, err
+	var enrollment *model.Enrollment
+	existing, err := s.enrollmentRepo.FindAnyByUserAndCourse(userID, courseID)
+	if err == nil && existing.Status == 0 {
+		enrollment = existing
+		if err := s.enrollmentRepo.UpdateStatus(existing.ID, 1); err != nil {
+			s.rdb.Incr(ctx, fmt.Sprintf("course:stock:%d", courseID))
+			return nil, err
+		}
+	} else {
+		enrollment = &model.Enrollment{
+			UserID:   userID,
+			CourseID: courseID,
+			Status:   1,
+		}
+		if err := s.enrollmentRepo.Create(enrollment); err != nil {
+			s.rdb.Incr(ctx, fmt.Sprintf("course:stock:%d", courseID))
+			return nil, err
+		}
 	}
 
 	s.rdb.SAdd(ctx, fmt.Sprintf("user:enrollments:%d", userID), strconv.FormatUint(uint64(courseID), 10))
@@ -144,14 +154,22 @@ func (s *EnrollmentService) promoteWaitlistedUser(ctx context.Context, userID, c
 		return
 	}
 
-	enrollment := &model.Enrollment{
-		UserID:   userID,
-		CourseID: courseID,
-		Status:   1,
-	}
-	if err := s.enrollmentRepo.Create(enrollment); err != nil {
-		s.rdb.Incr(ctx, fmt.Sprintf("course:stock:%d", courseID))
-		return
+	existing, err := s.enrollmentRepo.FindAnyByUserAndCourse(userID, courseID)
+	if err == nil && existing.Status == 0 {
+		if err := s.enrollmentRepo.UpdateStatus(existing.ID, 1); err != nil {
+			s.rdb.Incr(ctx, fmt.Sprintf("course:stock:%d", courseID))
+			return
+		}
+	} else if err != nil {
+		enrollment := &model.Enrollment{
+			UserID:   userID,
+			CourseID: courseID,
+			Status:   1,
+		}
+		if err := s.enrollmentRepo.Create(enrollment); err != nil {
+			s.rdb.Incr(ctx, fmt.Sprintf("course:stock:%d", courseID))
+			return
+		}
 	}
 
 	s.rdb.SAdd(ctx, fmt.Sprintf("user:enrollments:%d", userID), strconv.FormatUint(uint64(courseID), 10))

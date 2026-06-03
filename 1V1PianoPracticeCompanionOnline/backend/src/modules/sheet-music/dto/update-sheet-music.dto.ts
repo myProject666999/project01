@@ -1,4 +1,6 @@
-import { IsString, IsOptional, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsEnum } from 'class-validator';
+import { DifficultyLevel } from '../../../entities/teacher-skill.entity';
+import { SheetMusicFileType } from '../../../entities/sheet-music.entity';
 
 export class UpdateSheetMusicDto {
   @IsString()
@@ -7,11 +9,15 @@ export class UpdateSheetMusicDto {
 
   @IsString()
   @IsOptional()
-  artist?: string;
+  composer?: string;
 
-  @IsString()
+  @IsEnum(DifficultyLevel)
   @IsOptional()
-  description?: string;
+  difficultyLevel?: DifficultyLevel;
+
+  @IsEnum(SheetMusicFileType)
+  @IsOptional()
+  fileType?: SheetMusicFileType;
 
   @IsString()
   @IsOptional()
@@ -19,9 +25,13 @@ export class UpdateSheetMusicDto {
 
   @IsString()
   @IsOptional()
-  difficulty?: string;
+  thumbnailUrl?: string;
 
-  @IsBoolean()
+  @IsNumber()
   @IsOptional()
-  isPublic?: boolean;
+  pageCount?: number;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
 }

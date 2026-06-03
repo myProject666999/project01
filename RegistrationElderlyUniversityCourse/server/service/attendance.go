@@ -24,7 +24,7 @@ func (s *AttendanceService) MyAttendance(userID uint, month string) ([]Attendanc
 	if err != nil {
 		return nil, err
 	}
-	var result []AttendanceWithCourse
+	result := make([]AttendanceWithCourse, 0)
 	for _, a := range attendances {
 		enrollment, err := s.enrollmentRepo.FindByID(a.EnrollmentID)
 		if err != nil {
@@ -39,5 +39,21 @@ func (s *AttendanceService) MyAttendance(userID uint, month string) ([]Attendanc
 }
 
 func (s *AttendanceService) Stats(userID uint) (map[string]int64, error) {
-	return s.attendanceRepo.StatsByUserID(userID)
+	stats, err := s.attendanceRepo.StatsByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+	if stats == nil {
+		stats = make(map[string]int64)
+	}
+	if _, ok := stats["present"]; !ok {
+		stats["present"] = 0
+	}
+	if _, ok := stats["absent"]; !ok {
+		stats["absent"] = 0
+	}
+	if _, ok := stats["leave"]; !ok {
+		stats["leave"] = 0
+	}
+	return stats, nil
 }

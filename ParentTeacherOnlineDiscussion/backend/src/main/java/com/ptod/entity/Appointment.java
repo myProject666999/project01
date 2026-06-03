@@ -39,11 +39,17 @@ public class Appointment {
     @Column(nullable = false)
     private Integer duration;
 
+    @Column(length = 200)
+    private String subject;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     public enum AppointmentStatus {
-        PENDING, CONFIRMED, CANCELLED, COMPLETED
+        PENDING, CONFIRMED, CANCELLED, COMPLETED, IN_PROGRESS
     }
 }

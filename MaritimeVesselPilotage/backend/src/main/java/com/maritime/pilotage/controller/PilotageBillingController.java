@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -144,5 +145,18 @@ public class PilotageBillingController {
             @RequestParam Boolean isHoliday) {
         BigDecimal result = billingCalculationService.calculateSurcharges(baseAmount, isNight, isWeekend, isHoliday);
         return Result.success(result);
+    }
+
+    @PostMapping("/{id}/mark-paid")
+    public Result<PilotageBilling> markPaid(@PathVariable Long id) {
+        Optional<PilotageBilling> optionalBilling = pilotageBillingRepository.findById(id);
+        if (!optionalBilling.isPresent()) {
+            return Result.error("计费单不存在");
+        }
+        PilotageBilling billing = optionalBilling.get();
+        billing.setBillingStatus(2);
+        billing.setPaidDate(LocalDate.now());
+        PilotageBilling updated = pilotageBillingRepository.save(billing);
+        return Result.success("标记支付成功", updated);
     }
 }

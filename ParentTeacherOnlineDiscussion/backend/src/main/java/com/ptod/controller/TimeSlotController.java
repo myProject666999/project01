@@ -3,6 +3,7 @@ package com.ptod.controller;
 import com.ptod.dto.ApiResponse;
 import com.ptod.dto.CreateSlotRequest;
 import com.ptod.dto.TimeSlotDTO;
+import com.ptod.dto.UpdateSlotRequest;
 import com.ptod.entity.User;
 import com.ptod.service.TimeSlotService;
 import com.ptod.util.SecurityUtil;
@@ -40,6 +41,14 @@ public class TimeSlotController {
     public ApiResponse<TimeSlotDTO> toggleAvailability(@PathVariable Long id) {
         Long teacherId = securityUtil.getCurrentUserId();
         TimeSlotDTO slot = timeSlotService.toggleAvailability(teacherId, id);
+        return ApiResponse.success("更新成功", slot);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ApiResponse<TimeSlotDTO> updateTimeSlot(@PathVariable Long id, @RequestBody UpdateSlotRequest request) {
+        Long teacherId = securityUtil.getCurrentUserId();
+        TimeSlotDTO slot = timeSlotService.updateTimeSlot(teacherId, id, request);
         return ApiResponse.success("更新成功", slot);
     }
 }

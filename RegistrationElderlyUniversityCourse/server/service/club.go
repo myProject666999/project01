@@ -4,6 +4,7 @@ import (
 	"errors"
 	"server/model"
 	"server/repository"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -35,8 +36,10 @@ func (s *ClubService) Join(userID, clubID uint) (*model.ClubMember, error) {
 	}
 
 	member := &model.ClubMember{
-		UserID: userID,
-		ClubID: clubID,
+		UserID:   userID,
+		ClubID:   clubID,
+		Status:   1,
+		JoinedAt: time.Now(),
 	}
 	if err := s.clubRepo.CreateClubMember(member); err != nil {
 		return nil, err

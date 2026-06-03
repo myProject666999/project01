@@ -15,10 +15,7 @@ export class CoursePackagesController {
   }
 
   @Get()
-  findAll(@Query('teacherId') teacherId?: string) {
-    if (teacherId) {
-      return this.coursePackagesService.findByTeacher(+teacherId);
-    }
+  findAll() {
     return this.coursePackagesService.findAll();
   }
 

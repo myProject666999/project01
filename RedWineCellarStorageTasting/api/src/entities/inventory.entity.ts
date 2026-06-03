@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToOne,
   JoinColumn,
+  RelationId,
 } from 'typeorm';
 import { Wine } from './wine.entity';
 import { CellarSlot } from './cellar-slot.entity';
@@ -33,14 +34,14 @@ export class Inventory {
   @JoinColumn({ name: 'wine_id' })
   wine: Wine;
 
-  @Column({ name: 'wine_id', type: 'int' })
+  @RelationId((inv: Inventory) => inv.wine)
   wineId: number;
 
   @OneToOne(() => CellarSlot, (slot) => slot.inventory)
   @JoinColumn({ name: 'slot_id' })
   slot: CellarSlot;
 
-  @Column({ name: 'slot_id', type: 'int' })
+  @RelationId((inv: Inventory) => inv.slot)
   slotId: number;
 
   @OneToOne(() => TastingNote, (tn) => tn.inventory)

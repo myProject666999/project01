@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, RelationId } from 'typeorm';
 import { Wine } from './wine.entity';
 import { Inventory } from './inventory.entity';
 
@@ -32,13 +32,13 @@ export class TastingNote {
   @JoinColumn({ name: 'wine_id' })
   wine: Wine;
 
-  @Column({ name: 'wine_id', type: 'int' })
+  @RelationId((tn: TastingNote) => tn.wine)
   wineId: number;
 
   @ManyToOne(() => Inventory, (inv) => inv.tastingNote)
   @JoinColumn({ name: 'inventory_id' })
   inventory: Inventory;
 
-  @Column({ name: 'inventory_id', type: 'int' })
+  @RelationId((tn: TastingNote) => tn.inventory)
   inventoryId: number;
 }

@@ -65,8 +65,9 @@ public class CsScoreService {
             score.setCreateTime(LocalDateTime.now());
             score.setUpdateTime(LocalDateTime.now());
 
+            long csId = (long) i;
             CsScore existing = existingScores.stream()
-                    .filter(s -> s.getCsId().equals((long) i))
+                    .filter(s -> s.getCsId().equals(csId))
                     .findFirst()
                     .orElse(null);
 

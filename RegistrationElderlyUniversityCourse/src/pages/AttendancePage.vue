@@ -18,9 +18,13 @@ const firstDayOfWeek = computed(() => (new Date(year.value, month.value - 1, 1).
 
 const attendanceMap = computed(() => {
   const map = new Map<string, number>()
-  records.value.forEach(r => {
-    map.set(r.attendance_date.slice(0, 10), r.status)
-  })
+  if (records.value) {
+    records.value.forEach(r => {
+      if (r && r.attendance_date) {
+        map.set(r.attendance_date.slice(0, 10), r.status)
+      }
+    })
+  }
   return map
 })
 
@@ -32,10 +36,10 @@ async function fetchData() {
     const monthStr = `${year.value}-${String(month.value).padStart(2, '0')}`
     const [recordsRes, statsRes] = await Promise.all([
       get<AttendanceRecord[]>('/attendance/my', { month: monthStr }),
-      get<AttendanceStats>('/attendance/stats', { month: monthStr }),
+      get<AttendanceStats>('/attendance/stats'),
     ])
-    if (recordsRes.code === 0) records.value = recordsRes.data
-    if (statsRes.code === 0) stats.value = statsRes.data
+    if (recordsRes.code === 0) records.value = recordsRes.data || []
+    if (statsRes.code === 0) stats.value = statsRes.data || { present: 0, absent: 0, leave: 0 }
   } catch { /* */ } finally {
     loading.value = false
   }

@@ -21,7 +21,7 @@ export class AnnotationsService {
   async findByLesson(lessonId: number): Promise<LessonAnnotation[]> {
     return this.annotationRepository.find({
       where: { lesson: { id: lessonId } },
-      relations: ['lesson', 'createdBy'],
+      relations: ['lesson', 'creator'],
       order: { createdAt: 'ASC' },
     });
   }
@@ -29,7 +29,7 @@ export class AnnotationsService {
   async findOne(id: number): Promise<LessonAnnotation> {
     const annotation = await this.annotationRepository.findOne({
       where: { id },
-      relations: ['lesson', 'createdBy'],
+      relations: ['lesson', 'creator'],
     });
     if (!annotation) {
       throw new NotFoundException(`Annotation with ID ${id} not found`);
@@ -43,18 +43,24 @@ export class AnnotationsService {
       throw new NotFoundException(`Lesson with ID ${createAnnotationDto.lessonId} not found`);
     }
 
-    const createdBy = await this.userRepository.findOne({ where: { id: createAnnotationDto.createdById } });
-    if (!createdBy) {
+    const creator = await this.userRepository.findOne({ where: { id: createAnnotationDto.createdById } });
+    if (!creator) {
       throw new NotFoundException(`User with ID ${createAnnotationDto.createdById} not found`);
     }
 
     const annotation = this.annotationRepository.create({
+      annotationType: createAnnotationDto.annotationType || AnnotationType.TEXT,
+      pageNumber: createAnnotationDto.pageNumber,
+      positionX: createAnnotationDto.positionX,
+      positionY: createAnnotationDto.positionY,
+      endPositionX: createAnnotationDto.endPositionX,
+      endPositionY: createAnnotationDto.endPositionY,
+      color: createAnnotationDto.color,
+      lineWidth: createAnnotationDto.lineWidth,
       content: createAnnotationDto.content,
-      type: createAnnotationDto.type || AnnotationType.COMMENT,
-      measure: createAnnotationDto.measure,
-      timestamp: createAnnotationDto.timestamp,
+      timestampSeconds: createAnnotationDto.timestampSeconds,
       lesson,
-      createdBy,
+      creator,
     });
 
     return this.annotationRepository.save(annotation);

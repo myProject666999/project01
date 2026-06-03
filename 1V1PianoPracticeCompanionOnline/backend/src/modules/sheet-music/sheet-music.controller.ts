@@ -15,11 +15,11 @@ export class SheetMusicController {
   }
 
   @Get()
-  findAll(@Query('public') publicOnly: string = 'true', @Query('userId') userId?: string) {
+  findAll(@Query('userId') userId?: string) {
     if (userId) {
-      return this.sheetMusicService.findByUser(+userId);
+      return this.sheetMusicService.findByCreator(+userId);
     }
-    return this.sheetMusicService.findAll(publicOnly === 'true');
+    return this.sheetMusicService.findAll();
   }
 
   @Get(':id')

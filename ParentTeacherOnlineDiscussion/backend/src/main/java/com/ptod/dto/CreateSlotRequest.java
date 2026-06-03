@@ -1,5 +1,6 @@
 package com.ptod.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -10,14 +11,16 @@ import java.time.LocalTime;
 public class CreateSlotRequest {
 
     @NotNull(message = "日期不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate slotDate;
 
     @NotNull(message = "开始时间不能为空")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
 
     @NotNull(message = "结束时间不能为空")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
-    @NotNull(message = "时长不能为空")
     private Integer duration;
 }

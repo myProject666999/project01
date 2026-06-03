@@ -27,20 +27,14 @@ export class WineService {
       drinkTo: dto.drinkTo,
       purchasePrice: dto.purchasePrice,
       marketPrice: dto.marketPrice,
-    });
-    const saved = await this.wineRepo.save(wine);
-
-    if (dto.grapeVarieties && dto.grapeVarieties.length > 0) {
-      const varieties = dto.grapeVarieties.map((gv) =>
+      grapeVarieties: dto.grapeVarieties.map((gv) =>
         this.grapeVarietyRepo.create({
           name: gv.name,
           percentage: gv.percentage,
-          wineId: saved.id,
         }),
-      );
-      await this.grapeVarietyRepo.save(varieties);
-    }
-
+      ),
+    });
+    const saved = await this.wineRepo.save(wine);
     return this.findOne(saved.id);
   }
 
@@ -105,17 +99,12 @@ export class WineService {
     const wine = await this.findOne(id);
 
     if (dto.grapeVarieties !== undefined) {
-      await this.grapeVarietyRepo.delete({ wineId: id });
-      if (dto.grapeVarieties.length > 0) {
-        const varieties = dto.grapeVarieties.map((gv) =>
-          this.grapeVarietyRepo.create({
-            name: gv.name,
-            percentage: gv.percentage,
-            wineId: id,
-          }),
-        );
-        await this.grapeVarietyRepo.save(varieties);
-      }
+      wine.grapeVarieties = dto.grapeVarieties.map((gv) =>
+        this.grapeVarietyRepo.create({
+          name: gv.name,
+          percentage: gv.percentage,
+        }),
+      );
     }
 
     const updateData: Partial<Wine> = {};
@@ -128,7 +117,8 @@ export class WineService {
     if (dto.purchasePrice !== undefined) updateData.purchasePrice = dto.purchasePrice;
     if (dto.marketPrice !== undefined) updateData.marketPrice = dto.marketPrice;
 
-    await this.wineRepo.update(id, updateData);
+    Object.assign(wine, updateData);
+    await this.wineRepo.save(wine);
     return this.findOne(id);
   }
 

@@ -99,6 +99,7 @@ type Label struct {
 	PrintedAt  *time.Time `json:"printed_at,omitempty"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+	Package    *Package  `gorm:"foreignKey:PackageID" json:"package,omitempty"`
 }
 
 func (Label) TableName() string {
@@ -141,7 +142,7 @@ type Route struct {
 	EstimatedEndTime   *time.Time     `json:"estimated_end_time,omitempty"`
 	ActualStartTime    *time.Time     `json:"actual_start_time,omitempty"`
 	ActualEndTime      *time.Time     `json:"actual_end_time,omitempty"`
-	OptimizedPath      string         `gorm:"type:json" json:"optimized_path"`
+	OptimizedPath      string         `gorm:"type:text" json:"optimized_path"`
 	CreatedAt          time.Time      `json:"created_at"`
 	UpdatedAt          time.Time      `json:"updated_at"`
 	Courier            *Courier       `gorm:"foreignKey:CourierID" json:"courier,omitempty"`

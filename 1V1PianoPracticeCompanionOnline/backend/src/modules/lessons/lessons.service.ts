@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Lesson, LessonStatus } from '../../entities/lesson.entity';
 import { Booking } from '../../entities/booking.entity';
+import { Student } from '../../entities/student.entity';
+import { Teacher } from '../../entities/teacher.entity';
 import { SheetMusic } from '../../entities/sheet-music.entity';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
@@ -14,29 +16,33 @@ export class LessonsService {
     private lessonRepository: Repository<Lesson>,
     @InjectRepository(Booking)
     private bookingRepository: Repository<Booking>,
+    @InjectRepository(Student)
+    private studentRepository: Repository<Student>,
+    @InjectRepository(Teacher)
+    private teacherRepository: Repository<Teacher>,
     @InjectRepository(SheetMusic)
     private sheetMusicRepository: Repository<SheetMusic>,
   ) {}
 
   async findAll(): Promise<Lesson[]> {
     return this.lessonRepository.find({
-      relations: ['booking', 'booking.student', 'booking.teacher', 'sheetMusic', 'annotations', 'evaluations', 'recordings'],
+      relations: ['booking', 'student', 'student.user', 'teacher', 'teacher.user', 'sheetMusic', 'annotations', 'evaluations', 'recordings'],
       order: { createdAt: 'DESC' },
     });
   }
 
   async findByStudent(studentId: number): Promise<Lesson[]> {
     return this.lessonRepository.find({
-      where: { booking: { student: { id: studentId } } },
-      relations: ['booking', 'booking.student', 'booking.teacher', 'sheetMusic', 'annotations', 'evaluations', 'recordings'],
+      where: { student: { id: studentId } },
+      relations: ['booking', 'student', 'student.user', 'teacher', 'teacher.user', 'sheetMusic', 'annotations', 'evaluations', 'recordings'],
       order: { createdAt: 'DESC' },
     });
   }
 
   async findByTeacher(teacherId: number): Promise<Lesson[]> {
     return this.lessonRepository.find({
-      where: { booking: { teacher: { id: teacherId } } },
-      relations: ['booking', 'booking.student', 'booking.teacher', 'sheetMusic', 'annotations', 'evaluations', 'recordings'],
+      where: { teacher: { id: teacherId } },
+      relations: ['booking', 'student', 'student.user', 'teacher', 'teacher.user', 'sheetMusic', 'annotations', 'evaluations', 'recordings'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -44,7 +50,7 @@ export class LessonsService {
   async findOne(id: number): Promise<Lesson> {
     const lesson = await this.lessonRepository.findOne({
       where: { id },
-      relations: ['booking', 'booking.student', 'booking.student.user', 'booking.teacher', 'booking.teacher.user', 'sheetMusic', 'annotations', 'annotations.createdBy', 'evaluations', 'recordings'],
+      relations: ['booking', 'student', 'student.user', 'teacher', 'teacher.user', 'sheetMusic', 'annotations', 'annotations.creator', 'evaluations', 'recordings'],
     });
     if (!lesson) {
       throw new NotFoundException(`Lesson with ID ${id} not found`);
@@ -58,6 +64,16 @@ export class LessonsService {
       throw new NotFoundException(`Booking with ID ${createLessonDto.bookingId} not found`);
     }
 
+    const student = await this.studentRepository.findOne({ where: { id: createLessonDto.studentId } });
+    if (!student) {
+      throw new NotFoundException(`Student with ID ${createLessonDto.studentId} not found`);
+    }
+
+    const teacher = await this.teacherRepository.findOne({ where: { id: createLessonDto.teacherId } });
+    if (!teacher) {
+      throw new NotFoundException(`Teacher with ID ${createLessonDto.teacherId} not found`);
+    }
+
     let sheetMusic = null;
     if (createLessonDto.sheetMusicId) {
       sheetMusic = await this.sheetMusicRepository.findOne({ where: { id: createLessonDto.sheetMusicId } });
@@ -67,9 +83,15 @@ export class LessonsService {
     }
 
     const lesson = this.lessonRepository.create({
-      lessonPlan: createLessonDto.lessonPlan,
       status: createLessonDto.status || LessonStatus.NOT_STARTED,
+      roomId: createLessonDto.roomId,
+      teacherVideoUrl: createLessonDto.teacherVideoUrl,
+      studentVideoUrl: createLessonDto.studentVideoUrl,
+      actualStart: createLessonDto.actualStart ? new Date(createLessonDto.actualStart) : null,
+      actualEnd: createLessonDto.actualEnd ? new Date(createLessonDto.actualEnd) : null,
       booking,
+      student,
+      teacher,
       sheetMusic,
     });
 
@@ -87,14 +109,19 @@ export class LessonsService {
       lesson.sheetMusic = sheetMusic;
     }
 
-    if (updateLessonDto.actualStartTime) {
-      lesson.actualStartTime = new Date(updateLessonDto.actualStartTime);
+    if (updateLessonDto.actualStart) {
+      lesson.actualStart = new Date(updateLessonDto.actualStart);
     }
-    if (updateLessonDto.actualEndTime) {
-      lesson.actualEndTime = new Date(updateLessonDto.actualEndTime);
+    if (updateLessonDto.actualEnd) {
+      lesson.actualEnd = new Date(updateLessonDto.actualEnd);
     }
 
-    Object.assign(lesson, updateLessonDto);
+    Object.assign(lesson, {
+      status: updateLessonDto.status,
+      roomId: updateLessonDto.roomId,
+      teacherVideoUrl: updateLessonDto.teacherVideoUrl,
+      studentVideoUrl: updateLessonDto.studentVideoUrl,
+    });
     return this.lessonRepository.save(lesson);
   }
 

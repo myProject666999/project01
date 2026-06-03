@@ -36,15 +36,16 @@ export class AuthService {
       email,
       password: hashedPassword,
       role,
+      name: registerDto.name || username,
     });
 
     const savedUser = await this.userRepository.save(user);
 
     if (role === 'student') {
-      const student = this.studentRepository.create({ user: savedUser });
+      const student = this.studentRepository.create({ userId: savedUser.id });
       await this.studentRepository.save(student);
     } else if (role === 'teacher') {
-      const teacher = this.teacherRepository.create({ user: savedUser });
+      const teacher = this.teacherRepository.create({ userId: savedUser.id });
       await this.teacherRepository.save(teacher);
     }
 
@@ -53,14 +54,17 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
+    console.log('Login attempt:', { email, passwordLength: password?.length });
     const user = await this.userRepository.findOne({ where: { email } });
+    console.log('User found:', user ? { id: user.id, email: user.email, hasPassword: !!user.password, passwordPrefix: user.password?.substring(0, 10) } : null);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials - user not found');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('Password valid:', isPasswordValid);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials - wrong password');
     }
 
     return this.generateToken(user);
@@ -75,7 +79,8 @@ export class AuthService {
         username: user.username,
         email: user.email,
         role: user.role,
-        avatar: user.avatar,
+        name: user.name,
+        avatarUrl: user.avatarUrl,
       },
     };
   }

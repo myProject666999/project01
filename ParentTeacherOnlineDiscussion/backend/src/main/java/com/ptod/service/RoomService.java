@@ -1,7 +1,6 @@
 package com.ptod.service;
 
-import com.ptod.dto.RoomTokenDTO;
-import com.ptod.dto.VerifyTokenResponse;
+import com.ptod.dto.*;
 import com.ptod.entity.Appointment;
 import com.ptod.entity.RoomToken;
 import com.ptod.entity.User;
@@ -35,14 +34,17 @@ public class RoomService {
             throw new RuntimeException("您不是该预约的参与者");
         }
 
-        if (appointment.getStatus() != Appointment.AppointmentStatus.CONFIRMED) {
+        if (appointment.getStatus() != Appointment.AppointmentStatus.CONFIRMED
+                && appointment.getStatus() != Appointment.AppointmentStatus.IN_PROGRESS) {
             throw new RuntimeException("只有已确认的预约可以进入房间");
         }
 
-        boolean hasUnusedToken = roomTokenRepository.existsByAppointmentIdAndUserIdAndUsedFalse(
-                appointmentId, userId);
-        if (hasUnusedToken) {
-            throw new RuntimeException("您已有有效的房间令牌");
+        List<RoomToken> existingTokens = roomTokenRepository
+                .findByAppointmentIdAndUserId(appointmentId, userId);
+        for (RoomToken existing : existingTokens) {
+            if (!existing.getUsed() && existing.getExpiresAt().isAfter(LocalDateTime.now())) {
+                return convertToDTO(existing);
+            }
         }
 
         RoomToken roomToken = new RoomToken();
@@ -59,27 +61,31 @@ public class RoomService {
 
     @Transactional
     public VerifyTokenResponse verifyToken(String token) {
-        RoomToken roomToken = roomTokenRepository.findValidTokenAndLock(
-                        token, LocalDateTime.now())
+        RoomToken roomToken = roomTokenRepository.findByToken(token)
                 .orElse(null);
 
         if (roomToken == null) {
-            return new VerifyTokenResponse(false, null, null, null, "令牌无效或已过期");
+            return new VerifyTokenResponse(false, null, null, null, "令牌无效");
         }
 
-        if (roomToken.getUsed()) {
-            return new VerifyTokenResponse(false, null, null, null, "令牌已被使用");
+        if (roomToken.getUsed() && roomToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            return new VerifyTokenResponse(false, null, null, null, "令牌已过期");
         }
 
-        roomToken.setUsed(true);
-        roomTokenRepository.save(roomToken);
+        if (roomToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            return new VerifyTokenResponse(false, null, null, null, "令牌已过期");
+        }
+
+        Appointment appointment = roomToken.getAppointment();
+        AppointmentDTO appointmentDTO = convertAppointmentToDTO(appointment);
 
         return new VerifyTokenResponse(
                 true,
-                roomToken.getAppointment().getId(),
+                appointment.getId(),
                 roomToken.getUser().getId(),
                 roomToken.getUser().getRole().name(),
-                "验证成功"
+                "验证成功",
+                appointmentDTO
         );
     }
 
@@ -96,9 +102,57 @@ public class RoomService {
         dto.setAppointmentId(roomToken.getAppointment().getId());
         dto.setUserId(roomToken.getUser().getId());
         dto.setToken(roomToken.getToken());
+        dto.setRoomId("room-" + roomToken.getAppointment().getId());
         dto.setUsed(roomToken.getUsed());
         dto.setExpiresAt(roomToken.getExpiresAt());
         dto.setCreatedAt(roomToken.getCreatedAt());
+        return dto;
+    }
+
+    private AppointmentDTO convertAppointmentToDTO(Appointment appointment) {
+        AppointmentDTO dto = new AppointmentDTO();
+        dto.setId(appointment.getId());
+        dto.setTeacherId(appointment.getTeacher().getId());
+        dto.setParentId(appointment.getParent().getId());
+        dto.setTimeSlotId(appointment.getTimeSlot().getId());
+        dto.setStatusEnum(appointment.getStatus());
+        dto.setAppointmentTime(appointment.getAppointmentTime());
+        dto.setDuration(appointment.getDuration());
+        dto.setSubject(appointment.getSubject());
+        dto.setDescription(appointment.getDescription());
+        dto.setRoomId("room-" + appointment.getId());
+        dto.setCreatedAt(appointment.getCreatedAt());
+
+        UserDTO teacherDTO = new UserDTO();
+        teacherDTO.setId(appointment.getTeacher().getId());
+        teacherDTO.setUsername(appointment.getTeacher().getUsername());
+        teacherDTO.setName(appointment.getTeacher().getName());
+        teacherDTO.setEmail(appointment.getTeacher().getEmail());
+        teacherDTO.setPhone(appointment.getTeacher().getPhone());
+        teacherDTO.setSubject(appointment.getTeacher().getSubject());
+        teacherDTO.setRoleEnum(appointment.getTeacher().getRole());
+        dto.setTeacher(teacherDTO);
+
+        UserDTO parentDTO = new UserDTO();
+        parentDTO.setId(appointment.getParent().getId());
+        parentDTO.setUsername(appointment.getParent().getUsername());
+        parentDTO.setName(appointment.getParent().getName());
+        parentDTO.setEmail(appointment.getParent().getEmail());
+        parentDTO.setPhone(appointment.getParent().getPhone());
+        parentDTO.setRoleEnum(appointment.getParent().getRole());
+        dto.setParent(parentDTO);
+
+        TimeSlotDTO timeSlotDTO = new TimeSlotDTO();
+        timeSlotDTO.setId(appointment.getTimeSlot().getId());
+        timeSlotDTO.setTeacherId(appointment.getTimeSlot().getTeacher().getId());
+        timeSlotDTO.setSlotDate(appointment.getTimeSlot().getSlotDate());
+        timeSlotDTO.setStartTime(appointment.getTimeSlot().getStartTime());
+        timeSlotDTO.setEndTime(appointment.getTimeSlot().getEndTime());
+        timeSlotDTO.setDuration(appointment.getTimeSlot().getDuration());
+        timeSlotDTO.setIsAvailable(appointment.getTimeSlot().getIsAvailable());
+        timeSlotDTO.setCreatedAt(appointment.getTimeSlot().getCreatedAt());
+        dto.setTimeSlot(timeSlotDTO);
+
         return dto;
     }
 }

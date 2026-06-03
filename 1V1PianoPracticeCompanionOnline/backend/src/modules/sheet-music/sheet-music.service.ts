@@ -15,19 +15,17 @@ export class SheetMusicService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findAll(publicOnly: boolean = true): Promise<SheetMusic[]> {
-    const where = publicOnly ? { isPublic: true } : {};
+  async findAll(): Promise<SheetMusic[]> {
     return this.sheetMusicRepository.find({
-      where,
-      relations: ['uploadedBy'],
+      relations: ['uploader'],
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findByUser(userId: number): Promise<SheetMusic[]> {
+  async findByCreator(userId: number): Promise<SheetMusic[]> {
     return this.sheetMusicRepository.find({
-      where: { uploadedBy: { id: userId } },
-      relations: ['uploadedBy'],
+      where: { uploader: { id: userId } },
+      relations: ['uploader'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -35,25 +33,30 @@ export class SheetMusicService {
   async findOne(id: number): Promise<SheetMusic> {
     const sheetMusic = await this.sheetMusicRepository.findOne({
       where: { id },
-      relations: ['uploadedBy', 'lessons'],
+      relations: ['uploader', 'lessons'],
     });
     if (!sheetMusic) {
       throw new NotFoundException(`SheetMusic with ID ${id} not found`);
     }
-    sheetMusic.viewCount++;
-    await this.sheetMusicRepository.save(sheetMusic);
     return sheetMusic;
   }
 
   async create(createSheetMusicDto: CreateSheetMusicDto): Promise<SheetMusic> {
-    const uploadedBy = await this.userRepository.findOne({ where: { id: createSheetMusicDto.uploadedById } });
-    if (!uploadedBy) {
-      throw new NotFoundException(`User with ID ${createSheetMusicDto.uploadedById} not found`);
+    const uploader = await this.userRepository.findOne({ where: { id: createSheetMusicDto.createdById } });
+    if (!uploader) {
+      throw new NotFoundException(`User with ID ${createSheetMusicDto.createdById} not found`);
     }
 
     const sheetMusic = this.sheetMusicRepository.create({
-      ...createSheetMusicDto,
-      uploadedBy,
+      title: createSheetMusicDto.title,
+      composer: createSheetMusicDto.composer,
+      difficultyLevel: createSheetMusicDto.difficultyLevel,
+      fileType: createSheetMusicDto.fileType,
+      fileUrl: createSheetMusicDto.fileUrl,
+      thumbnailUrl: createSheetMusicDto.thumbnailUrl,
+      pageCount: createSheetMusicDto.pageCount,
+      description: createSheetMusicDto.description,
+      uploader,
     });
 
     return this.sheetMusicRepository.save(sheetMusic);

@@ -1,42 +1,70 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Lesson } from './lesson.entity';
-import { Student } from './student.entity';
 import { Teacher } from './teacher.entity';
-
-export enum EvaluationFrom {
-  STUDENT = 'student',
-  TEACHER = 'teacher',
-}
+import { Student } from './student.entity';
 
 @Entity('lesson_evaluations')
 export class LessonEvaluation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int', unsigned: true })
-  rating: number;
+  @Column({ name: 'lesson_id', unique: true })
+  lessonId: number;
 
-  @Column({ type: 'text', nullable: true })
-  comment: string;
+  @Column({ name: 'teacher_id' })
+  teacherId: number;
 
-  @Column({
-    type: 'enum',
-    enum: EvaluationFrom,
-  })
-  from: EvaluationFrom;
+  @Column({ name: 'student_id' })
+  studentId: number;
+
+  @Column({ name: 'rhythm_score', nullable: true })
+  rhythmScore: number;
+
+  @Column({ name: 'rhythm_comment', type: 'text', nullable: true })
+  rhythmComment: string;
+
+  @Column({ name: 'intonation_score', nullable: true })
+  intonationScore: number;
+
+  @Column({ name: 'intonation_comment', type: 'text', nullable: true })
+  intonationComment: string;
+
+  @Column({ name: 'expression_score', nullable: true })
+  expressionScore: number;
+
+  @Column({ name: 'expression_comment', type: 'text', nullable: true })
+  expressionComment: string;
+
+  @Column({ name: 'accuracy_score', nullable: true })
+  accuracyScore: number;
+
+  @Column({ name: 'accuracy_comment', type: 'text', nullable: true })
+  accuracyComment: string;
+
+  @Column({ name: 'overall_comment', type: 'text', nullable: true })
+  overallComment: string;
+
+  @Column({ name: 'next_goal', type: 'text', nullable: true })
+  nextGoal: string;
+
+  @Column({ name: 'practice_assignments', type: 'text', nullable: true })
+  practiceAssignments: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 
   @ManyToOne(() => Lesson, (lesson) => lesson.evaluations)
-  @JoinColumn()
+  @JoinColumn({ name: 'lesson_id' })
   lesson: Lesson;
 
-  @ManyToOne(() => Student, (student) => student.evaluations, { nullable: true })
-  @JoinColumn()
-  student: Student;
-
-  @ManyToOne(() => Teacher, { nullable: true })
-  @JoinColumn()
+  @ManyToOne(() => Teacher)
+  @JoinColumn({ name: 'teacher_id' })
   teacher: Teacher;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @ManyToOne(() => Student, (student) => student.evaluations)
+  @JoinColumn({ name: 'student_id' })
+  student: Student;
 }

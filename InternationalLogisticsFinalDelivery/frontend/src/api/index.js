@@ -29,12 +29,15 @@ export const batchAPI = {
 }
 
 export const packageAPI = {
-  list: (batchId, params) => request.get(`/packages/batch/${batchId}`, { params }),
-  get: (id) => request.get(`/packages/${id}`)
+  list: (params) => request.get('/packages', { params }),
+  listByBatch: (batchId, params) => request.get(`/packages/batch/${batchId}`, { params }),
+  get: (id) => request.get(`/packages/${id}`),
+  getTask: (packageId) => request.get(`/packages/${packageId}/task`)
 }
 
 export const labelAPI = {
-  generate: (packageId, lang) => request.get(`/labels/${packageId}`, { params: { lang } }),
+  list: (params) => request.get('/labels', { params }),
+  get: (packageId, lang) => request.get(`/labels/${packageId}`, { params: { lang } }),
   getBarcode: (packageId) => `/api/v1/labels/barcode/${packageId}`,
   getQRCode: (packageNo) => `/api/v1/labels/qrcode/${packageNo}`
 }
@@ -58,11 +61,15 @@ export const routeAPI = {
 }
 
 export const taskAPI = {
+  list: (params) => request.get('/tasks', { params }),
   listPending: (params) => request.get('/tasks/pending', { params }),
   get: (id) => request.get(`/tasks/${id}`),
+  getByPackage: (packageId) => request.get(`/packages/${packageId}/task`),
+  getProof: (taskId) => request.get(`/tasks/${taskId}/proof`),
+  accept: (taskId, data) => request.post(`/tasks/${taskId}/accept`, data),
   start: (id) => request.post(`/tasks/${id}/start`),
-  complete: (data) => request.post('/tasks/complete'),
-  reportException: (data) => request.post('/tasks/exception')
+  complete: (taskId, data) => request.post(`/tasks/${taskId}/complete`, data),
+  reportException: (taskId, data) => request.post(`/tasks/${taskId}/exception`, data)
 }
 
 export const exceptionAPI = {

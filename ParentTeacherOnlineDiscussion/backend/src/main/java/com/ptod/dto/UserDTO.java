@@ -1,5 +1,6 @@
 package com.ptod.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ptod.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +16,10 @@ public class UserDTO {
     private Long id;
     private String username;
     private String name;
-    private User.Role role;
+
+    @JsonIgnore
+    private User.Role roleEnum;
+
     private String email;
     private String phone;
     private String subject;
@@ -23,4 +27,14 @@ public class UserDTO {
     private LocalDateTime createdAt;
     private Double averageRating;
     private Long ratingCount;
+
+    public String getRole() {
+        return roleEnum != null ? roleEnum.name().toLowerCase() : null;
+    }
+
+    public void setRole(String role) {
+        if (role != null) {
+            this.roleEnum = User.Role.valueOf(role.toUpperCase());
+        }
+    }
 }

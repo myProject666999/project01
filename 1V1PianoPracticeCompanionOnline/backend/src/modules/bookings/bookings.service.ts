@@ -5,6 +5,7 @@ import { Booking, BookingStatus } from '../../entities/booking.entity';
 import { Student } from '../../entities/student.entity';
 import { Teacher } from '../../entities/teacher.entity';
 import { UserCoursePackage } from '../../entities/user-course-package.entity';
+import { SheetMusic } from '../../entities/sheet-music.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 
@@ -19,35 +20,37 @@ export class BookingsService {
     private teacherRepository: Repository<Teacher>,
     @InjectRepository(UserCoursePackage)
     private coursePackageRepository: Repository<UserCoursePackage>,
+    @InjectRepository(SheetMusic)
+    private sheetMusicRepository: Repository<SheetMusic>,
   ) {}
 
   async findAll(): Promise<Booking[]> {
     return this.bookingRepository.find({
-      relations: ['student', 'student.user', 'teacher', 'teacher.user', 'coursePackage'],
-      order: { startTime: 'DESC' },
+      relations: ['student', 'student.user', 'teacher', 'teacher.user', 'coursePackage', 'sheetMusic'],
+      order: { scheduledStart: 'DESC' },
     });
   }
 
   async findByStudent(studentId: number): Promise<Booking[]> {
     return this.bookingRepository.find({
       where: { student: { id: studentId } },
-      relations: ['student', 'student.user', 'teacher', 'teacher.user', 'coursePackage'],
-      order: { startTime: 'DESC' },
+      relations: ['student', 'student.user', 'teacher', 'teacher.user', 'coursePackage', 'sheetMusic'],
+      order: { scheduledStart: 'DESC' },
     });
   }
 
   async findByTeacher(teacherId: number): Promise<Booking[]> {
     return this.bookingRepository.find({
       where: { teacher: { id: teacherId } },
-      relations: ['student', 'student.user', 'teacher', 'teacher.user', 'coursePackage'],
-      order: { startTime: 'DESC' },
+      relations: ['student', 'student.user', 'teacher', 'teacher.user', 'coursePackage', 'sheetMusic'],
+      order: { scheduledStart: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<Booking> {
     const booking = await this.bookingRepository.findOne({
       where: { id },
-      relations: ['student', 'student.user', 'teacher', 'teacher.user', 'coursePackage'],
+      relations: ['student', 'student.user', 'teacher', 'teacher.user', 'coursePackage', 'sheetMusic'],
     });
     if (!booking) {
       throw new NotFoundException(`Booking with ID ${id} not found`);
@@ -66,24 +69,32 @@ export class BookingsService {
       throw new NotFoundException(`Teacher with ID ${createBookingDto.teacherId} not found`);
     }
 
-    let coursePackage = null;
-    if (createBookingDto.coursePackageId) {
-      coursePackage = await this.coursePackageRepository.findOne({
-        where: { id: createBookingDto.coursePackageId },
+    const coursePackage = await this.coursePackageRepository.findOne({
+      where: { id: createBookingDto.userCoursePackageId },
+    });
+    if (!coursePackage) {
+      throw new NotFoundException(`UserCoursePackage with ID ${createBookingDto.userCoursePackageId} not found`);
+    }
+
+    let sheetMusic = null;
+    if (createBookingDto.sheetMusicId) {
+      sheetMusic = await this.sheetMusicRepository.findOne({
+        where: { id: createBookingDto.sheetMusicId },
       });
-      if (!coursePackage) {
-        throw new NotFoundException(`CoursePackage with ID ${createBookingDto.coursePackageId} not found`);
+      if (!sheetMusic) {
+        throw new NotFoundException(`SheetMusic with ID ${createBookingDto.sheetMusicId} not found`);
       }
     }
 
     const booking = this.bookingRepository.create({
-      startTime: new Date(createBookingDto.startTime),
-      endTime: new Date(createBookingDto.endTime),
+      scheduledStart: new Date(createBookingDto.scheduledStart),
+      scheduledEnd: new Date(createBookingDto.scheduledEnd),
       notes: createBookingDto.notes,
       status: createBookingDto.status || BookingStatus.PENDING,
       student,
       teacher,
       coursePackage,
+      sheetMusic,
     });
 
     return this.bookingRepository.save(booking);
@@ -91,13 +102,30 @@ export class BookingsService {
 
   async update(id: number, updateBookingDto: UpdateBookingDto): Promise<Booking> {
     const booking = await this.findOne(id);
-    if (updateBookingDto.startTime) {
-      booking.startTime = new Date(updateBookingDto.startTime);
+    if (updateBookingDto.scheduledStart) {
+      booking.scheduledStart = new Date(updateBookingDto.scheduledStart);
     }
-    if (updateBookingDto.endTime) {
-      booking.endTime = new Date(updateBookingDto.endTime);
+    if (updateBookingDto.scheduledEnd) {
+      booking.scheduledEnd = new Date(updateBookingDto.scheduledEnd);
     }
-    Object.assign(booking, updateBookingDto);
+    if (updateBookingDto.cancelledAt) {
+      booking.cancelledAt = new Date(updateBookingDto.cancelledAt);
+    }
+    if (updateBookingDto.sheetMusicId) {
+      const sheetMusic = await this.sheetMusicRepository.findOne({
+        where: { id: updateBookingDto.sheetMusicId },
+      });
+      if (!sheetMusic) {
+        throw new NotFoundException(`SheetMusic with ID ${updateBookingDto.sheetMusicId} not found`);
+      }
+      booking.sheetMusic = sheetMusic;
+    }
+    Object.assign(booking, {
+      notes: updateBookingDto.notes,
+      status: updateBookingDto.status,
+      cancellationReason: updateBookingDto.cancellationReason,
+      cancelledBy: updateBookingDto.cancelledBy,
+    });
     return this.bookingRepository.save(booking);
   }
 

@@ -65,7 +65,8 @@ export const pilotageBillingApi = {
   calculateBaseFee: (params) => request.get('/pilotage-billings/calculate-base-fee', { params }),
   calculateTonnageFee: (params) => request.get('/pilotage-billings/calculate-tonnage-fee', { params }),
   calculateDistanceFee: (params) => request.get('/pilotage-billings/calculate-distance-fee', { params }),
-  calculateSurcharges: (params) => request.get('/pilotage-billings/calculate-surcharges', { params })
+  calculateSurcharges: (params) => request.get('/pilotage-billings/calculate-surcharges', { params }),
+  markPaid: (id) => request.post(`/pilotage-billings/${id}/mark-paid`)
 }
 
 export const pilotageCompletionApi = {

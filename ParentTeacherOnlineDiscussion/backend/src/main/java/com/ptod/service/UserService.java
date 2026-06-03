@@ -98,7 +98,7 @@ public class UserService {
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setName(user.getName());
-        dto.setRole(user.getRole());
+        dto.setRoleEnum(user.getRole());
         dto.setEmail(user.getEmail());
         dto.setPhone(user.getPhone());
         dto.setSubject(user.getSubject());

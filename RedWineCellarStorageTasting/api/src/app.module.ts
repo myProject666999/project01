@@ -18,6 +18,9 @@ import { ValuationModule } from './modules/valuation/valuation.module';
         database: 'wine_cellar',
         autoLoadEntities: true,
         synchronize: false,
+        extra: {
+          decimalNumbers: true,
+        },
       }),
     }),
     WineModule,

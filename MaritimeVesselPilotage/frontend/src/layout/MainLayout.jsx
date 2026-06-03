@@ -229,7 +229,7 @@ const MainLayout = () => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <Dropdown
-              dropdownRender={() => notificationDropdown}
+              popupRender={() => notificationDropdown}
               placement="bottomRight"
               trigger={['click']}
             >

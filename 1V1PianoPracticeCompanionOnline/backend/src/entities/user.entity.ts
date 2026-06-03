@@ -1,11 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, OneToMany } from 'typeorm';
 import { Student } from './student.entity';
 import { Teacher } from './teacher.entity';
 
 export enum UserRole {
   STUDENT = 'student',
+  PARENT = 'parent',
   TEACHER = 'teacher',
   ADMIN = 'admin',
+}
+
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
 }
 
 @Entity('users')
@@ -22,28 +29,33 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ nullable: true })
-  avatar: string;
-
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-    default: UserRole.STUDENT,
-  })
+  @Column({ type: 'enum', enum: UserRole })
   role: UserRole;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column()
+  name: string;
 
-  @OneToOne(() => Student, (student) => student.user, { nullable: true })
-  student: Student;
+  @Column({ name: 'avatar_url', nullable: true })
+  avatarUrl: string;
 
-  @OneToOne(() => Teacher, (teacher) => teacher.user, { nullable: true })
-  teacher: Teacher;
+  @Column({ nullable: true })
+  phone: string;
 
-  @CreateDateColumn()
+  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
+  status: UserStatus;
+
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @Column({ name: 'deleted_at', type: 'timestamp', nullable: true })
+  deletedAt: Date;
+
+  @OneToOne(() => Student, (student) => student.user)
+  student: Student;
+
+  @OneToOne(() => Teacher, (teacher) => teacher.user)
+  teacher: Teacher;
 }

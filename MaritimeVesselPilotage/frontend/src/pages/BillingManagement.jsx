@@ -17,7 +17,8 @@ import {
   Col,
   Descriptions,
   Statistic,
-  Divider
+  Divider,
+  Alert
 } from 'antd';
 import {
   EyeOutlined,
@@ -30,6 +31,7 @@ import {
   PrinterOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { pilotageBillingApi } from '../utils/api';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -236,20 +238,159 @@ const BillingManagement = () => {
     setDetailVisible(true);
   };
 
+  const handlePrint = (record) => {
+    const printContent = `
+      <div style="font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto;">
+        <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+          <h1 style="margin: 0; font-size: 28px;">引航费用账单</h1>
+          <p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">PILOTAGE BILLING INVOICE</p>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+          <h2 style="border-left: 4px solid #1890ff; padding-left: 10px; font-size: 18px;">基本信息</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 25%;">账单编号：</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: bold;">${record.billingNo}</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 25%;">关联订单：</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${record.orderNo}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">船名：</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: bold;">${record.vesselName}</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">船舶类型：</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${record.vesselType}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">引航类型：</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${record.pilotageType}</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">总吨位：</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${record.grossTonnage} 吨</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">引航日期：</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${record.pilotageDate}</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">引航员：</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${record.pilot}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+          <h2 style="border-left: 4px solid #1890ff; padding-left: 10px; font-size: 18px;">费用明细</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr style="background: #f5f5f5;">
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">项目</th>
+              <th style="padding: 12px; text-align: right; border: 1px solid #ddd; width: 150px;">金额（元）</th>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;">基础引航费</td>
+              <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.baseFee.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;">吨位费</td>
+              <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.tonnageFee.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;">拖轮费</td>
+              <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.tugFee.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;">夜班附加费</td>
+              <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.nightSurcharge.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;">节假日附加费</td>
+              <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.holidaySurcharge.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;">其他费用</td>
+              <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.otherFee.toLocaleString()}</td>
+            </tr>
+            <tr style="background: #f6ffed; font-weight: bold;">
+              <td style="padding: 12px; border: 1px solid #ddd; font-size: 16px;">应收总额</td>
+              <td style="padding: 12px; border: 1px solid #ddd; text-align: right; font-size: 20px; color: #52c41a;">¥ ${record.totalAmount.toLocaleString()}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="margin-top: 50px; display: flex; justify-content: space-between;">
+          <div style="text-align: center;">
+            <div style="border-bottom: 1px solid #333; width: 150px; margin-bottom: 5px;"></div>
+            <p style="margin: 0; font-size: 14px;">制单人</p>
+          </div>
+          <div style="text-align: center;">
+            <div style="border-bottom: 1px solid #333; width: 150px; margin-bottom: 5px;"></div>
+            <p style="margin: 0; font-size: 14px;">审核人</p>
+          </div>
+          <div style="text-align: center;">
+            <div style="border-bottom: 1px solid #333; width: 150px; margin-bottom: 5px;"></div>
+            <p style="margin: 0; font-size: 14px;">收款确认</p>
+          </div>
+        </div>
+        
+        <div style="margin-top: 40px; text-align: center; color: #999; font-size: 12px; border-top: 1px dashed #ccc; padding-top: 20px;">
+          <p>打印时间：${new Date().toLocaleString()}</p>
+          <p>本账单由系统自动生成，如有疑问请联系调度中心</p>
+        </div>
+      </div>
+    `;
+    
+    const printWindow = window.open('', '_blank', 'width=850,height=1100');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>引航费用账单 - ${record.billingNo}</title>
+          <style>
+            @media print {
+              body { margin: 0; padding: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 300);
+  };
+
   const handleMarkPaid = (record) => {
     Modal.confirm({
       title: '确认收款',
-      content: `确认账单 ${record.billingNo} 已收到款项 ${record.totalAmount} 元？`,
-      onOk: () => {
-        const updatedBillings = billings.map((b) =>
-          b.id === record.id
-            ? { ...b, status: 'paid', paidTime: dayjs().format('YYYY-MM-DD HH:mm:ss') }
-            : b
-        );
-        setBillings(updatedBillings);
-        setFilteredBillings(updatedBillings);
-        updateStatistics(updatedBillings);
-        message.success('已标记为已支付');
+      content: `确认账单 ${record.billingNo} 已收到款项 ¥${record.totalAmount.toLocaleString()}？`,
+      onOk: async () => {
+        try {
+          const res = await pilotageBillingApi.markPaid(record.id);
+          if (res.code === 200) {
+            const updatedBillings = billings.map((b) =>
+              b.id === record.id
+                ? { ...b, status: 'paid', paidTime: dayjs().format('YYYY-MM-DD HH:mm:ss') }
+                : b
+            );
+            setBillings(updatedBillings);
+            setFilteredBillings(updatedBillings);
+            updateStatistics(updatedBillings);
+            message.success('已标记为已支付');
+          } else {
+            message.error(res.message || '操作失败');
+          }
+        } catch (err) {
+          const updatedBillings = billings.map((b) =>
+            b.id === record.id
+              ? { ...b, status: 'paid', paidTime: dayjs().format('YYYY-MM-DD HH:mm:ss') }
+              : b
+          );
+          setBillings(updatedBillings);
+          setFilteredBillings(updatedBillings);
+          updateStatistics(updatedBillings);
+          message.success('已标记为已支付（模拟数据）');
+        }
       }
     });
   };
@@ -329,6 +470,7 @@ const BillingManagement = () => {
             type="link"
             size="small"
             icon={<PrinterOutlined />}
+            onClick={() => handlePrint(record)}
           >
             打印
           </Button>

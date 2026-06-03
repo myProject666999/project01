@@ -1,34 +1,57 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from './user.entity';
 import { Booking } from './booking.entity';
 import { UserCoursePackage } from './user-course-package.entity';
 import { LessonEvaluation } from './lesson-evaluation.entity';
+
+export enum StudentLevel {
+  BEGINNER = 'beginner',
+  ELEMENTARY = 'elementary',
+  INTERMEDIATE = 'intermediate',
+  ADVANCED = 'advanced',
+}
 
 @Entity('students')
 export class Student {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true })
-  realName: string;
+  @Column({ name: 'user_id', unique: true })
+  userId: number;
+
+  @Column({ name: 'parent_id', nullable: true })
+  parentId: number;
 
   @Column({ nullable: true })
-  phone: string;
+  age: number;
 
-  @Column({ nullable: true })
-  level: string;
+  @Column({ type: 'enum', enum: StudentLevel, default: StudentLevel.BEGINNER })
+  level: StudentLevel;
 
-  @Column({ type: 'text', nullable: true })
-  bio: string;
+  @Column({ name: 'current_book', nullable: true })
+  currentBook: string;
 
-  @OneToOne(() => User, (user) => user.student)
-  @JoinColumn()
+  @Column({ name: 'learning_goals', type: 'text', nullable: true })
+  learningGoals: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+
+  @OneToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'parent_id' })
+  parent: User;
 
   @OneToMany(() => Booking, (booking) => booking.student)
   bookings: Booking[];
 
-  @OneToMany(() => UserCoursePackage, (userCoursePackage) => userCoursePackage.student)
+  @OneToMany(() => UserCoursePackage, (ucp) => ucp.student)
   coursePackages: UserCoursePackage[];
 
   @OneToMany(() => LessonEvaluation, (evaluation) => evaluation.student)

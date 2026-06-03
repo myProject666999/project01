@@ -107,12 +107,16 @@ const handleDelete = (row: any) => {
   }).catch(() => {})
 }
 
-const handleStatusChange = async (row: any) => {
+const handleStatusChange = async (row: any, val: boolean) => {
+  const newStatus = val ? 1 : 0
+  const oldStatus = row.status
+  row.status = newStatus
   try {
-    await updateSeaArea(row.id, { ...row })
+    await updateSeaArea(row.id, { status: newStatus })
     ElMessage.success('状态更新成功')
+    fetchData()
   } catch {
-    row.status = row.status === 1 ? 0 : 1
+    row.status = oldStatus
     ElMessage.error('状态更新失败')
   }
 }
@@ -180,7 +184,7 @@ onMounted(() => {
               :model-value="row.status === 1"
               active-color="#2C7865"
               inactive-color="#C0C4CC"
-              @change="handleStatusChange(row)"
+              @change="(val: boolean) => handleStatusChange(row, val)"
             />
           </template>
         </el-table-column>

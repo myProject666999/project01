@@ -79,10 +79,9 @@ public class AppointmentController {
     }
 
     @PutMapping("/{id}/complete")
-    @PreAuthorize("hasRole('TEACHER')")
     public ApiResponse<AppointmentDTO> completeAppointment(@PathVariable Long id) {
-        Long teacherId = securityUtil.getCurrentUserId();
-        AppointmentDTO appointment = appointmentService.completeAppointment(teacherId, id);
+        Long userId = securityUtil.getCurrentUserId();
+        AppointmentDTO appointment = appointmentService.completeAppointment(userId, id);
         return ApiResponse.success("完成成功", appointment);
     }
 }

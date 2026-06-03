@@ -1,27 +1,64 @@
-import { IsString, IsOptional, IsNumber, IsEnum, Min, Max } from 'class-validator';
-import { EvaluationFrom } from '../../../entities/lesson-evaluation.entity';
+import { IsString, IsOptional, IsNumber, Min, Max } from 'class-validator';
 
 export class CreateEvaluationDto {
   @IsNumber()
   @Min(1)
-  @Max(5)
-  rating: number;
+  @Max(10)
+  @IsOptional()
+  rhythmScore?: number;
 
   @IsString()
   @IsOptional()
-  comment?: string;
+  rhythmComment?: string;
 
-  @IsEnum(EvaluationFrom)
-  from: EvaluationFrom;
+  @IsNumber()
+  @Min(1)
+  @Max(10)
+  @IsOptional()
+  intonationScore?: number;
+
+  @IsString()
+  @IsOptional()
+  intonationComment?: string;
+
+  @IsNumber()
+  @Min(1)
+  @Max(10)
+  @IsOptional()
+  expressionScore?: number;
+
+  @IsString()
+  @IsOptional()
+  expressionComment?: string;
+
+  @IsNumber()
+  @Min(1)
+  @Max(10)
+  @IsOptional()
+  accuracyScore?: number;
+
+  @IsString()
+  @IsOptional()
+  accuracyComment?: string;
+
+  @IsString()
+  @IsOptional()
+  overallComment?: string;
+
+  @IsString()
+  @IsOptional()
+  nextGoal?: string;
+
+  @IsString()
+  @IsOptional()
+  practiceAssignments?: string;
 
   @IsNumber()
   lessonId: number;
 
   @IsNumber()
-  @IsOptional()
-  studentId?: number;
+  teacherId: number;
 
   @IsNumber()
-  @IsOptional()
-  teacherId?: number;
+  studentId: number;
 }

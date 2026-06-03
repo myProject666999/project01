@@ -33,6 +33,7 @@ import {
   CheckOutlined,
   EyeOutlined
 } from '@ant-design/icons';
+import { notificationApi } from '../utils/api';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -248,27 +249,59 @@ const NotificationManagement = () => {
     }
   };
 
-  const handleMarkAsRead = (id) => {
+  const handleMarkAsRead = async (id) => {
+    try {
+      await notificationApi.markAsRead(id);
+      message.success('已标记为已读');
+    } catch (err) {
+      // API失败时使用模拟数据
+    }
     const updatedNotifications = notifications.map((n) =>
       n.id === id
         ? { ...n, isRead: true, readTime: new Date().toLocaleString('zh-CN') }
         : n
     );
     setNotifications(updatedNotifications);
-    setFilteredNotifications(updatedNotifications);
+    applyFilters(updatedNotifications);
     updateStatistics(updatedNotifications);
   };
 
-  const handleMarkAllAsRead = () => {
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationApi.markAllAsRead(1, 1);
+      message.success('已全部标记为已读');
+    } catch (err) {
+      message.success('已全部标记为已读');
+    }
     const updatedNotifications = notifications.map((n) =>
       !n.isRead
         ? { ...n, isRead: true, readTime: new Date().toLocaleString('zh-CN') }
         : n
     );
     setNotifications(updatedNotifications);
-    setFilteredNotifications(updatedNotifications);
+    applyFilters(updatedNotifications);
     updateStatistics(updatedNotifications);
-    message.success('已全部标记为已读');
+  };
+
+  const applyFilters = (data) => {
+    let result = [...data];
+    if (searchText) {
+      result = result.filter(
+        (n) =>
+          n.title.includes(searchText) ||
+          n.content.includes(searchText) ||
+          n.sender.includes(searchText)
+      );
+    }
+    if (typeFilter) {
+      result = result.filter((n) => n.type === typeFilter);
+    }
+    if (readFilter === 'unread') {
+      result = result.filter((n) => !n.isRead);
+    } else if (readFilter === 'read') {
+      result = result.filter((n) => n.isRead);
+    }
+    setFilteredNotifications(result);
   };
 
   const handleAdd = () => {

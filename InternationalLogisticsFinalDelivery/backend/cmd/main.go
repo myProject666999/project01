@@ -52,14 +52,19 @@ func main() {
 	batch.Post("/", h.CreateBatch)
 	batch.Get("/:id", h.GetBatch)
 	batch.Get("/", h.ListBatches)
-	batch.Post("/packages", h.AddPackage)
+	batch.Post("/:id/packages", h.AddPackage)
+	batch.Get("/:id/packages", h.ListPackagesByBatch)
 
 	pkg := api.Group("/packages")
+	pkg.Get("/", h.ListPackages)
 	pkg.Get("/:id", h.GetPackage)
 	pkg.Get("/batch/:batch_id", h.ListPackagesByBatch)
+	pkg.Get("/:package_id/task", h.GetTaskByPackage)
 
 	label := api.Group("/labels")
+	label.Get("/", h.ListLabels)
 	label.Get("/:package_id", h.GenerateLabel)
+	label.Get("/:package_id/image", h.GetLabelImage)
 	label.Get("/barcode/:package_id", h.GetBarcodeImage)
 	label.Get("/qrcode/:package_no", h.GetQRCodeImage)
 
@@ -76,9 +81,14 @@ func main() {
 	route.Post("/:id/complete", h.CompleteRoute)
 
 	task := api.Group("/tasks")
+	task.Get("/", h.ListTasks)
 	task.Get("/pending", h.ListPendingTasks)
 	task.Get("/:id", h.GetTask)
+	task.Get("/:id/proof", h.GetTaskProof)
+	task.Post("/:id/accept", h.AcceptTask)
 	task.Post("/:id/start", h.StartDelivery)
+	task.Post("/:id/complete", h.CompleteDeliveryByTask)
+	task.Post("/:id/exception", h.ReportExceptionByTask)
 	task.Post("/complete", h.CompleteDelivery)
 	task.Post("/exception", h.ReportException)
 

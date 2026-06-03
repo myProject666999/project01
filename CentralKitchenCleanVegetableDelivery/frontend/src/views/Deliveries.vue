@@ -153,7 +153,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getDeliveries, getDeliveryDetail, generateDeliveries, updateDeliveryStatus, signDeliveryItem, getTemperatureRecords } from '@/api'
+import { getDeliveries, getDeliveryDetail, generateDeliveries as apiGenerateDeliveries, updateDeliveryStatus, signDeliveryItem, getTemperatureRecords } from '@/api'
 
 const deliveries = ref([])
 const filterDate = ref('')
@@ -221,7 +221,7 @@ const confirmGenerate = async () => {
   }
   
   try {
-    await generateDeliveries(generateForm)
+    await apiGenerateDeliveries(generateForm)
     ElMessage.success('配送单生成成功')
     generateDialogVisible.value = false
     loadData()

@@ -2,6 +2,8 @@ package com.ptod.service;
 
 import com.ptod.dto.AppointmentDTO;
 import com.ptod.dto.CreateAppointmentRequest;
+import com.ptod.dto.TimeSlotDTO;
+import com.ptod.dto.UserDTO;
 import com.ptod.entity.Appointment;
 import com.ptod.entity.TimeSlot;
 import com.ptod.entity.User;
@@ -62,6 +64,8 @@ public class AppointmentService {
                 timeSlot.getStartTime()
         ));
         appointment.setDuration(timeSlot.getDuration());
+        appointment.setSubject(request.getSubject());
+        appointment.setDescription(request.getDescription());
 
         timeSlot.setIsAvailable(false);
         timeSlotRepository.save(timeSlot);
@@ -144,16 +148,20 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentDTO completeAppointment(Long teacherId, Long appointmentId) {
+    public AppointmentDTO completeAppointment(Long userId, Long appointmentId) {
         Appointment appointment = appointmentRepository.findByIdAndLockForUpdate(appointmentId)
                 .orElseThrow(() -> new RuntimeException("预约不存在"));
 
-        if (!appointment.getTeacher().getId().equals(teacherId)) {
+        boolean isParticipant = appointment.getTeacher().getId().equals(userId)
+                || appointment.getParent().getId().equals(userId);
+
+        if (!isParticipant) {
             throw new RuntimeException("无权完成此预约");
         }
 
-        if (appointment.getStatus() != Appointment.AppointmentStatus.CONFIRMED) {
-            throw new RuntimeException("只有已确认的预约可以完成");
+        if (appointment.getStatus() != Appointment.AppointmentStatus.CONFIRMED
+                && appointment.getStatus() != Appointment.AppointmentStatus.IN_PROGRESS) {
+            throw new RuntimeException("该预约状态无法完成");
         }
 
         appointment.setStatus(Appointment.AppointmentStatus.COMPLETED);
@@ -171,14 +179,45 @@ public class AppointmentService {
         AppointmentDTO dto = new AppointmentDTO();
         dto.setId(appointment.getId());
         dto.setTeacherId(appointment.getTeacher().getId());
-        dto.setTeacherName(appointment.getTeacher().getName());
         dto.setParentId(appointment.getParent().getId());
-        dto.setParentName(appointment.getParent().getName());
         dto.setTimeSlotId(appointment.getTimeSlot().getId());
-        dto.setStatus(appointment.getStatus());
+        dto.setStatusEnum(appointment.getStatus());
         dto.setAppointmentTime(appointment.getAppointmentTime());
         dto.setDuration(appointment.getDuration());
+        dto.setSubject(appointment.getSubject());
+        dto.setDescription(appointment.getDescription());
         dto.setCreatedAt(appointment.getCreatedAt());
+
+        UserDTO teacherDTO = new UserDTO();
+        teacherDTO.setId(appointment.getTeacher().getId());
+        teacherDTO.setUsername(appointment.getTeacher().getUsername());
+        teacherDTO.setName(appointment.getTeacher().getName());
+        teacherDTO.setEmail(appointment.getTeacher().getEmail());
+        teacherDTO.setPhone(appointment.getTeacher().getPhone());
+        teacherDTO.setSubject(appointment.getTeacher().getSubject());
+        teacherDTO.setRoleEnum(appointment.getTeacher().getRole());
+        dto.setTeacher(teacherDTO);
+
+        UserDTO parentDTO = new UserDTO();
+        parentDTO.setId(appointment.getParent().getId());
+        parentDTO.setUsername(appointment.getParent().getUsername());
+        parentDTO.setName(appointment.getParent().getName());
+        parentDTO.setEmail(appointment.getParent().getEmail());
+        parentDTO.setPhone(appointment.getParent().getPhone());
+        parentDTO.setRoleEnum(appointment.getParent().getRole());
+        dto.setParent(parentDTO);
+
+        TimeSlotDTO timeSlotDTO = new TimeSlotDTO();
+        timeSlotDTO.setId(appointment.getTimeSlot().getId());
+        timeSlotDTO.setTeacherId(appointment.getTimeSlot().getTeacher().getId());
+        timeSlotDTO.setSlotDate(appointment.getTimeSlot().getSlotDate());
+        timeSlotDTO.setStartTime(appointment.getTimeSlot().getStartTime());
+        timeSlotDTO.setEndTime(appointment.getTimeSlot().getEndTime());
+        timeSlotDTO.setDuration(appointment.getTimeSlot().getDuration());
+        timeSlotDTO.setIsAvailable(appointment.getTimeSlot().getIsAvailable());
+        timeSlotDTO.setCreatedAt(appointment.getTimeSlot().getCreatedAt());
+        dto.setTimeSlot(timeSlotDTO);
+
         return dto;
     }
 }

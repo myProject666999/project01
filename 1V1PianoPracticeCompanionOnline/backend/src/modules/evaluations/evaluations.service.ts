@@ -62,43 +62,34 @@ export class EvaluationsService {
       throw new NotFoundException(`Lesson with ID ${createEvaluationDto.lessonId} not found`);
     }
 
-    let student = null;
-    if (createEvaluationDto.studentId) {
-      student = await this.studentRepository.findOne({ where: { id: createEvaluationDto.studentId } });
-      if (!student) {
-        throw new NotFoundException(`Student with ID ${createEvaluationDto.studentId} not found`);
-      }
+    const student = await this.studentRepository.findOne({ where: { id: createEvaluationDto.studentId } });
+    if (!student) {
+      throw new NotFoundException(`Student with ID ${createEvaluationDto.studentId} not found`);
     }
 
-    let teacher = null;
-    if (createEvaluationDto.teacherId) {
-      teacher = await this.teacherRepository.findOne({ where: { id: createEvaluationDto.teacherId } });
-      if (!teacher) {
-        throw new NotFoundException(`Teacher with ID ${createEvaluationDto.teacherId} not found`);
-      }
+    const teacher = await this.teacherRepository.findOne({ where: { id: createEvaluationDto.teacherId } });
+    if (!teacher) {
+      throw new NotFoundException(`Teacher with ID ${createEvaluationDto.teacherId} not found`);
     }
 
     const evaluation = this.evaluationRepository.create({
-      rating: createEvaluationDto.rating,
-      comment: createEvaluationDto.comment,
-      from: createEvaluationDto.from,
+      rhythmScore: createEvaluationDto.rhythmScore,
+      rhythmComment: createEvaluationDto.rhythmComment,
+      intonationScore: createEvaluationDto.intonationScore,
+      intonationComment: createEvaluationDto.intonationComment,
+      expressionScore: createEvaluationDto.expressionScore,
+      expressionComment: createEvaluationDto.expressionComment,
+      accuracyScore: createEvaluationDto.accuracyScore,
+      accuracyComment: createEvaluationDto.accuracyComment,
+      overallComment: createEvaluationDto.overallComment,
+      nextGoal: createEvaluationDto.nextGoal,
+      practiceAssignments: createEvaluationDto.practiceAssignments,
       lesson,
       student,
       teacher,
     });
 
-    const savedEvaluation = await this.evaluationRepository.save(evaluation);
-
-    if (createEvaluationDto.from === 'student' && teacher) {
-      const evaluations = await this.evaluationRepository.find({
-        where: { teacher: { id: teacher.id } },
-      });
-      const totalRating = evaluations.reduce((sum, e) => sum + e.rating, 0);
-      teacher.rating = totalRating / evaluations.length;
-      await this.teacherRepository.save(teacher);
-    }
-
-    return savedEvaluation;
+    return this.evaluationRepository.save(evaluation);
   }
 
   async update(id: number, updateEvaluationDto: UpdateEvaluationDto): Promise<LessonEvaluation> {

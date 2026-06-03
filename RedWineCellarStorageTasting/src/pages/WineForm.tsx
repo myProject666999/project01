@@ -76,9 +76,11 @@ export default function WineForm() {
     if (!form.drinkFrom) newErrors.drinkFrom = 'Required';
     if (!form.drinkTo) newErrors.drinkTo = 'Required';
     if (!form.purchasePrice) newErrors.purchasePrice = 'Required';
-    if (!form.marketPrice) newErrors.marketPrice = 'Required';
     if (form.grapeVarieties.some((g) => !g.name.trim())) {
       newErrors.grapeVarieties = 'All grape names required';
+    }
+    if (form.grapeVarieties.some((g) => !g.percentage || g.percentage <= 0)) {
+      newErrors.grapeVarieties = 'Grape percentage must be greater than 0';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -98,8 +100,11 @@ export default function WineForm() {
         drinkFrom: Number(form.drinkFrom),
         drinkTo: Number(form.drinkTo),
         purchasePrice: Number(form.purchasePrice),
-        marketPrice: Number(form.marketPrice),
-        grapeVarieties: form.grapeVarieties,
+        marketPrice: form.marketPrice ? Number(form.marketPrice) : null,
+        grapeVarieties: form.grapeVarieties.map((g) => ({
+          name: g.name,
+          percentage: Number(g.percentage),
+        })),
       };
 
       if (isEdit && id) {

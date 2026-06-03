@@ -19,13 +19,13 @@ export class TeachersService {
   ) {}
 
   async findAll(): Promise<Teacher[]> {
-    return this.teacherRepository.find({ relations: ['user', 'skills', 'coursePackages'] });
+    return this.teacherRepository.find({ relations: ['user', 'skills', 'bookings'] });
   }
 
   async findOne(id: number): Promise<Teacher> {
     const teacher = await this.teacherRepository.findOne({
       where: { id },
-      relations: ['user', 'skills', 'coursePackages', 'bookings'],
+      relations: ['user', 'skills', 'bookings'],
     });
     if (!teacher) {
       throw new NotFoundException(`Teacher with ID ${id} not found`);
@@ -41,10 +41,13 @@ export class TeachersService {
 
     const teacher = this.teacherRepository.create({
       user,
-      realName: createTeacherDto.realName,
-      phone: createTeacherDto.phone,
+      teachingYears: createTeacherDto.teachingYears,
       bio: createTeacherDto.bio,
-      pricePerHour: createTeacherDto.pricePerHour,
+      certifications: createTeacherDto.certifications,
+      hourlyRate: createTeacherDto.hourlyRate,
+      chineseTeaching: createTeacherDto.chineseTeaching,
+      videoIntroUrl: createTeacherDto.videoIntroUrl,
+      availableTimes: createTeacherDto.availableTimes,
     });
 
     const savedTeacher = await this.teacherRepository.save(teacher);
@@ -52,7 +55,8 @@ export class TeachersService {
     if (createTeacherDto.skills && createTeacherDto.skills.length > 0) {
       for (const skillDto of createTeacherDto.skills) {
         const skill = this.skillRepository.create({
-          ...skillDto,
+          difficultyLevel: skillDto.difficultyLevel,
+          proficiencyLevel: skillDto.proficiencyLevel,
           teacher: savedTeacher,
         });
         await this.skillRepository.save(skill);
@@ -64,14 +68,23 @@ export class TeachersService {
 
   async update(id: number, updateTeacherDto: UpdateTeacherDto): Promise<Teacher> {
     const teacher = await this.findOne(id);
-    Object.assign(teacher, updateTeacherDto);
+    Object.assign(teacher, {
+      teachingYears: updateTeacherDto.teachingYears,
+      bio: updateTeacherDto.bio,
+      certifications: updateTeacherDto.certifications,
+      hourlyRate: updateTeacherDto.hourlyRate,
+      chineseTeaching: updateTeacherDto.chineseTeaching,
+      videoIntroUrl: updateTeacherDto.videoIntroUrl,
+      availableTimes: updateTeacherDto.availableTimes,
+    });
     await this.teacherRepository.save(teacher);
 
     if (updateTeacherDto.skills) {
       await this.skillRepository.delete({ teacher: { id } });
       for (const skillDto of updateTeacherDto.skills) {
         const skill = this.skillRepository.create({
-          ...skillDto,
+          difficultyLevel: skillDto.difficultyLevel,
+          proficiencyLevel: skillDto.proficiencyLevel,
           teacher,
         });
         await this.skillRepository.save(skill);

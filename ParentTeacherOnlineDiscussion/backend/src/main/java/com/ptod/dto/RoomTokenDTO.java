@@ -15,6 +15,7 @@ public class RoomTokenDTO {
     private Long appointmentId;
     private Long userId;
     private String token;
+    private String roomId;
     private Boolean used;
     private LocalDateTime expiresAt;
     private LocalDateTime createdAt;

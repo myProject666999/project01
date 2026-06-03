@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CoursePackage } from '../../entities/course-package.entity';
-import { Teacher } from '../../entities/teacher.entity';
 import { CreateCoursePackageDto } from './dto/create-course-package.dto';
 import { UpdateCoursePackageDto } from './dto/update-course-package.dto';
 
@@ -11,25 +10,16 @@ export class CoursePackagesService {
   constructor(
     @InjectRepository(CoursePackage)
     private coursePackageRepository: Repository<CoursePackage>,
-    @InjectRepository(Teacher)
-    private teacherRepository: Repository<Teacher>,
   ) {}
 
   async findAll(): Promise<CoursePackage[]> {
-    return this.coursePackageRepository.find({ relations: ['teacher', 'teacher.user'] });
-  }
-
-  async findByTeacher(teacherId: number): Promise<CoursePackage[]> {
-    return this.coursePackageRepository.find({
-      where: { teacher: { id: teacherId } },
-      relations: ['teacher', 'teacher.user'],
-    });
+    return this.coursePackageRepository.find({ relations: ['userPackages'] });
   }
 
   async findOne(id: number): Promise<CoursePackage> {
     const coursePackage = await this.coursePackageRepository.findOne({
       where: { id },
-      relations: ['teacher', 'teacher.user', 'userPackages'],
+      relations: ['userPackages'],
     });
     if (!coursePackage) {
       throw new NotFoundException(`CoursePackage with ID ${id} not found`);
@@ -38,16 +28,7 @@ export class CoursePackagesService {
   }
 
   async create(createCoursePackageDto: CreateCoursePackageDto): Promise<CoursePackage> {
-    const teacher = await this.teacherRepository.findOne({ where: { id: createCoursePackageDto.teacherId } });
-    if (!teacher) {
-      throw new NotFoundException(`Teacher with ID ${createCoursePackageDto.teacherId} not found`);
-    }
-
-    const coursePackage = this.coursePackageRepository.create({
-      ...createCoursePackageDto,
-      teacher,
-    });
-
+    const coursePackage = this.coursePackageRepository.create(createCoursePackageDto);
     return this.coursePackageRepository.save(coursePackage);
   }
 
