@@ -11,7 +11,11 @@ request.interceptors.response.use(
     return response.data
   },
   error => {
-    ElMessage.error(error.message || '请求失败')
+    if (error.response && error.response.data && error.response.data.error) {
+      ElMessage.error(error.response.data.error)
+    } else {
+      ElMessage.error(error.message || '请求失败')
+    }
     return Promise.reject(error)
   }
 )

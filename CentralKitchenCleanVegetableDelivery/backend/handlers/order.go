@@ -133,6 +133,6 @@ func UpdateOrderStatus(c *gin.Context) {
 	}
 
 	order.Status = input.Status
-	database.DB.Save(&order)
+	database.DB.Model(&order).Update("status", input.Status)
 	c.JSON(http.StatusOK, gin.H{"data": order})
 }

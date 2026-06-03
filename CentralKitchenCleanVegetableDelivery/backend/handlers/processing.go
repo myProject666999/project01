@@ -36,8 +36,14 @@ func GenerateProcessingTasks(c *gin.Context) {
 		return
 	}
 
+	deliveryDate, err := time.Parse("2006-01-02", input.DeliveryDate)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "日期格式错误，请使用 YYYY-MM-DD 格式"})
+		return
+	}
+
 	var orders []models.Order
-	database.DB.Preload("OrderItems").Where("delivery_date = ? AND status >= 1", input.DeliveryDate).Find(&orders)
+	database.DB.Preload("OrderItems").Where("DATE(delivery_date) = ? AND status >= 1", deliveryDate.Format("2006-01-02")).Find(&orders)
 
 	if len(orders) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "该日期没有已确认的订单"})
@@ -60,7 +66,7 @@ func GenerateProcessingTasks(c *gin.Context) {
 			continue
 		}
 
-		taskNo := fmt.Sprintf("TASK%s%04d", time.Now().Format("20060102150405"), uint(time.Now().Unix())%10000)
+		taskNo := fmt.Sprintf("TASK%s%04d", time.Now().Format("20060102150405"), uint(time.Now().UnixNano())%10000)
 
 		task := models.ProcessingTask{
 			TaskNo:        taskNo,
@@ -80,14 +86,25 @@ func GenerateProcessingTasks(c *gin.Context) {
 
 		if err := tx.Create(&task).Error; err != nil {
 			tx.Rollback()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "创建加工任务失败: " + err.Error()})
 			return
 		}
 
 		createdTasks = append(createdTasks, task)
 	}
 
-	tx.Commit()
+	for _, order := range orders {
+		if err := tx.Model(&models.Order{}).Where("id = ?", order.ID).Update("status", 2).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "更新订单状态失败: " + err.Error()})
+			return
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "提交事务失败: " + err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{"data": createdTasks, "message": fmt.Sprintf("成功生成 %d 个加工任务", len(createdTasks))})
 }
@@ -120,6 +137,16 @@ func UpdateProcessingTaskStatus(c *gin.Context) {
 		task.Worker = input.Worker
 	}
 
-	database.DB.Save(&task)
+	updates := map[string]interface{}{"status": task.Status}
+	if task.ActualStartTime != nil {
+		updates["actual_start_time"] = *task.ActualStartTime
+	}
+	if task.ActualEndTime != nil {
+		updates["actual_end_time"] = *task.ActualEndTime
+	}
+	if task.Worker != "" {
+		updates["worker"] = task.Worker
+	}
+	database.DB.Model(&task).Updates(updates)
 	c.JSON(http.StatusOK, gin.H{"data": task})
 }

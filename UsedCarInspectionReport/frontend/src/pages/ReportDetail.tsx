@@ -237,7 +237,7 @@ const ReportDetail: React.FC = () => {
                             key={photo.id}
                             width={80}
                             height={80}
-                            src={`http://localhost:3001${photo.filePath}`}
+                            src={photo.filePath}
                             style={{ objectFit: 'cover' }}
                           />
                         ))}
@@ -287,7 +287,7 @@ const ReportDetail: React.FC = () => {
                                   key={photo.id}
                                   width={40}
                                   height={40}
-                                  src={`http://localhost:3001${photo.filePath}`}
+                                  src={photo.filePath}
                                   style={{ objectFit: 'cover' }}
                                 />
                               ))}

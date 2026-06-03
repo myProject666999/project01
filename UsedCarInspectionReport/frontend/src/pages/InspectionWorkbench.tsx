@@ -350,7 +350,7 @@ const InspectionWorkbench: React.FC = () => {
                                 <Image
                                   width={100}
                                   height={100}
-                                  src={`http://localhost:3001${photo.filePath}`}
+                                  src={photo.filePath}
                                   style={{ objectFit: 'cover' }}
                                 />
                                 <Button

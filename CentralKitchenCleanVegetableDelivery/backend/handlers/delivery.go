@@ -51,8 +51,14 @@ func GenerateDeliveries(c *gin.Context) {
 		return
 	}
 
+	deliveryDate, err := time.Parse("2006-01-02", input.DeliveryDate)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "日期格式错误，请使用 YYYY-MM-DD 格式"})
+		return
+	}
+
 	var orders []models.Order
-	database.DB.Preload("Customer").Where("delivery_date = ? AND status = 2", input.DeliveryDate).Find(&orders)
+	database.DB.Preload("Customer").Where("DATE(delivery_date) = ? AND status = 2", deliveryDate.Format("2006-01-02")).Find(&orders)
 
 	if len(orders) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "该日期没有已完成加工的订单"})
@@ -84,7 +90,6 @@ func GenerateDeliveries(c *gin.Context) {
 	for vehicleIdx, vehicle := range vehicles {
 		deliveryNo := fmt.Sprintf("DEL%sV%d", time.Now().Format("20060102150405"), vehicleIdx+1)
 
-		deliveryDate, _ := time.Parse("2006-01-02", input.DeliveryDate)
 		planDepart := time.Date(deliveryDate.Year(), deliveryDate.Month(), deliveryDate.Day(), 6, 0, 0, 0, time.Local)
 
 		delivery := models.Delivery{
@@ -98,7 +103,7 @@ func GenerateDeliveries(c *gin.Context) {
 
 		if err := tx.Create(&delivery).Error; err != nil {
 			tx.Rollback()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "创建配送单失败: " + err.Error()})
 			return
 		}
 
@@ -120,13 +125,13 @@ func GenerateDeliveries(c *gin.Context) {
 				}
 				if err := tx.Create(&deliveryItem).Error; err != nil {
 					tx.Rollback()
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "创建配送明细失败: " + err.Error()})
 					return
 				}
 
-				if err := tx.Model(&order).Update("status", 3).Error; err != nil {
+				if err := tx.Model(&models.Order{}).Where("id = ?", order.ID).Update("status", 3).Error; err != nil {
 					tx.Rollback()
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "更新订单状态失败: " + err.Error()})
 					return
 				}
 			}
@@ -136,7 +141,10 @@ func GenerateDeliveries(c *gin.Context) {
 		createdDeliveries = append(createdDeliveries, delivery)
 	}
 
-	tx.Commit()
+	if err := tx.Commit().Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "提交事务失败: " + err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{"data": createdDeliveries, "message": fmt.Sprintf("成功生成 %d 个配送单", len(createdDeliveries))})
 }
@@ -164,7 +172,14 @@ func UpdateDeliveryStatus(c *gin.Context) {
 	}
 
 	delivery.Status = input.Status
-	database.DB.Save(&delivery)
+	updates := map[string]interface{}{"status": delivery.Status}
+	if delivery.ActualDepartTime != nil {
+		updates["actual_depart_time"] = *delivery.ActualDepartTime
+	}
+	if delivery.ActualArriveTime != nil {
+		updates["actual_arrive_time"] = *delivery.ActualArriveTime
+	}
+	database.DB.Model(&delivery).Updates(updates)
 	c.JSON(http.StatusOK, gin.H{"data": delivery})
 }
 
@@ -185,16 +200,13 @@ func SignDeliveryItem(c *gin.Context) {
 	}
 
 	now := time.Now()
-	item.SignTime = &now
-	item.SignPerson = input.SignPerson
-	item.TemperatureConfirmed = input.TemperatureConfirmed
+	database.DB.Model(&item).Updates(map[string]interface{}{
+		"sign_time":              now,
+		"sign_person":            input.SignPerson,
+		"temperature_confirmed":  input.TemperatureConfirmed,
+	})
 
-	database.DB.Save(&item)
-
-	var order models.Order
-	database.DB.First(&order, item.OrderID)
-	order.Status = 4
-	database.DB.Save(&order)
+	database.DB.Model(&models.Order{}).Where("id = ?", item.OrderID).Update("status", 4)
 
 	c.JSON(http.StatusOK, gin.H{"data": item})
 }
