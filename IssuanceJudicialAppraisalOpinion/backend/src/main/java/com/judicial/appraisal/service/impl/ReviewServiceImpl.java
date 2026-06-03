@@ -80,6 +80,18 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRecordRepository.findByOpinionIdOrderByCreatedAtDesc(opinionId);
     }
 
+    @Override
+    public List<ReviewRecord> findAll() {
+        return reviewRecordRepository.findAll();
+    }
+
+    @Override
+    public List<ReviewRecord> findByReviewerId(Long reviewerId) {
+        return reviewRecordRepository.findAll().stream()
+                .filter(r -> reviewerId.equals(r.getReviewerId()))
+                .toList();
+    }
+
     private void validateReviewerRole(SysUser reviewer, Integer reviewLevel) {
         String expectedRole = switch (reviewLevel) {
             case 1 -> UserRole.REVIEWER1.getCode();

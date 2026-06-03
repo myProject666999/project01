@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { Table, Button, Modal, Form, Input, DatePicker, InputNumber, message, Tag, Select } from 'antd'
 import { PlusOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { pilotApi } from '../api'
+import { pilotApi, userApi } from '../api'
 
 const { Option } = Select
 
 function PilotList() {
   const [pilots, setPilots] = useState([])
+  const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -15,7 +16,17 @@ function PilotList() {
 
   useEffect(() => {
     loadData()
+    loadUsers()
   }, [])
+
+  const loadUsers = async () => {
+    try {
+      const data = await userApi.getAll()
+      setUsers(data)
+    } catch (error) {
+      console.error('加载用户数据失败', error)
+    }
+  }
 
   const loadData = async () => {
     setLoading(true)
@@ -40,7 +51,8 @@ function PilotList() {
       ...record,
       issueDate: record.issueDate ? dayjs(record.issueDate) : null,
       expiryDate: record.expiryDate ? dayjs(record.expiryDate) : null,
-      medicalExpiryDate: record.medicalExpiryDate ? dayjs(record.medicalExpiryDate) : null
+      medicalExpiryDate: record.medicalExpiryDate ? dayjs(record.medicalExpiryDate) : null,
+      status: String(record.status)
     })
     setModalVisible(true)
   }
@@ -49,10 +61,15 @@ function PilotList() {
     try {
       const values = await form.validateFields()
       const data = {
-        ...values,
-        issueDate: values.issueDate?.format('YYYY-MM-DD'),
-        expiryDate: values.expiryDate?.format('YYYY-MM-DD'),
-        medicalExpiryDate: values.medicalExpiryDate?.format('YYYY-MM-DD')
+        userId: values.userId,
+        licenseNumber: values.licenseNumber,
+        licenseType: values.licenseType,
+        issueDate: values.issueDate ? values.issueDate.format('YYYY-MM-DD') : null,
+        expiryDate: values.expiryDate ? values.expiryDate.format('YYYY-MM-DD') : null,
+        totalFlightHours: values.totalFlightHours || 0,
+        medicalCertificate: values.medicalCertificate || null,
+        medicalExpiryDate: values.medicalExpiryDate ? values.medicalExpiryDate.format('YYYY-MM-DD') : null,
+        status: parseInt(values.status, 10)
       }
 
       if (editingId) {
@@ -65,7 +82,7 @@ function PilotList() {
       setModalVisible(false)
       loadData()
     } catch (error) {
-      message.error('操作失败')
+      message.error(error.response?.data?.error || error.response?.data?.message || '操作失败')
     }
   }
 
@@ -126,10 +143,16 @@ function PilotList() {
         <Form form={form} layout="vertical">
           <Form.Item
             name="userId"
-            label="关联用户ID"
-            rules={[{ required: true, message: '请输入关联用户ID' }]}
+            label="关联用户"
+            rules={[{ required: true, message: '请选择关联用户' }]}
           >
-            <InputNumber style={{ width: '100%' }} placeholder="请输入关联用户ID" />
+            <Select placeholder="请选择关联用户">
+              {users.map(u => (
+                <Option key={u.id} value={u.id}>
+                  {u.realName} ({u.username} - {u.role})
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             name="licenseNumber"
@@ -164,10 +187,10 @@ function PilotList() {
           <Form.Item name="medicalExpiryDate" label="体检有效期">
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="status" label="状态" initialValue={1}>
+          <Form.Item name="status" label="状态" initialValue="1">
             <Select>
-              <Option value={1}>有效</Option>
-              <Option value={0}>无效</Option>
+              <Option value="1">有效</Option>
+              <Option value="0">无效</Option>
             </Select>
           </Form.Item>
         </Form>

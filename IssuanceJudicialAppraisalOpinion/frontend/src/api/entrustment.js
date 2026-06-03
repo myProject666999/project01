@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getEntrustmentList(params) {
   return request({
-    url: '/entrustment',
+    url: '/entrustments',
     method: 'get',
     params
   })
@@ -10,14 +10,14 @@ export function getEntrustmentList(params) {
 
 export function getEntrustment(id) {
   return request({
-    url: `/entrustment/${id}`,
+    url: `/entrustments/${id}`,
     method: 'get'
   })
 }
 
 export function createEntrustment(data) {
   return request({
-    url: '/entrustment',
+    url: '/entrustments',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createEntrustment(data) {
 
 export function updateEntrustment(id, data) {
   return request({
-    url: `/entrustment/${id}`,
+    url: `/entrustments/${id}`,
     method: 'put',
     data
   })
@@ -33,21 +33,21 @@ export function updateEntrustment(id, data) {
 
 export function deleteEntrustment(id) {
   return request({
-    url: `/entrustment/${id}`,
+    url: `/entrustments/${id}`,
     method: 'delete'
   })
 }
 
 export function submitEntrustment(id) {
   return request({
-    url: `/entrustment/${id}/submit`,
+    url: `/entrustments/${id}/submit`,
     method: 'post'
   })
 }
 
 export function approveEntrustment(id, data) {
   return request({
-    url: `/entrustment/${id}/approve`,
+    url: `/entrustments/${id}/approve`,
     method: 'post',
     data
   })
@@ -55,7 +55,7 @@ export function approveEntrustment(id, data) {
 
 export function rejectEntrustment(id, data) {
   return request({
-    url: `/entrustment/${id}/reject`,
+    url: `/entrustments/${id}/reject`,
     method: 'post',
     data
   })

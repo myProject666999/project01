@@ -77,12 +77,14 @@ export default function CuppingScores() {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields()
-      const scoreItems = SCA_ITEMS.map((i) => values[i.key] || 0)
-      const total = scoreItems.reduce((a, b) => a + b, 0)
-      const payload = {
-        ...values,
-        total_score: total,
-        cupping_date: values.cupping_date ? values.cupping_date.format('YYYY-MM-DD') : undefined,
+      const payload = { ...values }
+      SCA_ITEMS.forEach((item) => {
+        payload[item.key] = values[item.key] || 0
+      })
+      const total = SCA_ITEMS.reduce((sum, item) => sum + (payload[item.key] || 0), 0)
+      payload.total_score = total
+      if (values.cupping_date) {
+        payload.cupping_date = values.cupping_date.toISOString()
       }
       if (editingRecord) {
         await updateCuppingScore(editingRecord.id, payload)
@@ -93,7 +95,8 @@ export default function CuppingScores() {
       }
       setModalOpen(false)
       fetchData()
-    } catch {
+    } catch (err) {
+      console.error(err)
       message.error('操作失败')
     }
   }

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -60,6 +61,7 @@ func (h *Handler) GetBayDetail(c echo.Context) error {
 	}
 	detail, err := h.svc.GetBayDetail(zoneID, bay)
 	if err != nil {
+		log.Printf("GetBayDetail(zoneID=%d, bay=%d): %v", zoneID, bay, err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 	return c.JSON(http.StatusOK, detail)

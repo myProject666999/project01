@@ -131,7 +131,7 @@ export default function GreenBeans() {
               <InputNumber min={0} max={30} step={0.1} style={{ width: 150 }} />
             </Form.Item>
             <Form.Item name="screen_size" label="目数">
-              <InputNumber min={0} max={30} step={0.5} style={{ width: 150 }} />
+              <Input placeholder="如：14-16" style={{ width: 150 }} />
             </Form.Item>
           </Space>
           <Space style={{ width: '100%' }} size="large">

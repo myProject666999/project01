@@ -294,13 +294,13 @@ CREATE TABLE verify_log (
 
 -- 插入测试用户(密码都是123456，BCrypt加密)
 INSERT INTO sys_user (username, password, real_name, role, qualification_no, phone, email) VALUES
-('admin', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '系统管理员', 'ADMIN', NULL, '13800000000', 'admin@judicial.com'),
-('appraiser1', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '张法医', 'APPRAISER', 'FA2023001', '13800000001', 'zhang@judicial.com'),
-('appraiser2', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '李痕迹', 'APPRAISER', 'TR2023001', '13800000002', 'li@judicial.com'),
-('appraiser3', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '王电子', 'APPRAISER', 'EL2023001', '13800000003', 'wang@judicial.com'),
-('reviewer1', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '陈复核', 'REVIEWER1', 'RV2023001', '13800000004', 'chen1@judicial.com'),
-('reviewer2', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '刘审核', 'REVIEWER2', 'RV2023002', '13800000005', 'chen2@judicial.com'),
-('reviewer3', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '赵审定', 'REVIEWER3', 'RV2023003', '13800000006', 'chen3@judicial.com');
+('admin', '$2a$10$k6SE4XaX0cRfF.94iK/6fesOKZmkmosW4u4sIHz6c185CaqWRrVnK', '系统管理员', 'ADMIN', NULL, '13800000000', 'admin@judicial.com'),
+('appraiser1', '$2a$10$k6SE4XaX0cRfF.94iK/6fesOKZmkmosW4u4sIHz6c185CaqWRrVnK', '张法医', 'APPRAISER', 'FA2023001', '13800000001', 'zhang@judicial.com'),
+('appraiser2', '$2a$10$k6SE4XaX0cRfF.94iK/6fesOKZmkmosW4u4sIHz6c185CaqWRrVnK', '李痕迹', 'APPRAISER', 'TR2023001', '13800000002', 'li@judicial.com'),
+('appraiser3', '$2a$10$k6SE4XaX0cRfF.94iK/6fesOKZmkmosW4u4sIHz6c185CaqWRrVnK', '王电子', 'APPRAISER', 'EL2023001', '13800000003', 'wang@judicial.com'),
+('reviewer1', '$2a$10$k6SE4XaX0cRfF.94iK/6fesOKZmkmosW4u4sIHz6c185CaqWRrVnK', '陈复核', 'REVIEWER1', 'RV2023001', '13800000004', 'chen1@judicial.com'),
+('reviewer2', '$2a$10$k6SE4XaX0cRfF.94iK/6fesOKZmkmosW4u4sIHz6c185CaqWRrVnK', '刘审核', 'REVIEWER2', 'RV2023002', '13800000005', 'chen2@judicial.com'),
+('reviewer3', '$2a$10$k6SE4XaX0cRfF.94iK/6fesOKZmkmosW4u4sIHz6c185CaqWRrVnK', '赵审定', 'REVIEWER3', 'RV2023003', '13800000006', 'chen3@judicial.com');
 
 -- 插入测试委托人
 INSERT INTO client (client_type, name, id_card_no, contact_person, contact_phone, address) VALUES

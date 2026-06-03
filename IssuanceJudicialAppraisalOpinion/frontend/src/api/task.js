@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getTaskList(params) {
   return request({
-    url: '/task',
+    url: '/tasks',
     method: 'get',
     params
   })
@@ -10,14 +10,14 @@ export function getTaskList(params) {
 
 export function getTask(id) {
   return request({
-    url: `/task/${id}`,
+    url: `/tasks/${id}`,
     method: 'get'
   })
 }
 
 export function createTask(data) {
   return request({
-    url: '/task',
+    url: '/tasks',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createTask(data) {
 
 export function updateTask(id, data) {
   return request({
-    url: `/task/${id}`,
+    url: `/tasks/${id}`,
     method: 'put',
     data
   })
@@ -33,14 +33,14 @@ export function updateTask(id, data) {
 
 export function deleteTask(id) {
   return request({
-    url: `/task/${id}`,
+    url: `/tasks/${id}`,
     method: 'delete'
   })
 }
 
 export function assignTask(id, data) {
   return request({
-    url: `/task/${id}/assign`,
+    url: `/tasks/${id}/assign`,
     method: 'post',
     data
   })
@@ -48,21 +48,21 @@ export function assignTask(id, data) {
 
 export function acceptTask(id) {
   return request({
-    url: `/task/${id}/accept`,
+    url: `/tasks/${id}/accept`,
     method: 'post'
   })
 }
 
 export function startTask(id) {
   return request({
-    url: `/task/${id}/start`,
+    url: `/tasks/${id}/start`,
     method: 'post'
   })
 }
 
 export function completeTask(id, data) {
   return request({
-    url: `/task/${id}/complete`,
+    url: `/tasks/${id}/complete`,
     method: 'post',
     data
   })
@@ -70,14 +70,14 @@ export function completeTask(id, data) {
 
 export function getTaskByEntrustment(entrustmentId) {
   return request({
-    url: `/task/entrustment/${entrustmentId}`,
+    url: `/tasks/entrustment/${entrustmentId}`,
     method: 'get'
   })
 }
 
 export function getMyTasks(params) {
   return request({
-    url: '/task/my',
+    url: '/tasks/my',
     method: 'get',
     params
   })

@@ -53,6 +53,4 @@ const EnvironmentRecord = sequelize.define('EnvironmentRecord', {
   updatedAt: false
 });
 
-EnvironmentRecord.belongsTo(StorageLocation, { foreignKey: 'location_id', as: 'location' });
-
 module.exports = EnvironmentRecord;

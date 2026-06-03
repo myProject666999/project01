@@ -1,13 +1,19 @@
 package com.judicial.appraisal.controller;
 
 import com.judicial.appraisal.common.Result;
+import com.judicial.appraisal.common.enums.EntrustmentStatus;
+import com.judicial.appraisal.dto.EntrustmentCreateRequest;
+import com.judicial.appraisal.entity.Client;
 import com.judicial.appraisal.entity.Entrustment;
+import com.judicial.appraisal.service.ClientService;
 import com.judicial.appraisal.service.EntrustmentService;
 import com.judicial.appraisal.util.SecurityUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +24,9 @@ public class EntrustmentController {
     @Autowired
     private EntrustmentService entrustmentService;
 
+    @Autowired
+    private ClientService clientService;
+
     @GetMapping
     public Result<List<Entrustment>> getEntrustments(@RequestParam(required = false) String status) {
         List<Entrustment> entrustments;
@@ -26,21 +35,63 @@ public class EntrustmentController {
         } else {
             entrustments = entrustmentService.findAll();
         }
+        for (Entrustment e : entrustments) {
+            if (e.getClientId() != null) {
+                Client client = clientService.findById(e.getClientId());
+                if (client != null) {
+                    e.setClientName(client.getName());
+                }
+            }
+        }
         return Result.success(entrustments);
     }
 
     @GetMapping("/{id}")
     public Result<Entrustment> getEntrustmentById(@PathVariable Long id) {
-        return Result.success(entrustmentService.findById(id));
+        Entrustment e = entrustmentService.findById(id);
+        if (e != null && e.getClientId() != null) {
+            Client client = clientService.findById(e.getClientId());
+            if (client != null) {
+                e.setClientName(client.getName());
+            }
+        }
+        return Result.success(e);
     }
 
     @PostMapping
-    public Result<Entrustment> createEntrustment(@Valid @RequestBody Entrustment entrustment) {
+    public Result<Entrustment> createEntrustment(@Valid @RequestBody EntrustmentCreateRequest request) {
         Long userId = SecurityUtil.getCurrentUserId();
         if (userId == null) {
             return Result.error("用户未登录");
         }
-        return Result.success(entrustmentService.register(entrustment, userId));
+
+        Entrustment entrustment = new Entrustment();
+        entrustment.setCaseName(request.getCaseName());
+        entrustment.setAppraisalType(request.getAppraisalType());
+        entrustment.setAppraisalMatter(request.getAppraisalRequirements());
+        entrustment.setCaseDescription(request.getCaseSummary());
+
+        if (request.getEntrustDate() != null && !request.getEntrustDate().isEmpty()) {
+            entrustment.setEntrustDate(LocalDate.parse(request.getEntrustDate(), DateTimeFormatter.ISO_LOCAL_DATE));
+        } else {
+            entrustment.setEntrustDate(LocalDate.now());
+        }
+
+        String entrustorName = request.getEntrustor();
+        if (entrustorName != null && !entrustorName.isEmpty()) {
+            Client client = clientService.findOrCreateByName(entrustorName, request.getPhone());
+            entrustment.setClientId(client.getId());
+        } else {
+            return Result.error("委托人不能为空");
+        }
+
+        if (entrustment.getStatus() == null || entrustment.getStatus().isEmpty()) {
+            entrustment.setStatus(EntrustmentStatus.REGISTERED.getCode());
+        }
+
+        Entrustment saved = entrustmentService.register(entrustment, userId);
+        saved.setClientName(entrustorName);
+        return Result.success(saved);
     }
 
     @PutMapping("/{id}")

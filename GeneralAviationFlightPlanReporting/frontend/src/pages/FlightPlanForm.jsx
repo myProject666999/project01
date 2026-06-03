@@ -73,12 +73,23 @@ function FlightPlanForm() {
     setSubmitting(true)
     try {
       const planData = {
-        ...values,
+        pilotId: values.pilotId,
+        aircraftId: values.aircraftId,
+        flightType: values.flightType,
+        departureAirport: values.departureAirport,
+        arrivalAirport: values.arrivalAirport,
         departureTime: values.timeRange[0].format('YYYY-MM-DD HH:mm:ss'),
         arrivalTime: values.timeRange[1].format('YYYY-MM-DD HH:mm:ss'),
-        airspaceIds: values.airspaceIds.join(',')
+        airspaceIds: (values.airspaceIds || []).join(','),
+        passengers: values.passengers || 0,
+        altitude: values.altitude || null,
+        speed: values.speed || null,
+        route: values.route || null,
+        purpose: values.purpose || null,
+        emergencyContact: values.emergencyContact || null,
+        emergencyPhone: values.emergencyPhone || null,
+        status: 'DRAFT'
       }
-      delete planData.timeRange
 
       if (id) {
         await flightPlanApi.update(id, planData)

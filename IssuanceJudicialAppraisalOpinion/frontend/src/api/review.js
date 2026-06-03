@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getReviewList(params) {
   return request({
-    url: '/review',
+    url: '/reviews',
     method: 'get',
     params
   })
@@ -10,14 +10,14 @@ export function getReviewList(params) {
 
 export function getReview(id) {
   return request({
-    url: `/review/${id}`,
+    url: `/reviews/${id}`,
     method: 'get'
   })
 }
 
 export function createReview(data) {
   return request({
-    url: '/review',
+    url: '/reviews',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createReview(data) {
 
 export function updateReview(id, data) {
   return request({
-    url: `/review/${id}`,
+    url: `/reviews/${id}`,
     method: 'put',
     data
   })
@@ -33,21 +33,21 @@ export function updateReview(id, data) {
 
 export function deleteReview(id) {
   return request({
-    url: `/review/${id}`,
+    url: `/reviews/${id}`,
     method: 'delete'
   })
 }
 
 export function getReviewByOpinion(opinionId) {
   return request({
-    url: `/review/opinion/${opinionId}`,
+    url: `/reviews/opinion/${opinionId}`,
     method: 'get'
   })
 }
 
 export function assignReview(id, data) {
   return request({
-    url: `/review/${id}/assign`,
+    url: `/reviews/${id}/assign`,
     method: 'post',
     data
   })
@@ -55,14 +55,14 @@ export function assignReview(id, data) {
 
 export function acceptReview(id) {
   return request({
-    url: `/review/${id}/accept`,
+    url: `/reviews/${id}/accept`,
     method: 'post'
   })
 }
 
 export function submitReview(id, data) {
   return request({
-    url: `/review/${id}/submit`,
+    url: `/reviews/${id}/submit`,
     method: 'post',
     data
   })
@@ -70,7 +70,7 @@ export function submitReview(id, data) {
 
 export function approveReview(id, data) {
   return request({
-    url: `/review/${id}/approve`,
+    url: `/reviews/${id}/approve`,
     method: 'post',
     data
   })
@@ -78,7 +78,7 @@ export function approveReview(id, data) {
 
 export function rejectReview(id, data) {
   return request({
-    url: `/review/${id}/reject`,
+    url: `/reviews/${id}/reject`,
     method: 'post',
     data
   })
@@ -86,7 +86,7 @@ export function rejectReview(id, data) {
 
 export function getMyReviews(params) {
   return request({
-    url: '/review/my',
+    url: '/reviews/my',
     method: 'get',
     params
   })
@@ -94,7 +94,7 @@ export function getMyReviews(params) {
 
 export function getReviewHistory(opinionId) {
   return request({
-    url: `/review/opinion/${opinionId}/history`,
+    url: `/reviews/opinion/${opinionId}/history`,
     method: 'get'
   })
 }

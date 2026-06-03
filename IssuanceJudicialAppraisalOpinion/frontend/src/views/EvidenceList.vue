@@ -17,9 +17,9 @@
             clearable
             style="width: 150px"
           >
-            <el-option label="未封存" value="unSealed" />
-            <el-option label="已封存" value="sealed" />
-            <el-option label="已启封" value="opened" />
+            <el-option label="未封存" value="UNSEALED" />
+            <el-option label="已封存" value="SEALED" />
+            <el-option label="已启封" value="OPENED" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -39,17 +39,17 @@
     <el-card class="table-card">
       <el-table :data="tableData" v-loading="loading" stripe border>
         <el-table-column prop="evidenceNo" label="检材编号" width="180" />
-        <el-table-column prop="name" label="名称" min-width="180" show-overflow-tooltip />
-        <el-table-column prop="type" label="类型" width="150" />
+        <el-table-column prop="evidenceName" label="名称" min-width="180" show-overflow-tooltip />
+        <el-table-column prop="evidenceType" label="类型" width="150" />
         <el-table-column prop="quantity" label="数量" width="100" />
         <el-table-column prop="weight" label="重量" width="120">
           <template #default="{ row }">
-            {{ row.weight ? row.weight + (row.weightUnit || 'g') : '-' }}
+            {{ row.weight ? row.weight + 'g' : '-' }}
           </template>
         </el-table-column>
-        <el-table-column prop="sealedStatus" label="封存状态" width="120">
+        <el-table-column prop="sealStatus" label="封存状态" width="120">
           <template #default="{ row }">
-            <el-tag :type="getSealedStatusType(row.sealedStatus)">{{ getSealedStatusText(row.sealedStatus) }}</el-tag>
+            <el-tag :type="getSealedStatusType(row.sealStatus)">{{ getSealedStatusText(row.sealStatus) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="storageLocation" label="存放位置" width="150" show-overflow-tooltip />
@@ -182,17 +182,17 @@
     <el-dialog v-model="viewVisible" title="检材详情" width="700px">
       <el-descriptions :column="2" border>
         <el-descriptions-item label="检材编号">{{ currentRow.evidenceNo }}</el-descriptions-item>
-        <el-descriptions-item label="检材类型">{{ currentRow.type }}</el-descriptions-item>
-        <el-descriptions-item label="名称" :span="2">{{ currentRow.name }}</el-descriptions-item>
+        <el-descriptions-item label="检材类型">{{ currentRow.evidenceType }}</el-descriptions-item>
+        <el-descriptions-item label="名称" :span="2">{{ currentRow.evidenceName }}</el-descriptions-item>
         <el-descriptions-item label="数量">{{ currentRow.quantity }}</el-descriptions-item>
         <el-descriptions-item label="重量">
-          {{ currentRow.weight ? currentRow.weight + (currentRow.weightUnit || 'g') : '-' }}
+          {{ currentRow.weight ? currentRow.weight + 'g' : '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="封存状态">
-          <el-tag :type="getSealedStatusType(currentRow.sealedStatus)">{{ getSealedStatusText(currentRow.sealedStatus) }}</el-tag>
+          <el-tag :type="getSealedStatusType(currentRow.sealStatus)">{{ getSealedStatusText(currentRow.sealStatus) }}</el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="存放位置">{{ currentRow.storageLocation }}</el-descriptions-item>
-        <el-descriptions-item label="接收日期">{{ currentRow.receiveDate }}</el-descriptions-item>
+        <el-descriptions-item label="接收日期">{{ currentRow.receiveTime }}</el-descriptions-item>
         <el-descriptions-item label="检材描述" :span="2">{{ currentRow.description }}</el-descriptions-item>
       </el-descriptions>
     </el-dialog>
@@ -284,7 +284,7 @@ const receiveForm = reactive({
   storageLocation: '',
   description: '',
   location: '',
-  sealedStatus: 'sealed'
+  sealedStatus: 'SEALED'
 })
 
 const uploadPhotoForm = reactive({
@@ -304,9 +304,9 @@ const uploadPhotoRules = {
 }
 
 const sealedStatusMap = {
-  unSealed: { text: '未封存', type: 'info' },
-  sealed: { text: '已封存', type: 'success' },
-  opened: { text: '已启封', type: 'warning' }
+  UNSEALED: { text: '未封存', type: 'info' },
+  SEALED: { text: '已封存', type: 'success' },
+  OPENED: { text: '已启封', type: 'warning' }
 }
 
 const getSealedStatusText = (status) => sealedStatusMap[status]?.text || status
@@ -315,15 +315,11 @@ const getSealedStatusType = (status) => sealedStatusMap[status]?.type || 'info'
 const fetchList = async () => {
   loading.value = true
   try {
-    const params = {
-      ...searchForm,
-      pageNum: pagination.pageNum,
-      pageSize: pagination.pageSize
-    }
-    const res = await getEvidenceList(params)
+    const res = await getEvidenceList(searchForm)
     if (res.code === 200) {
-      tableData.value = res.data?.list || []
-      pagination.total = res.data?.total || 0
+      const list = Array.isArray(res.data) ? res.data : (res.data?.list || [])
+      tableData.value = list
+      pagination.total = list.length
     }
   } catch (error) {
     console.error('获取列表失败', error)
@@ -334,9 +330,9 @@ const fetchList = async () => {
 
 const fetchEntrustmentOptions = async () => {
   try {
-    const res = await getEntrustmentList({ pageSize: 100, pageNum: 1 })
+    const res = await getEntrustmentList()
     if (res.code === 200) {
-      entrustmentOptions.value = res.data?.list || []
+      entrustmentOptions.value = Array.isArray(res.data) ? res.data : (res.data?.list || [])
     }
   } catch (error) {
     console.error('获取委托列表失败', error)
@@ -376,7 +372,7 @@ const resetReceiveForm = () => {
   receiveForm.storageLocation = ''
   receiveForm.description = ''
   receiveForm.location = ''
-  receiveForm.sealedStatus = 'sealed'
+  receiveForm.sealedStatus = 'SEALED'
   photoFileList.value = []
   if (receiveFormRef.value) {
     receiveFormRef.value.resetFields()

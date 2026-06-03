@@ -17,12 +17,12 @@
             clearable
             style="width: 150px"
           >
-            <el-option label="待受理" value="pending" />
-            <el-option label="已受理" value="accepted" />
-            <el-option label="进行中" value="inProgress" />
-            <el-option label="已完成" value="completed" />
-            <el-option label="待复核" value="pendingReview" />
-            <el-option label="已复核" value="reviewed" />
+            <el-option label="已登记" value="REGISTERED" />
+            <el-option label="已受理" value="ACCEPTED" />
+            <el-option label="鉴定中" value="IN_PROGRESS" />
+            <el-option label="复核中" value="REVIEWING" />
+            <el-option label="已完成" value="COMPLETED" />
+            <el-option label="已出具" value="ISSUED" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -41,10 +41,10 @@
 
     <el-card class="table-card">
       <el-table :data="tableData" v-loading="loading" stripe border>
-        <el-table-column prop="entrustNo" label="委托编号" width="180" />
+        <el-table-column prop="entrustmentNo" label="委托编号" width="180" />
         <el-table-column prop="caseName" label="案件名称" min-width="200" show-overflow-tooltip />
         <el-table-column prop="appraisalType" label="鉴定类型" width="150" />
-        <el-table-column prop="entrustor" label="委托人" width="150" />
+        <el-table-column prop="clientName" label="委托人" width="150" />
         <el-table-column prop="status" label="状态" width="120">
           <template #default="{ row }">
             <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
@@ -147,17 +147,16 @@
 
     <el-dialog v-model="viewVisible" title="委托详情" width="700px">
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="委托编号">{{ currentRow.entrustNo }}</el-descriptions-item>
+        <el-descriptions-item label="委托编号">{{ currentRow.entrustmentNo }}</el-descriptions-item>
         <el-descriptions-item label="委托日期">{{ currentRow.entrustDate }}</el-descriptions-item>
         <el-descriptions-item label="案件名称" :span="2">{{ currentRow.caseName }}</el-descriptions-item>
         <el-descriptions-item label="鉴定类型">{{ currentRow.appraisalType }}</el-descriptions-item>
-        <el-descriptions-item label="委托人">{{ currentRow.entrustor }}</el-descriptions-item>
-        <el-descriptions-item label="联系电话">{{ currentRow.phone }}</el-descriptions-item>
+        <el-descriptions-item label="委托人">{{ currentRow.clientName }}</el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag :type="getStatusType(currentRow.status)">{{ getStatusText(currentRow.status) }}</el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="案情摘要" :span="2">{{ currentRow.caseSummary }}</el-descriptions-item>
-        <el-descriptions-item label="鉴定要求" :span="2">{{ currentRow.appraisalRequirements }}</el-descriptions-item>
+        <el-descriptions-item label="案情摘要" :span="2">{{ currentRow.caseDescription }}</el-descriptions-item>
+        <el-descriptions-item label="鉴定要求" :span="2">{{ currentRow.appraisalMatter }}</el-descriptions-item>
       </el-descriptions>
     </el-dialog>
   </div>
@@ -218,12 +217,13 @@ const rules = {
 const dialogTitle = computed(() => isEdit.value ? '编辑委托' : '新增委托')
 
 const statusMap = {
-  pending: { text: '待受理', type: 'info' },
-  accepted: { text: '已受理', type: 'primary' },
-  inProgress: { text: '进行中', type: 'warning' },
-  completed: { text: '已完成', type: 'success' },
-  pendingReview: { text: '待复核', type: 'danger' },
-  reviewed: { text: '已复核', type: 'success' }
+  REGISTERED: { text: '已登记', type: 'info' },
+  ACCEPTED: { text: '已受理', type: 'primary' },
+  IN_PROGRESS: { text: '鉴定中', type: 'warning' },
+  REVIEWING: { text: '复核中', type: 'danger' },
+  COMPLETED: { text: '已完成', type: 'success' },
+  ISSUED: { text: '已出具', type: 'success' },
+  REJECTED: { text: '已驳回', type: 'danger' }
 }
 
 const getStatusText = (status) => statusMap[status]?.text || status
@@ -232,15 +232,11 @@ const getStatusType = (status) => statusMap[status]?.type || 'info'
 const fetchList = async () => {
   loading.value = true
   try {
-    const params = {
-      ...searchForm,
-      pageNum: pagination.pageNum,
-      pageSize: pagination.pageSize
-    }
-    const res = await getEntrustmentList(params)
+    const res = await getEntrustmentList(searchForm)
     if (res.code === 200) {
-      tableData.value = res.data?.list || []
-      pagination.total = res.data?.total || 0
+      const list = Array.isArray(res.data) ? res.data : (res.data?.list || [])
+      tableData.value = list
+      pagination.total = list.length
     }
   } catch (error) {
     console.error('获取列表失败', error)

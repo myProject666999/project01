@@ -46,6 +46,4 @@ const TastingInfusion = sequelize.define('TastingInfusion', {
   updatedAt: false
 });
 
-TastingInfusion.belongsTo(TastingNote, { foreignKey: 'tasting_note_id', as: 'tastingNote' });
-
 module.exports = TastingInfusion;

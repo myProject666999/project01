@@ -10,4 +10,8 @@ public interface ReviewService {
                                 String result, Integer rejectTargetLevel, String reviewOpinion);
 
     List<ReviewRecord> getReviewHistory(Long opinionId);
+
+    List<ReviewRecord> findAll();
+
+    List<ReviewRecord> findByReviewerId(Long reviewerId);
 }

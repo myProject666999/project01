@@ -41,4 +41,17 @@ public class ClientServiceImpl implements ClientService {
     public List<Client> findByName(String name) {
         return clientRepository.findByNameContaining(name);
     }
+
+    @Override
+    @Transactional
+    public Client findOrCreateByName(String name, String phone) {
+        return clientRepository.findFirstByName(name).orElseGet(() -> {
+            Client client = new Client();
+            client.setClientType("INDIVIDUAL");
+            client.setName(name);
+            client.setContactPerson(name);
+            client.setContactPhone(phone);
+            return clientRepository.save(client);
+        });
+    }
 }

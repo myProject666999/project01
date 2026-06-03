@@ -55,7 +55,7 @@ func Load() *Config {
 			DB:   0,
 		},
 		Server: ServerConfig{
-			Port: 8080,
+			Port: 8088,
 		},
 		Yard: YardConfig{
 			Bays:  10,

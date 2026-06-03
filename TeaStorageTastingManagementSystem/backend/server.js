@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const sequelize = require('./config/database');
 const mqttSimulator = require('./services/mqttSimulator');
+const setupAssociations = require('./models/associations');
 
 const teaProductsRouter = require('./routes/teaProducts');
 const storageLocationsRouter = require('./routes/storageLocations');
@@ -18,7 +19,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 app.get('/api/health', (req, res) => {
+  console.log('健康检查接口被调用');
   res.json({ success: true, message: '茶叶仓储与品鉴管理系统 API 运行正常', timestamp: new Date().toISOString() });
 });
 
@@ -39,12 +46,15 @@ app.use((req, res) => {
 
 const startServer = async () => {
   try {
+    setupAssociations();
+    console.log('模型关联配置完成');
+    
     await sequelize.sync({ alter: false });
     console.log('数据库模型同步完成');
 
-    app.listen(PORT, () => {
-      console.log(`服务器运行在 http://localhost:${PORT}`);
-      console.log(`健康检查: http://localhost:${PORT}/api/health`);
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`服务器运行在 http://0.0.0.0:${PORT}`);
+      console.log(`健康检查: http://127.0.0.1:${PORT}/api/health`);
     });
 
     mqttSimulator.start();

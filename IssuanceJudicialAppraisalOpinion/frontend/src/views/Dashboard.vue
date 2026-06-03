@@ -97,12 +97,17 @@ const stats = reactive({
 const recentList = ref([])
 
 const statusMap = {
-  pending: { text: '待受理', type: 'info' },
-  accepted: { text: '已受理', type: 'primary' },
-  inProgress: { text: '进行中', type: 'warning' },
-  completed: { text: '已完成', type: 'success' },
-  pendingReview: { text: '待复核', type: 'danger' },
-  reviewed: { text: '已复核', type: 'success' }
+  REGISTERED: { text: '已登记', type: 'info' },
+  ACCEPTED: { text: '已受理', type: 'primary' },
+  IN_PROGRESS: { text: '鉴定中', type: 'warning' },
+  REVIEWING: { text: '复核中', type: 'danger' },
+  REVIEW1: { text: '一级复核', type: 'danger' },
+  REVIEW2: { text: '二级复核', type: 'danger' },
+  REVIEW3: { text: '三级复核', type: 'danger' },
+  COMPLETED: { text: '已完成', type: 'success' },
+  REJECTED: { text: '已驳回', type: 'danger' },
+  ISSUED: { text: '已出具', type: 'success' },
+  DRAFT: { text: '草稿', type: 'info' }
 }
 
 const getStatusText = (status) => statusMap[status]?.text || status
@@ -111,14 +116,14 @@ const getStatusType = (status) => statusMap[status]?.type || 'info'
 const fetchData = async () => {
   loading.value = true
   try {
-    const res = await getEntrustmentList({ pageSize: 10, pageNum: 1 })
+    const res = await getEntrustmentList()
     if (res.code === 200) {
-      const list = res.data?.list || []
-      recentList.value = list
-      stats.total = res.data?.total || 0
-      stats.inProgress = list.filter(item => item.status === 'inProgress' || item.status === 'accepted').length
-      stats.completed = list.filter(item => item.status === 'completed' || item.status === 'reviewed').length
-      stats.pendingReview = list.filter(item => item.status === 'pendingReview').length
+      const list = Array.isArray(res.data) ? res.data : (res.data?.list || [])
+      recentList.value = list.slice(0, 10)
+      stats.total = list.length
+      stats.inProgress = list.filter(item => item.status === 'IN_PROGRESS' || item.status === 'ACCEPTED').length
+      stats.completed = list.filter(item => item.status === 'COMPLETED').length
+      stats.pendingReview = list.filter(item => item.status === 'REVIEWING' || item.status === 'REVIEW1' || item.status === 'REVIEW2' || item.status === 'REVIEW3').length
     }
   } catch (error) {
     console.error('获取数据失败', error)

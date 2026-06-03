@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pilots")
@@ -35,16 +37,35 @@ public class PilotController {
     }
 
     @PostMapping
-    public ResponseEntity<Pilot> create(@RequestBody Pilot pilot) {
-        return ResponseEntity.ok(pilotRepository.save(pilot));
+    public ResponseEntity<?> create(@RequestBody Pilot pilot) {
+        try {
+            return ResponseEntity.ok(pilotRepository.save(pilot));
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("Duplicate entry")) {
+                error.put("error", "执照号已存在");
+            } else if (msg != null && msg.contains("foreign key")) {
+                error.put("error", "关联用户不存在");
+            } else {
+                error.put("error", "创建失败: " + msg);
+            }
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pilot> update(@PathVariable Long id, @RequestBody Pilot pilot) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Pilot pilot) {
         if (!pilotRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        pilot.setId(id);
-        return ResponseEntity.ok(pilotRepository.save(pilot));
+        try {
+            pilot.setId(id);
+            return ResponseEntity.ok(pilotRepository.save(pilot));
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "更新失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 }

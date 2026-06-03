@@ -4,9 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 @Data
 public class EvidenceReceiveRequest {
 
@@ -14,23 +11,21 @@ public class EvidenceReceiveRequest {
     private Long entrustmentId;
 
     @NotBlank(message = "检材名称不能为空")
-    private String evidenceName;
+    private String name;
 
-    private String evidenceType;
-
-    private String description;
+    private String type;
 
     private Integer quantity;
 
-    private BigDecimal weight;
+    private String weight;
 
-    private String sealStatus;
+    private String weightUnit;
 
     private String storageLocation;
 
-    private LocalDateTime receiveTime;
+    private String description;
 
-    private Long receivedBy;
+    private String location;
 
-    private String deliveredBy;
+    private String sealedStatus;
 }

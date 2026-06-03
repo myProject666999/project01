@@ -41,7 +41,7 @@
         </div>
 
         <div class="scan-tip">
-          <el-icon class="scan-icon"><QRCode /></el-icon>
+          <el-icon class="scan-icon"><CircleCheck /></el-icon>
           <p>使用手机扫描意见书上的二维码可直接验真</p>
         </div>
       </div>
@@ -91,7 +91,7 @@
 
         <div v-else-if="resultStatus === 'rateLimit'" class="result-rate-limit">
           <div class="result-icon warning">
-            <el-icon :size="48"><Warning /></el-icon>
+            <el-icon :size="48"><WarningFilled /></el-icon>
           </div>
           <h3 class="result-title warning-title">请求过于频繁</h3>
           <p class="warning-message">请稍后再试</p>
@@ -105,7 +105,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Search, QrCode, CircleCheckFilled, CircleCloseFilled, WarningFilled } from '@element-plus/icons-vue'
+import { Search, CircleCheck, CircleCloseFilled, WarningFilled } from '@element-plus/icons-vue'
 import { verifyOpinionByCode } from '@/api/verify'
 
 const route = useRoute()

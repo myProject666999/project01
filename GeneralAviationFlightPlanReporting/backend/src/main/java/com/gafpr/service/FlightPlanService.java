@@ -132,9 +132,12 @@ public class FlightPlanService {
         }
 
         List<ApprovalNodeConfig> configs = approvalNodeConfigRepository
-                .findByAirspaceTypeAndLevelOrderBySequenceAsc(maxAirspaceType, maxLevel);
+                .findByAirspaceTypeOrderBySequenceAsc(maxAirspaceType);
 
         for (ApprovalNodeConfig config : configs) {
+            if (config.getLevel() > maxLevel) {
+                continue;
+            }
             ApprovalProcess process = new ApprovalProcess();
             process.setFlightPlanId(flightPlan.getId());
             process.setNodeConfigId(config.getId());

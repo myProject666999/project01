@@ -28,13 +28,29 @@ export const useUserStore = defineStore('user', () => {
   async function login(credentials) {
     try {
       const response = await loginApi(credentials)
-      const { token: accessToken, ...info } = response.data
-      setToken(accessToken)
-      setUserInfo(info)
+      const data = response.data
+      setToken(data.token)
+      const userInfo = {
+        ...data.user,
+        name: data.user.realName,
+        roleName: getRoleDisplayName(data.user.role)
+      }
+      setUserInfo(userInfo)
       return response
     } catch (error) {
       throw error
     }
+  }
+
+  function getRoleDisplayName(role) {
+    const roleMap = {
+      'ADMIN': '管理员',
+      'APPRAISER': '鉴定人',
+      'REVIEWER1': '一级复核人',
+      'REVIEWER2': '二级复核人',
+      'REVIEWER3': '三级复核人'
+    }
+    return roleMap[role] || role
   }
 
   async function fetchUserInfo() {

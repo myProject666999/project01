@@ -35,7 +35,10 @@ function ApprovalConfig() {
 
   const handleEdit = (record) => {
     setEditingId(record.id)
-    form.setFieldsValue(record)
+    form.setFieldsValue({
+      ...record,
+      isRequired: String(record.isRequired)
+    })
     setModalVisible(true)
   }
 
@@ -52,11 +55,15 @@ function ApprovalConfig() {
   const handleOk = async () => {
     try {
       const values = await form.validateFields()
+      const submitData = {
+        ...values,
+        isRequired: parseInt(values.isRequired, 10)
+      }
       if (editingId) {
-        await approvalConfigApi.update(editingId, values)
+        await approvalConfigApi.update(editingId, submitData)
         message.success('更新成功')
       } else {
-        await approvalConfigApi.create(values)
+        await approvalConfigApi.create(submitData)
         message.success('创建成功')
       }
       setModalVisible(false)
@@ -171,11 +178,11 @@ function ApprovalConfig() {
           <Form.Item
             name="isRequired"
             label="是否必需"
-            initialValue={1}
+            initialValue="1"
           >
             <Select>
-              <Option value={1}>是</Option>
-              <Option value={0}>否</Option>
+              <Option value="1">是</Option>
+              <Option value="0">否</Option>
             </Select>
           </Form.Item>
           <Form.Item name="description" label="描述">

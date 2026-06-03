@@ -15,4 +15,6 @@ public interface ClientService {
     void deleteById(Long id);
 
     List<Client> findByName(String name);
+
+    Client findOrCreateByName(String name, String phone);
 }

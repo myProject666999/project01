@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getAttachmentList(params) {
   return request({
-    url: '/attachment',
+    url: '/attachments',
     method: 'get',
     params
   })
@@ -10,7 +10,7 @@ export function getAttachmentList(params) {
 
 export function getAttachment(id) {
   return request({
-    url: `/attachment/${id}`,
+    url: `/attachments/${id}`,
     method: 'get'
   })
 }
@@ -23,7 +23,7 @@ export function uploadAttachment(file, bizType, bizId) {
     formData.append('bizId', bizId)
   }
   return request({
-    url: '/attachment/upload',
+    url: '/attachments/upload',
     method: 'post',
     data: formData,
     headers: {
@@ -42,7 +42,7 @@ export function uploadMultiple(files, bizType, bizId) {
     formData.append('bizId', bizId)
   }
   return request({
-    url: '/attachment/upload/multiple',
+    url: '/attachments/upload/multiple',
     method: 'post',
     data: formData,
     headers: {
@@ -53,7 +53,7 @@ export function uploadMultiple(files, bizType, bizId) {
 
 export function downloadAttachment(id) {
   return request({
-    url: `/attachment/${id}/download`,
+    url: `/attachments/${id}/download`,
     method: 'get',
     responseType: 'blob'
   })
@@ -61,7 +61,7 @@ export function downloadAttachment(id) {
 
 export function previewAttachment(id) {
   return request({
-    url: `/attachment/${id}/preview`,
+    url: `/attachments/${id}/preview`,
     method: 'get',
     responseType: 'blob'
   })
@@ -69,21 +69,21 @@ export function previewAttachment(id) {
 
 export function deleteAttachment(id) {
   return request({
-    url: `/attachment/${id}`,
+    url: `/attachments/${id}`,
     method: 'delete'
   })
 }
 
 export function getAttachmentsByBiz(bizType, bizId) {
   return request({
-    url: `/attachment/biz/${bizType}/${bizId}`,
+    url: `/attachments/biz/${bizType}/${bizId}`,
     method: 'get'
   })
 }
 
 export function updateAttachmentBiz(id, bizType, bizId) {
   return request({
-    url: `/attachment/${id}/biz`,
+    url: `/attachments/${id}/biz`,
     method: 'put',
     data: { bizType, bizId }
   })
@@ -95,7 +95,7 @@ export function uploadEvidencePhoto(file, evidenceId, location) {
   formData.append('evidenceId', evidenceId)
   formData.append('location', location || '未知')
   return request({
-    url: '/attachment/upload/evidence-photo',
+    url: '/attachments/upload/evidence-photo',
     method: 'post',
     data: formData,
     headers: {

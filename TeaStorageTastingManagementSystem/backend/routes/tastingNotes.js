@@ -48,7 +48,7 @@ router.get('/conversion-curve/:tea_product_id', async (req, res) => {
       include: [
         { 
           model: TastingInfusion, 
-          as: 'tastingNote',
+          as: 'infusions',
           separate: true,
           order: [['infusion_number', 'ASC']]
         },
@@ -58,7 +58,7 @@ router.get('/conversion-curve/:tea_product_id', async (req, res) => {
     });
 
     const curveData = notes.map(note => {
-      const infusions = note.tastingNote || [];
+      const infusions = note.infusions || [];
       const avgInfusionScore = infusions.length > 0
         ? infusions.reduce((sum, inf) => sum + parseFloat(inf.score), 0) / infusions.length
         : null;

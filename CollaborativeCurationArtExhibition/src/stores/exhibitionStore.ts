@@ -31,6 +31,7 @@ interface ExhibitionForm {
   status: ExhibitionStatus;
   description: string;
   coverImage: string;
+  curatorId: number;
 }
 
 interface ExhibitionState {
@@ -40,10 +41,19 @@ interface ExhibitionState {
   error: string | null;
   fetchExhibitions: () => Promise<void>;
   fetchExhibition: (id: number) => Promise<void>;
-  createExhibition: (data: ExhibitionForm) => Promise<void>;
+  createExhibition: (data: Omit<ExhibitionForm, 'curatorId'> & { curatorId?: number }) => Promise<void>;
   updateExhibition: (id: number, data: Partial<ExhibitionForm>) => Promise<void>;
   deleteExhibition: (id: number) => Promise<void>;
   clearCurrent: () => void;
+}
+
+function getCurrentUserId(): number | null {
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    return user?.id || null;
+  } catch {
+    return null;
+  }
 }
 
 export const useExhibitionStore = create<ExhibitionState>((set) => ({
@@ -75,7 +85,9 @@ export const useExhibitionStore = create<ExhibitionState>((set) => ({
   createExhibition: async (data) => {
     set({ isLoading: true, error: null });
     try {
-      const { data: newExhibition } = await api.post('/exhibitions', data);
+      const curatorId = data.curatorId ?? getCurrentUserId();
+      const payload = { ...data, curatorId };
+      const { data: newExhibition } = await api.post('/exhibitions', payload);
       set((state) => ({
         exhibitions: [...state.exhibitions, newExhibition],
         isLoading: false,

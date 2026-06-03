@@ -52,7 +52,4 @@ const Inventory = sequelize.define('Inventory', {
   updatedAt: 'updated_at'
 });
 
-Inventory.belongsTo(TeaProduct, { foreignKey: 'tea_product_id', as: 'teaProduct' });
-Inventory.belongsTo(StorageLocation, { foreignKey: 'location_id', as: 'location' });
-
 module.exports = Inventory;

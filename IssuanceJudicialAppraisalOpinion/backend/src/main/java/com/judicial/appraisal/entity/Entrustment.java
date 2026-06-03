@@ -55,4 +55,7 @@ public class Entrustment {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Transient
+    private String clientName;
 }

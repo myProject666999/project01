@@ -18,6 +18,33 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
+    @GetMapping
+    public Result<List<ReviewRecord>> list(@RequestParam(required = false) Long opinionId) {
+        List<ReviewRecord> records;
+        if (opinionId != null) {
+            records = reviewService.getReviewHistory(opinionId);
+        } else {
+            records = reviewService.findAll();
+        }
+        return Result.success(records);
+    }
+
+    @GetMapping("/my")
+    public Result<List<ReviewRecord>> getMyReviews() {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        if (currentUserId == null) {
+            return Result.error("用户未登录");
+        }
+        List<ReviewRecord> records = reviewService.findByReviewerId(currentUserId);
+        return Result.success(records);
+    }
+
+    @GetMapping("/opinion/{opinionId}")
+    public Result<List<ReviewRecord>> getReviewHistory(@PathVariable Long opinionId) {
+        List<ReviewRecord> records = reviewService.getReviewHistory(opinionId);
+        return Result.success(records);
+    }
+
     @PostMapping("/review")
     public Result<ReviewRecord> review(@RequestBody ReviewRequest request) {
         Long currentUserId = SecurityUtil.getCurrentUserId();
@@ -65,12 +92,6 @@ public class ReviewController {
         } catch (IllegalArgumentException | IllegalStateException e) {
             return Result.error(e.getMessage());
         }
-    }
-
-    @GetMapping("/opinion/{opinionId}")
-    public Result<List<ReviewRecord>> getReviewHistory(@PathVariable Long opinionId) {
-        List<ReviewRecord> records = reviewService.getReviewHistory(opinionId);
-        return Result.success(records);
     }
 
     @Data

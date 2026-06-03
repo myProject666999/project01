@@ -419,10 +419,10 @@ func (r *Repo) GetSlotLock(slotID int64) (*model.SlotLock, error) {
 func (r *Repo) GetSlotsWithContainersByZoneBay(zoneID, bay int64) ([]model.YardSlot, error) {
 	rows, err := r.db.Query(`
 		SELECT s.id, s.zone_id, s.bay, s.row, s.tier, s.status,
-		       COALESCE(c.container_no, ''),
-		       COALESCE(c.id, 0), COALESCE(c.owner_code, ''), COALESCE(c.size_type, ''),
-		       COALESCE(c.weight_kg, 0), COALESCE(c.is_dangerous, 0), COALESCE(c.imo_class, ''),
-		       COALESCE(c.departure_time, '0001-01-01 00:00:00'), COALESCE(c.status, '')
+		       c.container_no,
+		       c.id, c.owner_code, c.size_type,
+		       c.weight_kg, c.is_dangerous, COALESCE(c.imo_class,''),
+		       c.departure_time, c.status
 		FROM yard_slot s
 		LEFT JOIN container c ON c.slot_id = s.id AND c.status='yard'
 		WHERE s.zone_id=? AND s.bay=?
@@ -435,18 +435,47 @@ func (r *Repo) GetSlotsWithContainersByZoneBay(zoneID, bay int64) ([]model.YardS
 	for rows.Next() {
 		var s model.YardSlot
 		var c model.Container
-		var cID int64
+		var cID sql.NullInt64
+		var cNo sql.NullString
+		var cOwner sql.NullString
+		var cSizeType sql.NullString
+		var cWeight sql.NullInt64
+		var cDangerous sql.NullInt64
+		var cIMOClass sql.NullString
 		var dep sql.NullTime
+		var cStatus sql.NullString
 		if err := rows.Scan(&s.ID, &s.ZoneID, &s.Bay, &s.Row, &s.Tier, &s.Status,
-			&s.ContainerNo, &cID, &c.OwnerCode, &c.SizeType, &c.WeightKg, &c.IsDangerous, &c.IMOClass,
-			&dep, &c.Status); err != nil {
+			&cNo, &cID, &cOwner, &cSizeType,
+			&cWeight, &cDangerous, &cIMOClass,
+			&dep, &cStatus); err != nil {
 			return nil, err
 		}
-		if cID > 0 {
-			c.ID = cID
-			c.ContainerNo = s.ContainerNo
+		if cID.Valid && cID.Int64 > 0 {
+			c.ID = cID.Int64
+			if cNo.Valid {
+				c.ContainerNo = cNo.String
+				s.ContainerNo = cNo.String
+			}
+			if cOwner.Valid {
+				c.OwnerCode = cOwner.String
+			}
+			if cSizeType.Valid {
+				c.SizeType = cSizeType.String
+			}
+			if cWeight.Valid {
+				c.WeightKg = int(cWeight.Int64)
+			}
+			if cDangerous.Valid {
+				c.IsDangerous = cDangerous.Int64 != 0
+			}
+			if cIMOClass.Valid {
+				c.IMOClass = cIMOClass.String
+			}
 			if dep.Valid {
 				c.DepartureTime = &dep.Time
+			}
+			if cStatus.Valid {
+				c.Status = cStatus.String
 			}
 			s.Container = &c
 		}

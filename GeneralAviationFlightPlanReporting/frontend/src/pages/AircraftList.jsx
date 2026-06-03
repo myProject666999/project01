@@ -35,24 +35,31 @@ function AircraftList() {
 
   const handleEdit = (record) => {
     setEditingId(record.id)
-    form.setFieldsValue(record)
+    form.setFieldsValue({
+      ...record,
+      status: String(record.status)
+    })
     setModalVisible(true)
   }
 
   const handleOk = async () => {
     try {
       const values = await form.validateFields()
+      const submitData = {
+        ...values,
+        status: parseInt(values.status, 10)
+      }
       if (editingId) {
-        await aircraftApi.update(editingId, values)
+        await aircraftApi.update(editingId, submitData)
         message.success('更新成功')
       } else {
-        await aircraftApi.create(values)
+        await aircraftApi.create(submitData)
         message.success('创建成功')
       }
       setModalVisible(false)
       loadData()
     } catch (error) {
-      message.error('操作失败')
+      message.error(error.response?.data?.error || '操作失败')
     }
   }
 
@@ -144,10 +151,10 @@ function AircraftList() {
           <Form.Item name="owner" label="所有者">
             <Input placeholder="请输入所有者" />
           </Form.Item>
-          <Form.Item name="status" label="状态" initialValue={1}>
+          <Form.Item name="status" label="状态" initialValue="1">
             <Select>
-              <Option value={1}>可用</Option>
-              <Option value={0}>不可用</Option>
+              <Option value="1">可用</Option>
+              <Option value="0">不可用</Option>
             </Select>
           </Form.Item>
         </Form>

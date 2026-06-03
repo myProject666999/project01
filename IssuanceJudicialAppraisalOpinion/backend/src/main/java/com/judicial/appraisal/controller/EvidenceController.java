@@ -1,12 +1,16 @@
 package com.judicial.appraisal.controller;
 
 import com.judicial.appraisal.common.Result;
+import com.judicial.appraisal.common.enums.SealStatus;
+import com.judicial.appraisal.dto.EvidenceReceiveRequest;
 import com.judicial.appraisal.entity.Evidence;
 import com.judicial.appraisal.service.EvidenceService;
 import com.judicial.appraisal.util.SecurityUtil;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -44,11 +48,33 @@ public class EvidenceController {
     }
 
     @PostMapping
-    public Result<Evidence> receiveEvidence(@RequestBody Evidence evidence) {
+    public Result<Evidence> receiveEvidence(@Valid @RequestBody EvidenceReceiveRequest request) {
         Long userId = SecurityUtil.getCurrentUserId();
         if (userId == null) {
             return Result.error("用户未登录");
         }
+
+        Evidence evidence = new Evidence();
+        evidence.setEntrustmentId(request.getEntrustmentId());
+        evidence.setEvidenceName(request.getName());
+        evidence.setEvidenceType(request.getType());
+        evidence.setQuantity(request.getQuantity());
+        evidence.setDescription(request.getDescription());
+        evidence.setStorageLocation(request.getStorageLocation());
+
+        if (request.getWeight() != null && !request.getWeight().isEmpty()) {
+            try {
+                evidence.setWeight(new BigDecimal(request.getWeight()));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        if (request.getSealedStatus() != null && !request.getSealedStatus().isEmpty()) {
+            evidence.setSealStatus(request.getSealedStatus());
+        } else {
+            evidence.setSealStatus(SealStatus.SEALED.getCode());
+        }
+
         Evidence saved = evidenceService.receiveEvidence(evidence, userId);
         return Result.success(saved);
     }

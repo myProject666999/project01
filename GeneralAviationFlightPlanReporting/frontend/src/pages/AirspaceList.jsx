@@ -35,24 +35,31 @@ function AirspaceList() {
 
   const handleEdit = (record) => {
     setEditingId(record.id)
-    form.setFieldsValue(record)
+    form.setFieldsValue({
+      ...record,
+      status: String(record.status)
+    })
     setModalVisible(true)
   }
 
   const handleOk = async () => {
     try {
       const values = await form.validateFields()
+      const submitData = {
+        ...values,
+        status: parseInt(values.status, 10)
+      }
       if (editingId) {
-        await airspaceApi.update(editingId, values)
+        await airspaceApi.update(editingId, submitData)
         message.success('更新成功')
       } else {
-        await airspaceApi.create(values)
+        await airspaceApi.create(submitData)
         message.success('创建成功')
       }
       setModalVisible(false)
       loadData()
     } catch (error) {
-      message.error('操作失败')
+      message.error(error.response?.data?.error || '操作失败')
     }
   }
 
@@ -160,10 +167,10 @@ function AirspaceList() {
           <Form.Item name="approvalLevel" label="审批层级" initialValue={1}>
             <InputNumber min={1} max={5} style={{ width: '100%' }} placeholder="请输入审批层级" />
           </Form.Item>
-          <Form.Item name="status" label="状态" initialValue={1}>
+          <Form.Item name="status" label="状态" initialValue="1">
             <Select>
-              <Option value={1}>启用</Option>
-              <Option value={0}>禁用</Option>
+              <Option value="1">启用</Option>
+              <Option value="0">禁用</Option>
             </Select>
           </Form.Item>
         </Form>

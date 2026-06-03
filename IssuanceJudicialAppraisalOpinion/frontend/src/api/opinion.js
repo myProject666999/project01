@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getOpinionList(params) {
   return request({
-    url: '/opinion',
+    url: '/opinions',
     method: 'get',
     params
   })
@@ -10,14 +10,14 @@ export function getOpinionList(params) {
 
 export function getOpinion(id) {
   return request({
-    url: `/opinion/${id}`,
+    url: `/opinions/${id}`,
     method: 'get'
   })
 }
 
 export function createOpinion(data) {
   return request({
-    url: '/opinion',
+    url: '/opinions',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createOpinion(data) {
 
 export function updateOpinion(id, data) {
   return request({
-    url: `/opinion/${id}`,
+    url: `/opinions/${id}`,
     method: 'put',
     data
   })
@@ -33,35 +33,35 @@ export function updateOpinion(id, data) {
 
 export function deleteOpinion(id) {
   return request({
-    url: `/opinion/${id}`,
+    url: `/opinions/${id}`,
     method: 'delete'
   })
 }
 
 export function getOpinionByTask(taskId) {
   return request({
-    url: `/opinion/task/${taskId}`,
+    url: `/opinions/entrustment/${taskId}`,
     method: 'get'
   })
 }
 
 export function submitOpinion(id) {
   return request({
-    url: `/opinion/${id}/submit`,
+    url: `/opinions/${id}/submit`,
     method: 'post'
   })
 }
 
 export function generateOpinion(id) {
   return request({
-    url: `/opinion/${id}/generate`,
+    url: `/opinions/${id}/generate`,
     method: 'post'
   })
 }
 
 export function previewOpinion(id) {
   return request({
-    url: `/opinion/${id}/preview`,
+    url: `/opinions/${id}/preview`,
     method: 'get',
     responseType: 'blob'
   })
@@ -69,7 +69,7 @@ export function previewOpinion(id) {
 
 export function downloadOpinion(id) {
   return request({
-    url: `/opinion/${id}/download`,
+    url: `/opinions/${id}/download`,
     method: 'get',
     responseType: 'blob'
   })
@@ -77,21 +77,21 @@ export function downloadOpinion(id) {
 
 export function getOpinionTemplateList() {
   return request({
-    url: '/opinion/templates',
+    url: '/opinions/templates',
     method: 'get'
   })
 }
 
 export function generateQrCode(id) {
   return request({
-    url: `/opinion/${id}/qrcode`,
+    url: `/opinions/${id}/qrcode`,
     method: 'get'
   })
 }
 
 export function sealOpinion(id, data) {
   return request({
-    url: `/opinion/${id}/seal`,
+    url: `/opinions/${id}/seal`,
     method: 'post',
     data
   })

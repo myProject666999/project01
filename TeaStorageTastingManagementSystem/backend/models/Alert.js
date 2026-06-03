@@ -60,6 +60,4 @@ const Alert = sequelize.define('Alert', {
   updatedAt: false
 });
 
-Alert.belongsTo(StorageLocation, { foreignKey: 'location_id', as: 'location' });
-
 module.exports = Alert;
