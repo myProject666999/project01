@@ -27,30 +27,30 @@ export function useAuth() {
       token.value = data.token
       user.value = data.user
       localStorage.setItem('auth_token', data.token)
+      localStorage.setItem('auth_user', JSON.stringify(data.user))
     }
     return data
   }
 
   async function checkAuth() {
     if (!token.value) return false
-    
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'admin', password: 'admin123' }),
-    })
-    const data = await res.json()
-    if (data.success) {
-      token.value = data.token
-      user.value = data.user
-    }
-    return data.success
+
+    try {
+      const stored = localStorage.getItem('auth_user')
+      if (stored) {
+        user.value = JSON.parse(stored)
+        return true
+      }
+    } catch {}
+
+    return false
   }
 
   function logout() {
     token.value = null
     user.value = null
     localStorage.removeItem('auth_token')
+    localStorage.removeItem('auth_user')
   }
 
   function authHeaders() {

@@ -274,9 +274,7 @@ const handleAdd = async () => {
     addDialogVisible.value = false
     loadData()
   } catch (e) {
-    ElMessage.success('配方创建成功')
-    addDialogVisible.value = false
-    loadData()
+    console.error('创建配方失败:', e)
   }
 }
 
@@ -296,9 +294,7 @@ const handleCreateVersion = async () => {
     versionDialogVisible.value = false
     loadData()
   } catch (e) {
-    ElMessage.success('新版本创建成功')
-    versionDialogVisible.value = false
-    loadData()
+    console.error('创建新版本失败:', e)
   }
 }
 
@@ -320,8 +316,7 @@ const handleDelete = (row) => {
         ElMessage.success('删除成功')
         loadData()
       } catch (e) {
-        ElMessage.success('删除成功')
-        loadData()
+        console.error('删除配方失败:', e)
       }
     })
     .catch(() => {})

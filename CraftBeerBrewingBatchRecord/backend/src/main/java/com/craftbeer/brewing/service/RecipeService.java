@@ -12,9 +12,14 @@ import java.util.List;
 public interface RecipeService extends IService<Recipe> {
 
     /**
-     * 创建配方新版本
+     * 创建配方新版本（完整DTO）
      */
     Recipe createNewVersion(RecipeDTO recipeDTO);
+
+    /**
+     * 创建配方新版本（简化版，复制原料）
+     */
+    Recipe createNewVersionSimple(Recipe recipe);
 
     /**
      * 查询配方历史版本

@@ -19,9 +19,14 @@ public interface BrewingBatchService extends IService<BrewingBatch> {
     BrewingBatch createBatch(BatchDTO batchDTO);
 
     /**
-     * 更新批次
+     * 更新批次（完整DTO）
      */
     boolean updateBatch(BatchDTO batchDTO);
+
+    /**
+     * 简单更新批次（仅更新基本信息）
+     */
+    boolean updateBatchSimple(BrewingBatch batch);
 
     /**
      * 根据ID获取批次详情（包含工序记录）

@@ -384,7 +384,28 @@ const analyzeTrace = async (row) => {
 }
 
 const exportResults = () => {
-  ElMessage.success('导出报告功能')
+  if (queryResults.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+  try {
+    let csvContent = '批次号,批次名称,使用配方,酿酒师,生产时间,质量状态,缺陷类型,疑似原料问题,疑似工序问题\n'
+    queryResults.value.forEach(row => {
+      csvContent += `${row.batchNo},${row.batchName},${row.recipeName},${row.brewer},${row.startTime},不合格,${row.defectType},${row.suspectedMaterial},${row.suspectedProcess}\n`
+    })
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `不合格批次追溯报告_${new Date().toISOString().slice(0, 10)}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    ElMessage.success('报告导出成功')
+  } catch (e) {
+    ElMessage.error('导出失败：' + e.message)
+  }
 }
 
 const mockResults = [

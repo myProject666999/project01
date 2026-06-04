@@ -71,8 +71,8 @@ public class BrewingBatchController {
     }
 
     @PutMapping
-    public Result<Void> update(@RequestBody BatchDTO batchDTO) {
-        brewingBatchService.updateBatch(batchDTO);
+    public Result<Void> update(@RequestBody BrewingBatch batch) {
+        brewingBatchService.updateBatchSimple(batch);
         return Result.success();
     }
 

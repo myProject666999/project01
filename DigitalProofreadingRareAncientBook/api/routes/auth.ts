@@ -24,7 +24,18 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    if (user.password === password || bcrypt.compareSync(password, user.password)) {
+    let passwordMatch = false
+    if (user.password === password) {
+      passwordMatch = true
+    } else {
+      try {
+        passwordMatch = bcrypt.compareSync(password, user.password)
+      } catch {
+        passwordMatch = false
+      }
+    }
+
+    if (passwordMatch) {
       const token = signToken({ id: user.id, username: user.username, role: user.role })
       res.json({
         success: true,

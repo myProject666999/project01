@@ -3,15 +3,15 @@ package models
 import "time"
 
 type ProcessingRecord struct {
-	ID                 uint64              `json:"id" db:"id"`
+	ID                 int64               `json:"id" db:"id"`
 	RecordNo           string              `json:"record_no" db:"record_no"`
-	BatchID            uint64              `json:"batch_id" db:"batch_id"`
-	StepTypeID         uint64              `json:"step_type_id" db:"step_type_id"`
+	BatchID            int64               `json:"batch_id" db:"batch_id"`
+	StepTypeID         int64               `json:"step_type_id" db:"step_type_id"`
 	StartTime          time.Time           `json:"start_time" db:"start_time"`
 	EndTime            *time.Time          `json:"end_time" db:"end_time"`
 	DurationMinutes    *int                `json:"duration_minutes" db:"duration_minutes"`
 	Temperature        *float64            `json:"temperature" db:"temperature"`
-	OperatorID         uint64              `json:"operator_id" db:"operator_id"`
+	OperatorID         int64               `json:"operator_id" db:"operator_id"`
 	ProcessingDetail   string              `json:"processing_detail" db:"processing_detail"`
 	InputQuantity      *float64            `json:"input_quantity" db:"input_quantity"`
 	OutputQuantity     *float64            `json:"output_quantity" db:"output_quantity"`
@@ -26,15 +26,15 @@ type ProcessingRecord struct {
 }
 
 type ProcessingRecordDetail struct {
-	ID                 uint64    `json:"id" db:"id"`
-	RecordNo           string    `json:"record_no" db:"record_no"`
-	BatchID            uint64    `json:"batch_id" db:"batch_id"`
-	StepTypeID         uint64    `json:"step_type_id" db:"step_type_id"`
-	StartTime          time.Time `json:"start_time" db:"start_time"`
+	ID                 int64      `json:"id" db:"id"`
+	RecordNo           string     `json:"record_no" db:"record_no"`
+	BatchID            int64      `json:"batch_id" db:"batch_id"`
+	StepTypeID         int64      `json:"step_type_id" db:"step_type_id"`
+	StartTime          time.Time  `json:"start_time" db:"start_time"`
 	EndTime            *time.Time `json:"end_time" db:"end_time"`
 	DurationMinutes    *int       `json:"duration_minutes" db:"duration_minutes"`
 	Temperature        *float64   `json:"temperature" db:"temperature"`
-	OperatorID         uint64     `json:"operator_id" db:"operator_id"`
+	OperatorID         int64      `json:"operator_id" db:"operator_id"`
 	ProcessingDetail   string     `json:"processing_detail" db:"processing_detail"`
 	InputQuantity      *float64   `json:"input_quantity" db:"input_quantity"`
 	OutputQuantity     *float64   `json:"output_quantity" db:"output_quantity"`
@@ -51,12 +51,12 @@ type ProcessingRecordDetail struct {
 }
 
 type ProcessingRecordCreateRequest struct {
-	BatchID            uint64   `json:"batch_id" validate:"required,min=1"`
-	StepTypeID         uint64   `json:"step_type_id" validate:"required,min=1"`
+	BatchID            int64    `json:"batch_id" validate:"required,min=1"`
+	StepTypeID         int64    `json:"step_type_id" validate:"required,min=1"`
 	StartTime          string   `json:"start_time" validate:"required"`
 	EndTime            string   `json:"end_time"`
 	Temperature        *float64 `json:"temperature"`
-	OperatorID         uint64   `json:"operator_id" validate:"required,min=1"`
+	OperatorID         int64    `json:"operator_id" validate:"required,min=1"`
 	ProcessingDetail   string   `json:"processing_detail"`
 	InputQuantity      *float64 `json:"input_quantity"`
 	OutputQuantity     *float64 `json:"output_quantity"`
@@ -66,12 +66,12 @@ type ProcessingRecordCreateRequest struct {
 }
 
 type ProcessingRecordUpdateRequest struct {
-	BatchID            *uint64  `json:"batch_id" validate:"omitempty,min=1"`
-	StepTypeID         *uint64  `json:"step_type_id" validate:"omitempty,min=1"`
+	BatchID            *int64   `json:"batch_id" validate:"omitempty,min=1"`
+	StepTypeID         *int64   `json:"step_type_id" validate:"omitempty,min=1"`
 	StartTime          string   `json:"start_time"`
 	EndTime            string   `json:"end_time"`
 	Temperature        *float64 `json:"temperature"`
-	OperatorID         *uint64  `json:"operator_id" validate:"omitempty,min=1"`
+	OperatorID         *int64   `json:"operator_id" validate:"omitempty,min=1"`
 	ProcessingDetail   string   `json:"processing_detail"`
 	InputQuantity      *float64 `json:"input_quantity"`
 	OutputQuantity     *float64 `json:"output_quantity"`

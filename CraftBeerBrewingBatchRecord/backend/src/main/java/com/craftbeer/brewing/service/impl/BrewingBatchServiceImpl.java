@@ -96,6 +96,16 @@ public class BrewingBatchServiceImpl extends ServiceImpl<BrewingBatchMapper, Bre
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateBatchSimple(BrewingBatch batch) {
+        if (getById(batch.getId()) == null) {
+            throw new BusinessException("批次不存在");
+        }
+        batch.setUpdateTime(LocalDateTime.now());
+        return updateById(batch);
+    }
+
+    @Override
     public BatchDTO getBatchDetailById(Long id) {
         BrewingBatch batch = getById(id);
         if (batch == null) {

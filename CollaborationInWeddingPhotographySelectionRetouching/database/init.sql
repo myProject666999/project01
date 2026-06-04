@@ -126,7 +126,7 @@ CREATE TABLE payments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO users (username, password, email, phone, role, full_name) VALUES
-('admin', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'admin@wedding.com', '13800000000', 'admin', '系统管理员'),
-('retoucher1', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'retoucher1@wedding.com', '13800000001', 'retoucher', '张修图'),
-('retoucher2', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'retoucher2@wedding.com', '13800000002', 'retoucher', '李精修'),
-('client1', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'client1@wedding.com', '13900000001', 'client', '王先生&李女士');
+('admin', '$2a$10$8eFq2sQ34sXQr65Pz9x7yOeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'admin@wedding.com', '13800000000', 'admin', '系统管理员'),
+('retoucher1', '$2a$10$8eFq2sQ34sXQr65Pz9x7yOeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'retoucher1@wedding.com', '13800000001', 'retoucher', '张修图'),
+('retoucher2', '$2a$10$8eFq2sQ34sXQr65Pz9x7yOeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'retoucher2@wedding.com', '13800000002', 'retoucher', '李精修'),
+('client1', '$2a$10$8eFq2sQ34sXQr65Pz9x7yOeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'client1@wedding.com', '13900000001', 'client', '王先生&李女士');

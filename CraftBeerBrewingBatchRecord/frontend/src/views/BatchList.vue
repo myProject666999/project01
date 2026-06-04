@@ -233,9 +233,7 @@ const handleAdd = async () => {
     addDialogVisible.value = false
     loadData()
   } catch (e) {
-    ElMessage.success('批次创建成功')
-    addDialogVisible.value = false
-    loadData()
+    console.error('创建批次失败:', e)
   }
 }
 
@@ -247,8 +245,7 @@ const handleDelete = (row) => {
         ElMessage.success('删除成功')
         loadData()
       } catch (e) {
-        ElMessage.success('删除成功')
-        loadData()
+        console.error('删除批次失败:', e)
       }
     })
     .catch(() => {})

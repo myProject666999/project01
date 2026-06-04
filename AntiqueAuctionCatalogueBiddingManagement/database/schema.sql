@@ -184,6 +184,6 @@ CREATE TABLE IF NOT EXISTS operation_logs (
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 插入初始管理员用户（密码: admin123，需要实际使用时bcrypt加密）
+-- 插入初始管理员用户（密码: admin123，bcrypt加密）
 INSERT INTO users (username, password, real_name, role, phone, email, status) VALUES
-('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '系统管理员', 'admin', '13800138000', 'admin@auction.com', 1);
+('admin', '$2b$10$BDmYGZ6kflp0/0Jn6aDOdubBQBle89Ue9rxBxx8v5neIhhk2eDvG.', '系统管理员', 'admin', '13800138000', 'admin@auction.com', 1);

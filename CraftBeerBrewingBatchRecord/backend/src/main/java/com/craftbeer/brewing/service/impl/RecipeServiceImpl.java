@@ -85,4 +85,57 @@ public class RecipeServiceImpl extends ServiceImpl<RecipeMapper, Recipe> impleme
                 .last("LIMIT 1");
         return getOne(wrapper);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Recipe createNewVersionSimple(Recipe recipe) {
+        Recipe sourceRecipe = null;
+        if (recipe.getId() != null) {
+            sourceRecipe = getById(recipe.getId());
+        }
+        if (sourceRecipe == null && recipe.getRecipeCode() != null) {
+            sourceRecipe = getLatestVersion(recipe.getRecipeCode());
+        }
+        if (sourceRecipe == null) {
+            throw new BusinessException("找不到原配方");
+        }
+
+        int newVersion = sourceRecipe.getVersion() + 1;
+
+        Recipe newRecipe = new Recipe();
+        newRecipe.setRecipeName(recipe.getRecipeName() != null ? recipe.getRecipeName() : sourceRecipe.getRecipeName());
+        newRecipe.setRecipeCode(sourceRecipe.getRecipeCode());
+        newRecipe.setVersion(newVersion);
+        newRecipe.setParentRecipeId(sourceRecipe.getId());
+        newRecipe.setBeerStyle(recipe.getBeerStyle() != null ? recipe.getBeerStyle() : sourceRecipe.getBeerStyle());
+        newRecipe.setTargetIbu(recipe.getTargetIbu() != null ? recipe.getTargetIbu() : sourceRecipe.getTargetIbu());
+        newRecipe.setTargetAbv(recipe.getTargetAbv() != null ? recipe.getTargetAbv() : sourceRecipe.getTargetAbv());
+        newRecipe.setTargetOg(recipe.getTargetOg() != null ? recipe.getTargetOg() : sourceRecipe.getTargetOg());
+        newRecipe.setTargetFg(recipe.getTargetFg() != null ? recipe.getTargetFg() : sourceRecipe.getTargetFg());
+        newRecipe.setBatchSizeLiters(recipe.getBatchSizeLiters() != null ? recipe.getBatchSizeLiters() : sourceRecipe.getBatchSizeLiters());
+        newRecipe.setDescription(recipe.getDescription() != null ? recipe.getDescription() : sourceRecipe.getDescription());
+        newRecipe.setCreateTime(LocalDateTime.now());
+        newRecipe.setUpdateTime(LocalDateTime.now());
+        save(newRecipe);
+
+        LambdaQueryWrapper<RecipeMaterial> materialWrapper = new LambdaQueryWrapper<>();
+        materialWrapper.eq(RecipeMaterial::getRecipeId, sourceRecipe.getId());
+        List<RecipeMaterial> materialList = recipeMaterialMapper.selectList(materialWrapper);
+
+        for (RecipeMaterial material : materialList) {
+            RecipeMaterial newMaterial = new RecipeMaterial();
+            newMaterial.setRecipeId(newRecipe.getId());
+            newMaterial.setMaterialId(material.getMaterialId());
+            newMaterial.setMaterialTypeId(material.getMaterialTypeId());
+            newMaterial.setUsageAmount(material.getUsageAmount());
+            newMaterial.setUsageUnit(material.getUsageUnit());
+            newMaterial.setAddTiming(material.getAddTiming());
+            newMaterial.setAddOrder(material.getAddOrder());
+            newMaterial.setNotes(material.getNotes());
+            newMaterial.setCreateTime(LocalDateTime.now());
+            recipeMaterialMapper.insert(newMaterial);
+        }
+
+        return newRecipe;
+    }
 }

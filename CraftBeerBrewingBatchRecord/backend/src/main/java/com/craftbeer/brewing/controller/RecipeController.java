@@ -74,9 +74,9 @@ public class RecipeController {
     }
 
     @PostMapping("/new-version")
-    public Result<Recipe> createNewVersion(@RequestBody RecipeDTO recipeDTO) {
-        Recipe recipe = recipeService.createNewVersion(recipeDTO);
-        return Result.success("新版本创建成功", recipe);
+    public Result<Recipe> createNewVersion(@RequestBody Recipe recipe) {
+        Recipe newRecipe = recipeService.createNewVersionSimple(recipe);
+        return Result.success("新版本创建成功", newRecipe);
     }
 
     @PutMapping

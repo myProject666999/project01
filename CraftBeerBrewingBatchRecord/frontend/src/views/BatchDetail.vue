@@ -185,9 +185,7 @@ const handleEdit = async () => {
     editDialogVisible.value = false
     loadData()
   } catch (e) {
-    ElMessage.success('更新成功')
-    editDialogVisible.value = false
-    loadData()
+    console.error('更新批次失败:', e)
   }
 }
 

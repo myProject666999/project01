@@ -318,9 +318,7 @@ const handleAdd = async () => {
     addDialogVisible.value = false
     loadData()
   } catch (e) {
-    ElMessage.success('原料添加成功')
-    addDialogVisible.value = false
-    loadData()
+    console.error('添加原料失败:', e)
   }
 }
 
@@ -341,9 +339,7 @@ const handleEdit = async () => {
     editDialogVisible.value = false
     loadData()
   } catch (e) {
-    ElMessage.success('更新成功')
-    editDialogVisible.value = false
-    loadData()
+    console.error('更新原料失败:', e)
   }
 }
 
@@ -357,10 +353,13 @@ const showStockInDialog = (row) => {
 }
 
 const handleStockIn = () => {
-  currentMaterial.value.stockQuantity += stockInForm.quantity
-  ElMessage.success(`入库成功，新增 ${stockInForm.quantity} ${currentMaterial.value.unit}`)
-  stockInDialogVisible.value = false
-  loadData()
+  if (currentMaterial.value) {
+    const unit = currentMaterial.value.unit || 'kg'
+    currentMaterial.value.stockQuantity = (currentMaterial.value.stockQuantity || 0) + stockInForm.quantity
+    ElMessage.success(`入库成功，新增 ${stockInForm.quantity} ${unit}`)
+    stockInDialogVisible.value = false
+    loadData()
+  }
 }
 
 const handleDelete = (row) => {
@@ -371,8 +370,7 @@ const handleDelete = (row) => {
         ElMessage.success('删除成功')
         loadData()
       } catch (e) {
-        ElMessage.success('删除成功')
-        loadData()
+        console.error('删除原料失败:', e)
       }
     })
     .catch(() => {})
