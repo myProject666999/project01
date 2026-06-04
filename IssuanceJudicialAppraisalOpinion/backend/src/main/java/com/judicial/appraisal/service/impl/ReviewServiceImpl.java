@@ -92,6 +92,12 @@ public class ReviewServiceImpl implements ReviewService {
                 .toList();
     }
 
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        reviewRecordRepository.deleteById(id);
+    }
+
     private void validateReviewerRole(SysUser reviewer, Integer reviewLevel) {
         String expectedRole = switch (reviewLevel) {
             case 1 -> UserRole.REVIEWER1.getCode();

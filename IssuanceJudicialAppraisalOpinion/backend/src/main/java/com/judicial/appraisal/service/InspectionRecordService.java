@@ -15,4 +15,6 @@ public interface InspectionRecordService {
     List<InspectionRecord> findByTaskId(Long taskId);
 
     List<InspectionRecord> findByEvidenceId(Long evidenceId);
+
+    void deleteById(Long id);
 }

@@ -31,15 +31,15 @@ export class DismantlingPartRepository {
       [
         part.taskId,
         part.name,
-        part.category,
+        part.category ?? null,
         part.weight,
-        part.isReusable,
-        part.isHazardous,
-        part.isMajorAssembly,
-        part.majorAssemblyType,
-        part.status,
-        part.dismantledAt,
-        part.notes,
+        part.isReusable ?? false,
+        part.isHazardous ?? false,
+        part.isMajorAssembly ?? false,
+        part.majorAssemblyType ?? 'none',
+        part.status ?? 'pending',
+        part.dismantledAt ?? null,
+        part.notes ?? null,
       ]
     );
     return this.findById(result.insertId) as Promise<DismantlingPart>;

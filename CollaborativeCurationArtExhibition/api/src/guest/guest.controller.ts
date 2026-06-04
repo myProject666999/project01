@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Query } 
 import { GuestService } from './guest.service';
 import { CreateGuestDto } from './dto/create-guest.dto';
 import { UpdateGuestDto } from './dto/update-guest.dto';
+import { CheckinDto } from './dto/checkin.dto';
 
 @Controller('guests')
 export class GuestController {
@@ -49,7 +50,7 @@ export class GuestController {
   }
 
   @Post(':id/checkin')
-  checkin(@Param('id', ParseIntPipe) id: number) {
-    return this.guestService.checkin(id);
+  checkin(@Param('id', ParseIntPipe) id: number, @Body() checkinDto: CheckinDto) {
+    return this.guestService.checkin(id, checkinDto.method);
   }
 }

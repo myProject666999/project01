@@ -102,4 +102,10 @@ public class ReviewController {
         private Integer rejectTargetLevel;
         private String reviewOpinion;
     }
+
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteById(@PathVariable Long id) {
+        reviewService.deleteById(id);
+        return Result.success();
+    }
 }

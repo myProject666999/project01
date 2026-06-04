@@ -109,4 +109,14 @@ public class EntrustmentController {
         entrustmentService.updateStatus(id, status);
         return Result.success();
     }
+
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteEntrustment(@PathVariable Long id) {
+        Entrustment entrustment = entrustmentService.findById(id);
+        if (entrustment == null) {
+            return Result.error("委托不存在");
+        }
+        entrustmentService.deleteById(id);
+        return Result.success();
+    }
 }

@@ -294,6 +294,7 @@ const uploadPhotoForm = reactive({
 })
 
 const receiveRules = {
+  entrustmentId: [{ required: true, message: '请选择关联委托', trigger: 'change' }],
   name: [{ required: true, message: '请输入检材名称', trigger: 'blur' }],
   type: [{ required: true, message: '请选择检材类型', trigger: 'change' }],
   quantity: [{ required: true, message: '请输入数量', trigger: 'blur' }]

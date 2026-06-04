@@ -39,14 +39,14 @@ export class InventoryRepository {
       [
         item.partId,
         item.partName,
-        item.quantity,
+        item.quantity ?? 1,
         item.weight,
-        item.location,
+        item.location ?? null,
         item.inDate,
-        item.outDate,
-        item.price,
-        item.buyer,
-        item.status,
+        item.outDate ?? null,
+        item.price ?? null,
+        item.buyer ?? null,
+        item.status ?? 'in_stock',
       ]
     );
     return this.findById(result.insertId) as Promise<InventoryItem>;

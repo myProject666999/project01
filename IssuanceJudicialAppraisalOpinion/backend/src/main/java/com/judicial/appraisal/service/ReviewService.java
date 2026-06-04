@@ -14,4 +14,6 @@ public interface ReviewService {
     List<ReviewRecord> findAll();
 
     List<ReviewRecord> findByReviewerId(Long reviewerId);
+
+    void deleteById(Long id);
 }

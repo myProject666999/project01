@@ -104,7 +104,7 @@ router.get('/:id', async (req, res) => {
         { model: TeaProduct, as: 'teaProduct' },
         { 
           model: TastingInfusion, 
-          as: 'tastingNote',
+          as: 'infusions',
           order: [['infusion_number', 'ASC']]
         }
       ]
@@ -145,7 +145,7 @@ router.post('/', async (req, res) => {
         { model: TeaProduct, as: 'teaProduct' },
         { 
           model: TastingInfusion, 
-          as: 'tastingNote',
+          as: 'infusions',
           order: [['infusion_number', 'ASC']]
         }
       ]
@@ -191,7 +191,7 @@ router.put('/:id', async (req, res) => {
         { model: TeaProduct, as: 'teaProduct' },
         { 
           model: TastingInfusion, 
-          as: 'tastingNote',
+          as: 'infusions',
           order: [['infusion_number', 'ASC']]
         }
       ]

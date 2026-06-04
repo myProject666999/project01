@@ -110,4 +110,17 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
         return new FileSystemResource(file);
     }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        Attachment attachment = attachmentRepository.findById(id).orElse(null);
+        if (attachment != null) {
+            File file = new File(attachment.getFilePath());
+            if (file.exists()) {
+                file.delete();
+            }
+            attachmentRepository.deleteById(id);
+        }
+    }
 }

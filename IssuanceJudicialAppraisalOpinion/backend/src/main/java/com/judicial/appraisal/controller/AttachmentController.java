@@ -90,4 +90,10 @@ public class AttachmentController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteById(@PathVariable Long id) {
+        attachmentService.deleteById(id);
+        return Result.success();
+    }
 }

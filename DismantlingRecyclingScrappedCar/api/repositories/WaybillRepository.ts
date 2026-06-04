@@ -36,17 +36,19 @@ export class WaybillRepository {
   async create(waybill: Omit<Waybill, 'id' | 'waybillNo' | 'signedBack' | 'createdAt' | 'updatedAt'>): Promise<Waybill> {
     const waybillNo = await this.generateWaybillNo();
     const [result] = await pool.execute<ResultSetHeader>(
-      `INSERT INTO waybills (waybill_no, disposal_factory, factory_qualification, transfer_date, total_weight, signed_back, notes, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO waybills (waybill_no, disposal_factory, factory_qualification, transfer_date, total_weight, signed_back, signed_back_at, signed_back_by, notes, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         waybillNo,
         waybill.disposalFactory,
-        waybill.factoryQualification,
+        waybill.factoryQualification ?? null,
         waybill.transferDate,
         waybill.totalWeight,
         false,
-        waybill.notes,
-        waybill.status,
+        null,
+        null,
+        waybill.notes ?? null,
+        waybill.status ?? 'pending',
       ]
     );
     return this.findById(result.insertId) as Promise<Waybill>;

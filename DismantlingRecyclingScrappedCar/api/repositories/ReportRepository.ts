@@ -47,7 +47,7 @@ export class ReportRepository {
         report.reusableWeight,
         report.hazardousWeight,
         report.majorAssembliesCount,
-        report.generatedBy,
+        report.generatedBy ?? null,
       ]
     );
     return this.findById(result.insertId) as Promise<MonthlyReport>;

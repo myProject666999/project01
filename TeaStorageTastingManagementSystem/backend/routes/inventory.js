@@ -105,13 +105,19 @@ router.put('/:id', async (req, res) => {
     }
 
     const oldLocation = await StorageLocation.findByPk(inventory.location_id);
-    const newLocation = await StorageLocation.findByPk(req.body.location_id || inventory.location_id);
+    const newLocationId = req.body.location_id || inventory.location_id;
+    const newLocation = await StorageLocation.findByPk(newLocationId);
+    const newQuantity = req.body.quantity !== undefined ? req.body.quantity : inventory.quantity;
     
-    if (oldLocation && oldLocation.id !== newLocation.id) {
-      await oldLocation.update({ current_quantity: oldLocation.current_quantity - inventory.quantity });
+    if (!newLocation) {
+      return res.status(400).json({ success: false, message: '目标仓位不存在' });
     }
-    
-    if (newLocation && oldLocation.id !== newLocation.id) {
+
+    const isLocationChanged = oldLocation && oldLocation.id !== newLocation.id;
+    const isTeaProductChanged = req.body.tea_product_id !== undefined && req.body.tea_product_id !== inventory.tea_product_id;
+    const isQuantityChanged = req.body.quantity !== undefined && req.body.quantity !== inventory.quantity;
+
+    if (isLocationChanged || isTeaProductChanged) {
       const teaProduct = await TeaProduct.findByPk(req.body.tea_product_id || inventory.tea_product_id);
       
       if (newLocation.mountain && teaProduct.mountain && newLocation.mountain !== teaProduct.mountain) {
@@ -126,30 +132,49 @@ router.put('/:id', async (req, res) => {
           message: `防串味规则：该仓位仅限存放${newLocation.fragrance_type}型茶品`
         });
       }
+    }
 
+    if (isLocationChanged) {
       const availableCapacity = newLocation.max_capacity - newLocation.current_quantity;
-      if ((req.body.quantity || inventory.quantity) > availableCapacity) {
+      if (newQuantity > availableCapacity) {
         return res.status(400).json({
           success: false,
           message: `仓位容量不足，剩余容量：${availableCapacity}`
         });
       }
-      
-      await newLocation.update({ current_quantity: newLocation.current_quantity + (req.body.quantity || inventory.quantity) });
-    } else if (req.body.quantity !== undefined && req.body.quantity !== inventory.quantity) {
-      const diff = req.body.quantity - inventory.quantity;
-      const availableCapacity = newLocation.max_capacity - newLocation.current_quantity;
-      if (diff > availableCapacity) {
-        return res.status(400).json({
-          success: false,
-          message: `仓位容量不足，剩余容量：${availableCapacity}`
-        });
+    } else if (isQuantityChanged) {
+      const diff = newQuantity - inventory.quantity;
+      if (diff > 0) {
+        const availableCapacity = newLocation.max_capacity - newLocation.current_quantity;
+        if (diff > availableCapacity) {
+          return res.status(400).json({
+            success: false,
+            message: `仓位容量不足，剩余容量：${availableCapacity}`
+          });
+        }
       }
-      await newLocation.update({ current_quantity: newLocation.current_quantity + diff });
+    }
+
+    if (isLocationChanged) {
+      if (oldLocation) {
+        await oldLocation.update({ current_quantity: Math.max(0, oldLocation.current_quantity - inventory.quantity) });
+      }
+      await newLocation.update({ current_quantity: newLocation.current_quantity + newQuantity });
+    } else if (isQuantityChanged) {
+      const diff = newQuantity - inventory.quantity;
+      await newLocation.update({ current_quantity: Math.max(0, newLocation.current_quantity + diff) });
     }
 
     await inventory.update(req.body);
-    res.json({ success: true, data: inventory });
+    
+    const result = await Inventory.findByPk(inventory.id, {
+      include: [
+        { model: TeaProduct, as: 'teaProduct' },
+        { model: StorageLocation, as: 'location' }
+      ]
+    });
+    
+    res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

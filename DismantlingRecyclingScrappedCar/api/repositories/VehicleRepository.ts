@@ -41,11 +41,11 @@ export class VehicleRepository {
         vehicle.plateNumber,
         vehicle.vin,
         vehicle.owner,
-        vehicle.ownerPhone,
-        vehicle.scrapReason,
-        vehicle.transferDate,
-        vehicle.status,
-        vehicle.createdBy,
+        vehicle.ownerPhone ?? null,
+        vehicle.scrapReason ?? null,
+        vehicle.transferDate ?? null,
+        vehicle.status ?? 'registered',
+        vehicle.createdBy ?? null,
       ]
     );
     return this.findById(result.insertId) as Promise<Vehicle>;

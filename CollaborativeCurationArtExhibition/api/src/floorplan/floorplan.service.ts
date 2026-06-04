@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FloorPlan } from './entities/floor-plan.entity';
@@ -13,17 +13,22 @@ export class FloorPlanService {
   ) {}
 
   async findOne(id: number) {
-    const floorPlan = await this.floorPlanRepository.findOne({ where: { id } });
-    if (!floorPlan) {
-      throw new NotFoundException(`FloorPlan #${id} not found`);
-    }
-    return floorPlan;
+    return this.floorPlanRepository.findOne({ where: { id } });
   }
 
   async findByExhibition(exhibitionId: number) {
-    const floorPlan = await this.floorPlanRepository.findOne({ where: { exhibitionId } });
+    let floorPlan = await this.floorPlanRepository.findOne({ where: { exhibitionId } });
     if (!floorPlan) {
-      throw new NotFoundException(`FloorPlan for exhibition #${exhibitionId} not found`);
+      floorPlan = this.floorPlanRepository.create({
+        exhibitionId,
+        width: 1200,
+        height: 800,
+        layoutData: { artworks: [] },
+      });
+      floorPlan = await this.floorPlanRepository.save(floorPlan);
+    }
+    if (floorPlan.backgroundUrl && !floorPlan.backgroundUrl.startsWith('http')) {
+      floorPlan.backgroundUrl = `http://localhost:3000/uploads/floorplans/${floorPlan.backgroundUrl}`;
     }
     return floorPlan;
   }
@@ -34,14 +39,16 @@ export class FloorPlanService {
   }
 
   async update(id: number, updateFloorPlanDto: UpdateFloorPlanDto) {
-    const floorPlan = await this.findOne(id);
-    Object.assign(floorPlan, updateFloorPlanDto);
-    return this.floorPlanRepository.save(floorPlan);
+    await this.floorPlanRepository.update(id, updateFloorPlanDto);
+    return this.findOne(id);
   }
 
   async updateBgImage(id: number, filename: string) {
+    await this.floorPlanRepository.update(id, { backgroundUrl: filename });
     const floorPlan = await this.findOne(id);
-    floorPlan.backgroundUrl = filename;
-    return this.floorPlanRepository.save(floorPlan);
+    if (floorPlan) {
+      floorPlan.backgroundUrl = `http://localhost:3000/uploads/floorplans/${filename}`;
+    }
+    return floorPlan;
   }
 }

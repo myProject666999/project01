@@ -92,4 +92,10 @@ public class OpinionController {
                 .contentType(MediaType.IMAGE_PNG)
                 .body(resource);
     }
+
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteById(@PathVariable Long id) {
+        opinionService.deleteById(id);
+        return Result.success();
+    }
 }

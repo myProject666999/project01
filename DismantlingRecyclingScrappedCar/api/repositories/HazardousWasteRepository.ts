@@ -55,14 +55,14 @@ export class HazardousWasteRepository {
       `INSERT INTO hazardous_wastes (part_id, type, name, weight, vehicle_id, waybill_id, status, notes)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        waste.partId,
+        waste.partId ?? null,
         waste.type,
         waste.name,
         waste.weight,
         waste.vehicleId,
-        waste.waybillId,
-        waste.status,
-        waste.notes,
+        waste.waybillId ?? null,
+        waste.status ?? 'pending',
+        waste.notes ?? null,
       ]
     );
     return this.findById(result.insertId) as Promise<HazardousWaste>;

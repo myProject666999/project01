@@ -17,4 +17,6 @@ public interface OpinionService {
     List<Opinion> findByStatus(String status);
 
     List<Opinion> findByEntrustmentId(Long entrustmentId);
+
+    void deleteById(Long id);
 }

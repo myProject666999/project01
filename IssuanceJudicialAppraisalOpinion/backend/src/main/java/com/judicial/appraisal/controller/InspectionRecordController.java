@@ -53,4 +53,10 @@ public class InspectionRecordController {
             return Result.error(e.getMessage());
         }
     }
+
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteById(@PathVariable Long id) {
+        inspectionRecordService.deleteById(id);
+        return Result.success();
+    }
 }

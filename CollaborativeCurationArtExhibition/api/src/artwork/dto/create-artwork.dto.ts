@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  IsEnum,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateArtworkDto {
   @IsNumber()
@@ -27,6 +34,7 @@ export class CreateArtworkDto {
 
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   year?: number;
 
   @IsEnum(['shipped', 'in_transit', 'arrived', 'unpacked', 'hung', 'dismantled', 'returned'])

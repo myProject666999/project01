@@ -77,6 +77,12 @@ public class InspectionRecordServiceImpl implements InspectionRecordService {
         return inspectionRecordRepository.findByEvidenceIdOrderByCreatedAtDesc(evidenceId);
     }
 
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        inspectionRecordRepository.deleteById(id);
+    }
+
     private String buildSignData(InspectionRecord record) {
         return record.getTaskId() + "|" +
                 record.getEvidenceId() + "|" +

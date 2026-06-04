@@ -22,4 +22,6 @@ public interface AppraisalTaskService {
     List<AppraisalTask> findByStatus(String status);
 
     List<AppraisalTask> findByAppraiserIdAndStatus(Long appraiserId, String status);
+
+    void deleteById(Long id);
 }

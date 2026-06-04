@@ -101,6 +101,12 @@ public class OpinionServiceImpl implements OpinionService {
         return opinionRepository.findByEntrustmentId(entrustmentId);
     }
 
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        opinionRepository.deleteById(id);
+    }
+
     private String generateQrCode(Long opinionId, String verifyCode) {
         try {
             File dir = new File(qrCodePath);

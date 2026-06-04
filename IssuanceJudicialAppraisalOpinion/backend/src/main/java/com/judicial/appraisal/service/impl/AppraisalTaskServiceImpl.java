@@ -114,4 +114,10 @@ public class AppraisalTaskServiceImpl implements AppraisalTaskService {
     public List<AppraisalTask> findByAppraiserIdAndStatus(Long appraiserId, String status) {
         return appraisalTaskRepository.findByAppraiserIdAndStatus(appraiserId, status);
     }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        appraisalTaskRepository.deleteById(id);
+    }
 }

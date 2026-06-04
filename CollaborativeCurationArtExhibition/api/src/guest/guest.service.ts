@@ -53,13 +53,14 @@ export class GuestService {
     return { message: 'Guest deleted successfully' };
   }
 
-  async checkin(id: number) {
+  async checkin(id: number, method: 'qrcode' | 'face' | 'manual') {
     const guest = await this.findOne(id);
     if (guest.checkinStatus === 'checked_in') {
       return { message: 'Guest already checked in', guest };
     }
     guest.checkinStatus = 'checked_in';
     guest.checkinAt = new Date();
+    guest.checkinMethod = method;
     return this.guestRepository.save(guest);
   }
 

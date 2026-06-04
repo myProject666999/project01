@@ -82,4 +82,10 @@ public class AppraisalTaskController {
         AppraisalTask task = appraisalTaskService.completeTask(id, appraiserId);
         return Result.success(task);
     }
+
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteById(@PathVariable Long id) {
+        appraisalTaskService.deleteById(id);
+        return Result.success();
+    }
 }

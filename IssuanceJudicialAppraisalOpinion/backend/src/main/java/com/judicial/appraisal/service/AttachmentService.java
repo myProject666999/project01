@@ -15,4 +15,6 @@ public interface AttachmentService {
     List<Attachment> getAttachments(String bizType, Long bizId);
 
     Resource downloadFile(Long id);
+
+    void deleteById(Long id);
 }

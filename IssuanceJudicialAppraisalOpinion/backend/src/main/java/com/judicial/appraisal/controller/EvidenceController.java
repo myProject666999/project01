@@ -97,4 +97,10 @@ public class EvidenceController {
         evidenceService.updateSealStatus(id, status);
         return Result.success();
     }
+
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteById(@PathVariable Long id) {
+        evidenceService.deleteById(id);
+        return Result.success();
+    }
 }
