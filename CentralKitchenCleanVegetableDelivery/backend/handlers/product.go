@@ -29,7 +29,11 @@ func CreateProduct(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	database.DB.Create(&product)
+	if err := database.DB.Create(&product).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建菜品失败: " + err.Error()})
+		return
+	}
+	database.DB.First(&product, product.ID)
 	c.JSON(http.StatusOK, gin.H{"data": product})
 }
 
@@ -39,11 +43,24 @@ func UpdateProduct(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "菜品不存在"})
 		return
 	}
-	if err := c.ShouldBindJSON(&product); err != nil {
+	var input models.Product
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	database.DB.Save(&product)
+	if err := database.DB.Model(&product).Updates(map[string]interface{}{
+		"name":            input.Name,
+		"category":        input.Category,
+		"unit":            input.Unit,
+		"price":           input.Price,
+		"processing_time": input.ProcessingTime,
+		"equipment_type":  input.EquipmentType,
+		"status":          input.Status,
+	}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新菜品失败: " + err.Error()})
+		return
+	}
+	database.DB.First(&product, product.ID)
 	c.JSON(http.StatusOK, gin.H{"data": product})
 }
 

@@ -66,27 +66,29 @@ const InspectionWorkbench: React.FC = () => {
     setSelectedVehicle(vehicle || null);
   };
 
-  const startInspection = async () => {
+  const startInspection = async (values: any) => {
     if (!selectedVehicle) {
       message.error('请选择车辆');
       return;
     }
 
     try {
-      const values = await form.validateFields();
       const response = await reportApi.create({
         vehicleId: selectedVehicle.id,
         inspectionDate: values.inspectionDate.format('YYYY-MM-DD'),
-        mileage: values.mileage,
+        mileage: Number(values.mileage),
       });
 
       if (response.code === 200) {
         setReportId(response.data.id);
         setShowVehicleModal(false);
         message.success('开始检测');
+      } else {
+        message.error(response.message || '创建报告失败');
       }
-    } catch (error) {
-      message.error('创建报告失败');
+    } catch (error: any) {
+      console.error('创建报告错误:', error);
+      message.error(error.response?.data?.message || '创建报告失败');
     }
   };
 
@@ -94,24 +96,28 @@ const InspectionWorkbench: React.FC = () => {
     const score = result === 'ok' ? item.scoreOk : result === 'attention' ? item.scoreAttention : item.scoreAbnormal;
     
     const newResults = new Map(results);
+    const existing = newResults.get(item.id);
     newResults.set(item.id, {
+      ...existing,
       id: 0,
       reportId: reportId || 0,
       itemId: item.id,
       categoryId: item.categoryId,
       result,
       score,
-      remark: '',
+      remark: existing?.remark || '',
     });
     setResults(newResults);
   };
 
   const handleRemarkChange = (itemId: number, remark: string) => {
     const newResults = new Map(results);
-    const result = newResults.get(itemId);
-    if (result) {
-      result.remark = remark;
-      newResults.set(itemId, result);
+    const existing = newResults.get(itemId);
+    if (existing) {
+      newResults.set(itemId, {
+        ...existing,
+        remark,
+      });
       setResults(newResults);
     }
   };
@@ -221,7 +227,7 @@ const InspectionWorkbench: React.FC = () => {
         width={600}
         closable={false}
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" onFinish={startInspection}>
           <Form.Item
             label="选择车辆"
             name="vehicleId"
@@ -245,7 +251,6 @@ const InspectionWorkbench: React.FC = () => {
             label="检测日期"
             name="inspectionDate"
             rules={[{ required: true, message: '请选择检测日期' }]}
-            initialValue={null}
           >
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
@@ -257,7 +262,7 @@ const InspectionWorkbench: React.FC = () => {
             <Input type="number" placeholder="请输入当前里程" />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" onClick={startInspection} block>
+            <Button type="primary" htmlType="submit" block>
               开始检测
             </Button>
           </Form.Item>

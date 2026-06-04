@@ -36,14 +36,38 @@ func (r *DeclarationRepo) FindAll(page, pageSize int, status, startDate, endDate
 
 func (r *DeclarationRepo) FindByID(id uint) (*model.Declaration, error) {
 	var declaration model.Declaration
-	if err := r.DB.Preload("Items").Preload("Orders").First(&declaration, id).Error; err != nil {
+	if err := r.DB.Preload("DeclarationItems").Preload("DeclarationOrders").Preload("DeclarationOrders.Order").First(&declaration, id).Error; err != nil {
 		return nil, err
 	}
 	return &declaration, nil
 }
 
 func (r *DeclarationRepo) Create(declaration *model.Declaration) error {
-	return r.DB.Create(declaration).Error
+	return r.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Omit("DeclarationItems", "DeclarationOrders").Create(declaration).Error; err != nil {
+			return err
+		}
+
+		for i := range declaration.DeclarationItems {
+			declaration.DeclarationItems[i].DeclarationID = declaration.ID
+		}
+		if len(declaration.DeclarationItems) > 0 {
+			if err := tx.Create(&declaration.DeclarationItems).Error; err != nil {
+				return err
+			}
+		}
+
+		for i := range declaration.DeclarationOrders {
+			declaration.DeclarationOrders[i].DeclarationID = declaration.ID
+		}
+		if len(declaration.DeclarationOrders) > 0 {
+			if err := tx.Create(&declaration.DeclarationOrders).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 }
 
 func (r *DeclarationRepo) Update(declaration *model.Declaration) error {

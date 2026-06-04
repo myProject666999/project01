@@ -15,7 +15,7 @@ type InspectionReport struct {
 	InspectionDate string    `gorm:"type:date;column:inspection_date" json:"inspectionDate"`
 	Mileage       int        `gorm:"type:int;column:mileage" json:"mileage"`
 	Remark        string     `gorm:"type:text;column:remark" json:"remark"`
-	ShareToken    string     `gorm:"type:varchar(64);unique;column:share_token;index:idx_share_token" json:"shareToken"`
+	ShareToken    *string    `gorm:"type:varchar(64);unique;column:share_token;index:idx_share_token" json:"shareToken"`
 	ShareExpireAt *time.Time `gorm:"type:timestamp;column:share_expire_at" json:"shareExpireAt"`
 	CreatedAt     time.Time  `gorm:"type:timestamp;not null;default:CURRENT_TIMESTAMP;column:created_at" json:"createdAt"`
 	UpdatedAt     time.Time  `gorm:"type:timestamp;not null;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;column:updated_at" json:"updatedAt"`

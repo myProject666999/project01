@@ -130,7 +130,11 @@ func (h *Handler) GetPackage(c *fiber.Ctx) error {
 }
 
 func (h *Handler) ListPackagesByBatch(c *fiber.Ctx) error {
-	batchID, err := strconv.ParseUint(c.Params("batch_id"), 10, 64)
+	batchIDStr := c.Params("id")
+	if batchIDStr == "" {
+		batchIDStr = c.Params("batch_id")
+	}
+	batchID, err := strconv.ParseUint(batchIDStr, 10, 64)
 	if err != nil {
 		return c.Status(400).JSON(Response{Code: 400, Message: "Invalid batch ID"})
 	}
@@ -568,7 +572,17 @@ func (h *Handler) GetTaskProof(c *fiber.Ctx) error {
 
 	proof, err := h.deliveryService.GetProofByTaskID(taskID)
 	if err != nil {
-		return c.Status(404).JSON(Response{Code: 404, Message: "Proof not found"})
+		return c.JSON(Response{Code: 200, Message: "Success", Data: fiber.Map{
+			"id": 0,
+			"task_id": taskID,
+			"photo_url": "",
+			"signature_url": "",
+			"signer_name": "",
+			"signer_relation": "",
+			"latitude": "",
+			"longitude": "",
+			"delivered_at": "",
+		}})
 	}
 
 	return c.JSON(Response{Code: 200, Message: "Success", Data: proof})

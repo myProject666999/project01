@@ -124,15 +124,17 @@ export default function HsCodes() {
 
   const openEditModal = (record: HSCode) => {
     setEditingRecord(record);
-    form.setFieldsValue({
-      code: record.code,
-      description: record.description,
-      category: record.category,
-      tax_rate: record.tax_rate,
-      unit: record.unit,
-      remark: record.remark,
-    });
     setModalOpen(true);
+    setTimeout(() => {
+      form.setFieldsValue({
+        code: record.code,
+        description: record.description,
+        category: record.category,
+        tax_rate: record.tax_rate,
+        unit: record.unit,
+        remark: record.remark,
+      });
+    }, 0);
   };
 
   const handleModalOk = async () => {
@@ -354,8 +356,12 @@ export default function HsCodes() {
         confirmLoading={modalLoading}
         destroyOnClose
       >
-        <Form form={form} layout="vertical" preserve={false}>
-          <Form.Item name="code" label="HS编码" rules={[{ required: true, message: '请输入HS编码' }]}>
+        <Form form={form} layout="vertical" preserve={false} initialValues={editingRecord || {}}>
+          <Form.Item
+            name="code"
+            label="HS编码"
+            rules={[{ required: !editingRecord, message: '请输入HS编码' }]}
+          >
             <Input disabled={!!editingRecord} placeholder="请输入HS编码" />
           </Form.Item>
           <Form.Item name="description" label="商品描述" rules={[{ required: true, message: '请输入商品描述' }]}>

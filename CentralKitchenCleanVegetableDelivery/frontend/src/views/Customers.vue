@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>客户列表</span>
-          <el-button type="primary" @click="openDialog">
+          <el-button type="primary" @click="openDialog(null)">
             <el-icon><Plus /></el-icon>
             新增客户
           </el-button>

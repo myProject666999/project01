@@ -360,15 +360,26 @@ const submitException = async () => {
 
 const viewProof = async (row) => {
   try {
-    const res = await taskAPI.getProof(row.id)
-    currentProof.value = res.data
+    const taskRes = await taskAPI.get(row.id)
+    const task = taskRes.data
+    let proof = null
+    try {
+      const proofRes = await taskAPI.getProof(row.id)
+      proof = proofRes.data
+    } catch (e) {
+      // no proof yet
+    }
+    currentProof.value = {
+      signed_by: task.signed_by || (proof ? proof.signer_name : ''),
+      delivered_at: task.delivered_at || task.actual_delivery_time || '',
+      latitude: proof ? proof.latitude : '',
+      longitude: proof ? proof.longitude : '',
+      photo_url: proof ? proof.photo_url : '',
+      signature_url: proof ? proof.signature_url : ''
+    }
     showProofDialog.value = true
   } catch (e) {
-    if (e.response && e.response.status === 404) {
-      ElMessage.info('该任务暂无签收凭证，请先完成签收')
-    } else {
-      console.error(e)
-    }
+    console.error(e)
   }
 }
 

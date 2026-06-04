@@ -76,7 +76,7 @@ export const taskAPI = {
 export const exceptionAPI = {
   list: (params) => request.get('/exceptions', { params }),
   get: (id) => request.get(`/exceptions/${id}`),
-  handle: (data) => request.post('/exceptions/handle')
+  handle: (data) => request.post('/exceptions/handle', data)
 }
 
 export const uploadAPI = {

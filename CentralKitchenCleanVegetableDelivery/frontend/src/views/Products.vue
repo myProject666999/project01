@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>菜品列表</span>
-          <el-button type="primary" @click="openDialog">
+          <el-button type="primary" @click="openDialog(null)">
             <el-icon><Plus /></el-icon>
             新增菜品
           </el-button>

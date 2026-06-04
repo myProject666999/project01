@@ -33,11 +33,37 @@ func GetDeliveries(c *gin.Context) {
 
 func GetDelivery(c *gin.Context) {
 	var delivery models.Delivery
-	if err := database.DB.Preload("Vehicle").Preload("DeliveryItems.Order.OrderItems.Product").Preload("DeliveryItems.Customer").First(&delivery, c.Param("id")).Error; err != nil {
+	if err := database.DB.Preload("Vehicle").First(&delivery, c.Param("id")).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "配送单不存在"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": delivery})
+
+	var deliveryItems []models.DeliveryItem
+	database.DB.Where("delivery_id = ?", delivery.ID).Preload("Customer").Find(&deliveryItems)
+
+	for i := range deliveryItems {
+		var order models.Order
+		database.DB.Preload("OrderItems.Product").First(&order, deliveryItems[i].OrderID)
+		deliveryItems[i].Order = order
+	}
+
+	result := map[string]interface{}{
+		"id":                delivery.ID,
+		"delivery_no":       delivery.DeliveryNo,
+		"vehicle_id":        delivery.VehicleID,
+		"delivery_date":     delivery.DeliveryDate,
+		"plan_depart_time":  delivery.PlanDepartTime,
+		"actual_depart_time": delivery.ActualDepartTime,
+		"actual_arrive_time": delivery.ActualArriveTime,
+		"status":            delivery.Status,
+		"route":             delivery.Route,
+		"created_at":        delivery.CreatedAt,
+		"updated_at":        delivery.UpdatedAt,
+		"vehicle":           delivery.Vehicle,
+		"delivery_items":    deliveryItems,
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
 type GenerateDeliveriesInput struct {

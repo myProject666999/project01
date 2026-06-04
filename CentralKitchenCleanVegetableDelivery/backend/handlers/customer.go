@@ -29,7 +29,11 @@ func CreateCustomer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	database.DB.Create(&customer)
+	if err := database.DB.Create(&customer).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建客户失败: " + err.Error()})
+		return
+	}
+	database.DB.First(&customer, customer.ID)
 	c.JSON(http.StatusOK, gin.H{"data": customer})
 }
 
@@ -39,11 +43,25 @@ func UpdateCustomer(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "客户不存在"})
 		return
 	}
-	if err := c.ShouldBindJSON(&customer); err != nil {
+	var input models.Customer
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	database.DB.Save(&customer)
+	if err := database.DB.Model(&customer).Updates(map[string]interface{}{
+		"name":           input.Name,
+		"type":           input.Type,
+		"address":        input.Address,
+		"longitude":      input.Longitude,
+		"latitude":       input.Latitude,
+		"contact_person": input.ContactPerson,
+		"phone":          input.Phone,
+		"status":         input.Status,
+	}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新客户失败: " + err.Error()})
+		return
+	}
+	database.DB.First(&customer, customer.ID)
 	c.JSON(http.StatusOK, gin.H{"data": customer})
 }
 

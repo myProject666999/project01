@@ -95,6 +95,12 @@ func CreateReport(c *fiber.Ctx) error {
 		return utils.Error(c, 400, "参数错误")
 	}
 
+	var vehicleCount int64
+	config.DB.Model(&models.Vehicle{}).Where("id = ?", req.VehicleID).Count(&vehicleCount)
+	if vehicleCount == 0 {
+		return utils.Error(c, 400, "车辆不存在")
+	}
+
 	reportNo := fmt.Sprintf("RPT%s", time.Now().Format("20060102150405"))
 
 	report := models.InspectionReport{
@@ -115,7 +121,10 @@ func CreateReport(c *fiber.Ctx) error {
 
 func SaveInspectionResult(c *fiber.Ctx) error {
 	reportIdStr := c.Params("id")
-	reportId, _ := strconv.ParseUint(reportIdStr, 10, 64)
+	reportId, err := strconv.ParseUint(reportIdStr, 10, 64)
+	if err != nil {
+		return utils.Error(c, 400, "报告ID无效")
+	}
 
 	var results []models.InspectionResult
 	if err := c.BodyParser(&results); err != nil {
@@ -124,12 +133,15 @@ func SaveInspectionResult(c *fiber.Ctx) error {
 
 	for i := range results {
 		results[i].ReportID = reportId
+		results[i].ID = 0
 	}
 
 	config.DB.Where("report_id = ?", reportId).Delete(&models.InspectionResult{})
 
-	if err := config.DB.Create(&results).Error; err != nil {
-		return utils.Error(c, 500, "保存失败")
+	if len(results) > 0 {
+		if err := config.DB.Create(&results).Error; err != nil {
+			return utils.Error(c, 500, "保存失败")
+		}
 	}
 
 	return utils.Success(c, nil)
@@ -257,9 +269,13 @@ func GenerateShareLink(c *fiber.Ctx) error {
 	shareToken := hex.EncodeToString(tokenBytes)
 
 	expireAt := time.Now().AddDate(0, 0, 30)
-	report.ShareToken = shareToken
-	report.ShareExpireAt = &expireAt
-	config.DB.Save(&report)
+
+	if err := config.DB.Model(&report).Updates(map[string]interface{}{
+		"share_token":     shareToken,
+		"share_expire_at": expireAt,
+	}).Error; err != nil {
+		return utils.Error(c, 500, "生成分享链接失败")
+	}
 
 	shareUrl := fmt.Sprintf("/share/%s", shareToken)
 

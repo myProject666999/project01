@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap');
+
+:root {
+  font-family: 'Noto Serif SC', Georgia, serif;
+  line-height: 1.8;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f5f0e8;
+  color: #1a1a2e;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.seal-pattern {
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(192, 57, 43, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(44, 62, 122, 0.05) 0%, transparent 50%);
+}
+
+.text-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #e8dfd0;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #7a6a4f;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #5e523d;
+}
+
+.openseadragon-container {
+  background-color: #1a1a2e !important;
+}

@@ -58,7 +58,6 @@ func main() {
 	pkg := api.Group("/packages")
 	pkg.Get("/", h.ListPackages)
 	pkg.Get("/:id", h.GetPackage)
-	pkg.Get("/batch/:batch_id", h.ListPackagesByBatch)
 	pkg.Get("/:package_id/task", h.GetTaskByPackage)
 
 	label := api.Group("/labels")

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Card, Row, Col, Tag, Drawer, Pagination, Descriptions } from 'antd';
+import { Card, Row, Col, Tag, Drawer, Pagination, Descriptions, Empty, Spin, Alert } from 'antd';
+import { InboxOutlined } from '@ant-design/icons';
 import { getArchives, getArchive } from '@/api/archive';
 import type { GetArchivesParams } from '@/api/archive';
 import { unwrap } from '@/api/request';
@@ -17,19 +18,29 @@ export default function Archive() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [detail, setDetail] = useState<CustomsArchive | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchArchives = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const params: GetArchivesParams = { page, pageSize };
       const res = await getArchives(params);
       const data = unwrap(res);
-      setArchives(data.list);
-      setTotal(data.total);
-    } catch {
+      if (data && data.list !== undefined) {
+        setArchives(data.list);
+        setTotal(data.total || 0);
+      } else {
+        setArchives([]);
+        setTotal(0);
+      }
+    } catch (e: any) {
+      setError(e?.message || '加载数据失败');
+      setArchives([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -52,8 +63,40 @@ export default function Archive() {
     }
   };
 
-  return (
-    <div>
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <Spin size="large" />
+          <div style={{ marginTop: 16, color: '#999' }}>加载中...</div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          <Alert type="error" message={error} showIcon />
+        </div>
+      );
+    }
+
+    if (archives.length === 0) {
+      return (
+        <div style={{ textAlign: 'center', padding: '80px 0' }}>
+          <Empty
+            image={<InboxOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />}
+            description="暂无报关单存档数据"
+          >
+            <div style={{ color: '#999', fontSize: 13, marginTop: 8 }}>
+              申报放行后会自动生成归档记录
+            </div>
+          </Empty>
+        </div>
+      );
+    }
+
+    return (
       <Row gutter={[16, 16]}>
         {archives.map((item) => {
           const st = statusMap[item.status] || { color: 'default', label: item.status };
@@ -61,7 +104,6 @@ export default function Archive() {
             <Col span={8} key={item.id}>
               <Card
                 hoverable
-                loading={loading}
                 style={{ borderTop: '3px solid #D4A843' }}
                 onClick={() => handleClickCard(item)}
               >
@@ -80,6 +122,12 @@ export default function Archive() {
           );
         })}
       </Row>
+    );
+  };
+
+  return (
+    <div>
+      {renderContent()}
 
       {total > 0 && (
         <div style={{ textAlign: 'center', marginTop: 24 }}>
